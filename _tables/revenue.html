@@ -1,0 +1,32 @@
+<table class="table table-bordered text-center table-striped">
+  <thead>
+    <tr>
+      <th scope="col" rowspan="2">Skill<br>Level</th>
+      <th scope="col" rowspan="2">Productivity<br>Multiplier</th>
+      <th scope="colgroup" colspan="10">Effort Level</th>
+    </tr>
+    <tr>
+      <th scope="col">1</th>
+      <th scope="col">2</th>
+      <th scope="col">3</th>
+      <th scope="col">4</th>
+      <th scope="col">5</th>
+      <th scope="col">6</th>
+      <th scope="col">7</th>
+      <th scope="col">8</th>
+      <th scope="col">9</th>
+      <th scope="col">10</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ for skill in subsession.skill_table }}
+    <tr>
+      <td>{{skill.level}}</td>
+      <td>{{skill.multiplier}}</td>
+      {{ for revenue in skill.revenue }}
+      <td>{{revenue}}</td>
+      {{ endfor }}
+    </tr>
+    {{ endfor }}
+  </tbody>
+</table>

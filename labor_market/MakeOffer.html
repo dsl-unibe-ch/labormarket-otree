@@ -1,0 +1,90 @@
+{% block title %}Hiring Phase (Round {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+
+{% block content %}
+<p>You are a Manager. Below is the list of available Employees you can hire.</p>
+
+<h3>Hiring offer</h3>
+
+<p>Select one available Employee, enter proposed wage and training, then submit your offer.</p>
+
+<table class="table table-bordered table-striped text-center table-employee-choice">
+  <thead>
+    <tr>
+      <th>Choice</th>
+      <th>Employee</th>
+      <th>Skill</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for choice in employee_pool %}
+    <tr>
+      <td>
+        {% if choice.eligible %}
+        <input class="form-check-input" type="radio" id="id_offer_employee-{{ choice.choice_id }}" name="offer_employee" required value="{{ choice.employee.id_in_group }}" />
+        {% else %}
+        N/A
+        {% endif %}
+      </td>
+      <td>{{ choice.employee.label }}</td>
+      <td>{{ choice.employee.skill }}</td>
+      {% if choice.eligible %}
+      <td class="table-success">Looking for work</td>
+      {% elif choice.rejected %}
+      <td class="table-danger">Rejected your offer</td>
+      {% else %}
+      <td class="table-warning">Hired by competitor</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{{ formfield_errors 'offer_employee' }}
+
+<div class="row">
+  <div class="col-auto">{{ formfield 'offer_wage' }}</div>
+  <div class="col-auto">{{ formfield 'offer_training' }}</div>
+  <div class="col-auto align-self-center">
+      <button class="btn btn-primary btn-lg">Make offer</button>
+  </div>
+</div>
+
+<h3>Offer history</h3>
+
+<table class="table table-bordered table-striped text-center table-employee-choice">
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Wage</th>
+      <th>Training</th>
+      <th>Accepted</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for offer in offers %}
+    {% if offer.manager == player %}
+    <tr>
+      <td>{{ offer.employee.label }}</td>
+      <td>{{ offer.wage }}</td>
+      <td>{{ offer.training }}</td>
+      {% if offer.rejected %}
+      <td class="table-danger">No</td>
+      {% else %}
+      <td class="table-success">Yes</td>
+      {% endif %}
+    </tr>
+    {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+  .table-employee-choice tr:has(input[type="radio"]:checked) td {
+    background-color: lch(from var(--bs-primary) 90 c h);
+  }
+</style>
+{% endblock %}

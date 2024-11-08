@@ -1,0 +1,79 @@
+{% block title %}Employer offers (Round {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+
+{{ block content }}
+{% if num_offers > 0 %}
+<p>You are an Employee. Below is the list of offers you got from the Managers. Choose one offer to accept, or reject them all.</p>
+
+<p>The offers are binding: the same Managers cannot make you another offer this round, but you may be given a different offer by another Manager.</p>
+
+<table class="table table-bordered table-striped text-center table-employee-choice">
+  <thead>
+    <tr>
+      <th>Choice</th>
+      <th>Manager</th>
+      <th>Wage</th>
+      <th>Training</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for offer in open_offers %}
+    <tr>
+      <td>
+        <input class="form-check-input" type="radio" id="id_offer_employee-{{ forloop.counter0 }}" name="player_matched" required value="{{ offer.manager.id_in_group }}" />
+      </td>
+      <td>{{ offer.manager.label }}</td>
+      <td>{{ offer.wage }}</td>
+      <td>{{ offer.training }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<input class="d-none" type="radio" id="id_offer_employee-{{ num_offers }}" name="player_matched" required value="0" />
+
+{{ formfield_errors 'player_matched' }}
+
+<button class="btn btn-primary btn-lg" onclick="document.getElementById('id_offer_employee-{{ num_offers }}').checked = false;">Accept offer</button>
+<button class="btn btn-warning btn-lg" name="player_matched" value="0" onclick="document.getElementById('id_offer_employee-{{ num_offers }}').checked = true;">Reject all</button>
+
+{% else %}
+<p>You are an Employee.</p>
+
+<p>Unfortunately, you received no offers in this hiring step.</p>
+
+<p>If there are still Managers who didn't find a match, you may still receive an offer on the next step.</p>
+
+{{ formfield_errors 'player_matched' }}
+
+<button class="btn btn-primary btn-lg" name="player_matched" value="0">Acknowledge</button>
+{% endif %}
+
+<h3>Offer history</h3>
+
+<table class="table table-bordered table-striped text-center table-employee-choice">
+  <thead>
+    <tr>
+      <th>Manager</th>
+      <th>Wage</th>
+      <th>Training</th>
+      <th>Accepted</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for offer in offers %}
+    {% if offer.employee == player %}{% if offer.accepted or offer.rejected %}
+    <tr>
+      <td>{{ offer.manager.label }}</td>
+      <td>{{ offer.wage }}</td>
+      <td>{{ offer.training }}</td>
+      {% if offer.rejected %}
+      <td class="table-danger">No</td>
+      {% else %}
+      <td class="table-success">Yes</td>
+      {% endif %}
+    </tr>
+    {% endif %}{% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+{{ endblock }}
