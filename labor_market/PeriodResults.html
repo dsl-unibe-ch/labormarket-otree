@@ -1,0 +1,73 @@
+{% block title %}Outcomes (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
+
+{% block content %}
+{% if player.role == "Employee" %}
+  <p>You are an Employee.</p>
+  {{ if player.field_maybe_none("contract") }}
+  <p>
+    You were hired by {{player.contract.manager.label}}, your wage was {{player.contract.wage}} and
+    {{ if player.contract.training }}
+      training was offered, increasing your skill to {{ player.skill }}.
+    {{ else }}
+      no training was offered.
+    {{ endif }}
+  </p>
+  <p>
+    You decided to exert {{ player.work_effort }} effort, which cost you {{ effort_cost }}.
+  </p>
+  <p>
+    Your payoff this Period was {{ session.config.employee_endowment | cu }} (endowment) +
+    {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.payoff }},
+    and the total is now {{ participant.payoff }}.
+  </p>
+  {{ else }}
+  <p>
+    You weren't hired in this Period, and so your payoff is
+    the basic endowment of {{ session.config.employee_endowment | cu }},
+    with your total being {{ participant.payoff }}.
+  </p>
+  {{ endif }}
+{% else %}
+  <p>
+    You are a Manager.
+  </p>
+  {% if player.field_maybe_none("contract") %}
+  <p>
+    You had a contract with {{ player.contract.employee.label }} with a wage of {{ player.contract.wage }}
+    and
+    {{ if player.contract.training }}
+      training was offered.
+    {{ else }}
+      no training was offered.
+    {{ endif }}
+  </p>
+  <p>
+    The Employee has a skill level of {{ player.contract.employee.skill }}
+    and decided to exert effort {{ player.contract.employee.work_effort }}.
+    This resulted in a revenue bonus of {{ revenue }}.
+    {{ if player.contract.training }}
+      Because you offered training, the revenue was reduced to {{ multiplied_revenue }}.
+    {{ endif }}
+  </p>
+  <p>
+    Your payoff this Period was 
+    {{ session.config.manager_endowment | cu }} (endowment)
+    {{ if player.contract.training }}
+    + {{ multiplied_revenue }} (revenue)
+    - {{ session.config.training_cost | cu }} (training cost)
+    {{ else }}
+    + {{ revenue }} (revenue)
+    {{ endif }}
+    - {{ player.contract.wage }} (wage) = {{player.payoff}},
+    and the total is now {{ participant.payoff }}.
+  </p>
+  {% else %}
+  <p>
+    You did not manage to contract an Employee this period, and so your payoff is
+    the basic endowment of {{ session.config.manager_endowment | cu }},
+    with your total being {{ participant.payoff }}.
+  </p>
+  {% endif %}
+{% endif %}
+{{ next_button }}
+{% endblock %}

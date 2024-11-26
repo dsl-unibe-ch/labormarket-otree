@@ -1,0 +1,54 @@
+{% block title %}Work Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
+
+{% block content %}
+<p>You are an Employee. Your skill level is {{ player.skill }}.</p>
+
+<p>You have been hired by {{ contract.manager.label }}.</p>
+
+<p>
+  Your contract for this period gives you a wage of {{ contract.wage }}
+  and {%if contract.training %}includes{% else %}doesn't include{% endif %} training.
+</p>
+
+<p>
+  In addition to your wage, you get a basic endowment of {{ session.config.employee_endowment | cu }}.
+</p>
+
+<p>
+  To conclude the work phase, you must select the level of effort you wish to apply to your work in this period.
+  Effort costs you some of your endowment, and increases the profit for the employer.
+</p>
+
+{{ formfield_errors 'work_effort' }}
+
+<table class="table table-bordered text-center costs-table">
+  <colgroup>
+    <col>
+    {{ for cost in effort_costs }}
+    <col>
+    {{ endfor }}
+  </colgroup>
+  <tbody>
+    <tr>
+      <th scope="row">Choice</th>
+      {{ for cost in effort_costs }}
+      <td><input class="form-check-input" type="radio" id="id_work_effort-{{forloop.counter0}}" name="work_effort" required value="{{forloop.counter}}" /></td>
+      {{ endfor }}
+    </tr>
+    <tr>
+      <th scope="row">Effort</th>
+      {{ for cost in effort_costs }}
+      <td>{{forloop.counter}}</td>
+      {{ endfor }}
+    </tr>
+    <tr>
+      <th scope="row">Cost</th>
+      {{ for cost in effort_costs }}
+      <td>{{cost}}</td>
+      {{ endfor }}
+    </tr>
+  </tbody>
+</table>
+
+<button class="btn btn-primary btn-lg">Confirm effort</button>
+{% endblock %}

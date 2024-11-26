@@ -25,6 +25,12 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00,
     participation_fee=0.00,
     skill_multipliers=[1.00, 1.40, 1.77, 2.11, 2.42, 2.70, 2.95, 3.17, 3.36, 3.52, 3.65, 3.75, 3.82, 3.86, 3.87],
+    effort_costs=[0, 2, 4, 6, 10, 14, 18, 24, 30, 36],
+    employee_endowment=20.00,
+    manager_endowment=50.00,
+    base_revenue=10.00,
+    training_productivity_multiplier=0.5,
+    training_cost=5.00,
     doc="",
     randomize_roles=False
 )

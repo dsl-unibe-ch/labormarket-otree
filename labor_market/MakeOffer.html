@@ -1,7 +1,7 @@
-{% block title %}Hiring Phase (Round {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+{% block title %}Hiring Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
 
 {% block content %}
-<p>You are a Manager. Below is the list of available Employees you can hire.</p>
+<p>You are a Manager for {{ player.label }}. Below is the list of available Employees you can hire.</p>
 
 <h3>Hiring offer</h3>
 
@@ -55,26 +55,30 @@
 <table class="table table-bordered table-striped text-center table-employee-choice">
   <thead>
     <tr>
+      <th>Period</th>
+      <th>Step</th>
       <th>Employee</th>
       <th>Wage</th>
       <th>Training</th>
       <th>Accepted</th>
+      <th>Effort</th>
     </tr>
   </thead>
   <tbody>
     {% for offer in offers %}
-    {% if offer.manager == player %}
     <tr>
+      <td>{{ offer.period }}</td>
+      <td>{{ offer.step }}</td>
       <td>{{ offer.employee.label }}</td>
       <td>{{ offer.wage }}</td>
-      <td>{{ offer.training }}</td>
+      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
       {% if offer.rejected %}
       <td class="table-danger">No</td>
       {% else %}
       <td class="table-success">Yes</td>
       {% endif %}
+      <td>{{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}</td>
     </tr>
-    {% endif %}
     {% endfor %}
   </tbody>
 </table>
