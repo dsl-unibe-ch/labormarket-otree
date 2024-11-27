@@ -25,7 +25,7 @@
       </td>
       <td>{{ offer.manager.label }}</td>
       <td>{{ offer.wage }}</td>
-      <td>{{ offer.training }}</td>
+      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -52,29 +52,35 @@
 
 <h3>Offer history</h3>
 
-<table class="table table-bordered table-striped text-center table-employee-choice">
+<table class="table table-bordered table-striped text-center">
   <thead>
     <tr>
+      <th>Period</th>
+      <th>Step</th>
       <th>Company</th>
       <th>Wage</th>
       <th>Training</th>
       <th>Accepted</th>
+      <th>Effort</th>
     </tr>
   </thead>
   <tbody>
     {% for offer in offers %}
-    {% if offer.employee == player %}{% if offer.accepted or offer.rejected %}
     <tr>
+      <td>{{ offer.period }}</td>
+      <td>{{ offer.step }}</td>
       <td>{{ offer.manager.label }}</td>
       <td>{{ offer.wage }}</td>
-      <td>{{ offer.training }}</td>
+      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
       {% if offer.rejected %}
       <td class="table-danger">No</td>
       {% else %}
       <td class="table-success">Yes</td>
       {% endif %}
+      <td>
+        {{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}
+      </td>
     </tr>
-    {% endif %}{% endif %}
     {% endfor %}
   </tbody>
 </table>

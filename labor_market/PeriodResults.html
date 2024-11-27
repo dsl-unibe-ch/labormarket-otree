@@ -27,6 +27,40 @@
     with your total being {{ participant.payoff }}.
   </p>
   {{ endif }}
+  <h3>Offer history</h3>
+
+  <table class="table table-bordered table-striped text-center">
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Step</th>
+        <th>Company</th>
+        <th>Wage</th>
+        <th>Training</th>
+        <th>Accepted</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for offer in offers %}
+      <tr>
+        <td>{{ offer.period }}</td>
+        <td>{{ offer.step }}</td>
+        <td>{{ offer.manager.label }}</td>
+        <td>{{ offer.wage }}</td>
+        <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
+        {% if offer.rejected %}
+        <td class="table-danger">No</td>
+        {% else %}
+        <td class="table-success">Yes</td>
+        {% endif %}
+        <td>
+          {{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% else %}
   <p>
     You are a Manager.
@@ -68,6 +102,36 @@
     with your total being {{ participant.payoff }}.
   </p>
   {% endif %}
+  <table class="table table-bordered table-striped text-center">
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Step</th>
+        <th>Employee</th>
+        <th>Wage</th>
+        <th>Training</th>
+        <th>Accepted</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for offer in offers %}
+      <tr>
+        <td>{{ offer.period }}</td>
+        <td>{{ offer.step }}</td>
+        <td>{{ offer.employee.label }}</td>
+        <td>{{ offer.wage }}</td>
+        <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
+        {% if offer.rejected %}
+        <td class="table-danger">No</td>
+        {% else %}
+        <td class="table-success">Yes</td>
+        {% endif %}
+        <td>{{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endif %}
 {{ next_button }}
 {% endblock %}

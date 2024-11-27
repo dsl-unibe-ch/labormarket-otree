@@ -52,7 +52,7 @@
 
 <h3>Offer history</h3>
 
-<table class="table table-bordered table-striped text-center table-employee-choice">
+<table class="table table-bordered table-striped text-center">
   <thead>
     <tr>
       <th>Period</th>
@@ -82,6 +82,10 @@
     {% endfor %}
   </tbody>
 </table>
+
+<h3>Revenue table</h3>
+
+{{ include '_tables/revenue.html' }}
 
 {% endblock %}
 

@@ -1,6 +1,5 @@
 """Main simulation"""
 from __future__ import annotations
-import uuid
 import random
 from typing import Self, List, Optional
 
@@ -13,13 +12,15 @@ class C(BaseConstants):
     NAME_IN_URL = "labor_market"
     NUM_ROUNDS = 10 # Number of periods of simulation
 
-    PLAYERS_PER_GROUP = 10
-    NUM_MANAGERS = 4
+    PLAYERS_PER_GROUP = 12
+    NUM_MANAGERS = 6
     NUM_EMPLOYEES = 6
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
     MANAGER4_ROLE = "Manager"
+    MANAGER5_ROLE = "Manager"
+    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
@@ -27,12 +28,12 @@ class C(BaseConstants):
     EMPLOYEE5_ROLE = "Employee"
     EMPLOYEE6_ROLE = "Employee"
 
-    HIRING_STEPS = 6 # Max number of repeated attempts at hiring (should equal number of employees)
+    HIRING_STEPS = NUM_EMPLOYEES # Max number of repeated attempts at hiring (should equal number of employees)
 
 # Name generators
 
 class CompanyLabels(ExtraModel):
-    """Random labels for Employers"""
+    """Random labels for Manager companies"""
     name = models.StringField()
 
 class EmployeeLabels(ExtraModel):
@@ -40,7 +41,7 @@ class EmployeeLabels(ExtraModel):
     name = models.StringField()
 
 def random_labels():
-    """Populates random label models"""
+    """Returns a random sample of company/employee labels"""
     company_labels = read_csv('labor_market/names/companies.csv', CompanyLabels)
     employee_labels = read_csv('labor_market/names/employees.csv', EmployeeLabels)
 
@@ -49,20 +50,45 @@ def random_labels():
 
 # Objects
 
+def multiplier_to_table_item(mult_tuple: tuple[int, float]):
+    """Prepare multiplier table for template"""
+    index, multiplier = mult_tuple
+
+    return {
+        "level": index + 1,
+        "multiplier": multiplier,
+        "revenue": [round(10 * effort * multiplier) for effort in range(1, 11)]
+    }
+
 class Subsession(BaseSubsession):
     """Subsession object for simulation"""
+    @property
+    def skill_table(self):
+        """Prepare skill table for template"""
+        return list(map(
+            multiplier_to_table_item,
+            enumerate(self.session.config["skill_multipliers"])
+        ))
+
 
 @staticmethod
 def creating_session(subsession: Subsession):
     """Set per-session participant data"""
+    # In the first Period, set labels and reshuffle participants
     if subsession.round_number == 1:
+        # If session config dictates, reshuffle participants randomly
         if subsession.session.config["randomize_roles"]:
             subsession.group_randomly()
         for group in subsession.get_groups():
+            # Set random labels (company names for Managers, nicknames for Employees)
             labels = random_labels()
             for player in group.get_players():
                 player.label = labels[player.id_in_group - 1]
+            # Set initial skills according to session config
+            for index, player in enumerate(group.employees):
+                player.skill = subsession.session.config["starting_skills"][index]
     else:
+        # In subsequent Periods, retain the same group/role and labels
         subsession.group_like_round(1)
         for player in subsession.get_players():
             player.label = player.in_round(1).label
@@ -71,28 +97,29 @@ def creating_session(subsession: Subsession):
 class Player(BasePlayer):
     """Player object for simulation"""
     ### Player properties
+    # Visible "name" for the player (company name or employee nickname)
     label          = models.StringField()
+    # Skill level
     skill          = models.IntegerField(initial=1)
+    # Whether the skill should increase in the next Period (skill level remains constant inside a Period)
     skill_increase = models.BooleanField(initial=False)
+    # Current hiring phase step
     offer_step     = models.IntegerField(initial=1)
 
     ### Form fields
+    ## Managers
+    # Which employee to make an offer to
     offer_employee = models.IntegerField(widget=widgets.RadioSelect)
+    # What wage to include in the offer
     offer_wage     = models.CurrencyField(label="Binding wage offer (1–150)", min=1, max=150)
+    # Whether to include training in the offer
     offer_training = models.BooleanField(label="Include training", widget=widgets.RadioSelectHorizontal)
-    work_effort    = models.IntegerField(label="Effort", min=1, max=10, choices=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-
+    ## Employees
+    # Whose offer to accept (or 0 if rejecting all)
+    # This field is also set for the manager to point at the employee when offer is accepted.
     player_matched = models.IntegerField(widget=widgets.RadioSelect, initial=0)
-
-    @property
-    def is_hired(self) -> bool:
-        """Returns True/False whether the Employee player accepted an offer"""
-        return len(Offer.filter(employee=self, accepted=True)) > 0
-
-    @property
-    def has_hired(self) -> bool:
-        """Returns True/False whether the Manager player hired an Employee"""
-        return len(Offer.filter(employee=self, accepted=True)) > 0
+    # What level of effort to exert
+    work_effort    = models.IntegerField(label="Effort", min=1, max=10, choices=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
     def rejected_from(self, manager: Self) -> bool:
         """Returns True/False whether the Employee player rejected an offer from a given Manager"""
@@ -105,9 +132,21 @@ class Player(BasePlayer):
                 return index
         return -1
 
+    def for_hire(self):
+        """Return all Employee players still open for offer from this manager"""
+        # Rejected binding offers
+        my_offers_rejected = Offer.filter(manager=self, rejected=True)
+
+        return [
+            employee
+            for employee in self.group.employees                                  # Check all employees in the group
+            if not employee.player_matched                                        # Must not have an accepted employer
+            and employee not in (offer.employee for offer in my_offers_rejected)  # Must not have rejected manager's offer
+        ]
+
     @property
     def contract(self) -> Optional[Offer]:
-        """Return accepted offer, or return None"""
+        """Return accepted Offer, or return None"""
         if self.role == "Manager":
             accepted_offers = Offer.filter(manager=self, accepted=True)
         else:
@@ -115,14 +154,14 @@ class Player(BasePlayer):
 
         if len(accepted_offers) == 1:
             return accepted_offers[0]
-        elif len(accepted_offers) == 0:
+        if len(accepted_offers) == 0:
             return None
-        else:
-            raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
+
+        raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
 
     @property
     def offer_history(self) -> List[Offer]:
-        """Return a history of all offers for the participant across periods"""
+        """Return a history of all (non-open) offers for the participant across this+previous periods"""
         offer_history = []
 
         for player in self.in_rounds(1, self.round_number):
@@ -130,13 +169,17 @@ class Player(BasePlayer):
                 offer_history += Offer.filter(manager=player)
             else:
                 offer_history += Offer.filter(employee=player)
+        
+        # Remove open offers (only really matters for Employees)
+        offer_history = [offer for offer in offer_history if offer.accepted or offer.rejected]
 
+        # Reverse the list of offers: most recent first
         return list(reversed(offer_history))
 
 
 def offer_employee_choices(manager: Player):
     """Dynamically provide employee choices"""
-    employee_ids = [employee.id_in_group for employee in manager.group.for_hire(manager)]
+    employee_ids = [employee.id_in_group for employee in manager.for_hire()]
     return employee_ids
 
 def player_matched_choices(employee: Player):
@@ -144,7 +187,8 @@ def player_matched_choices(employee: Player):
     open_offers = Offer.filter(employee=employee, accepted=False, rejected=False)
     manager_ids = [offer.manager.id_in_group for offer in open_offers]
 
-    return manager_ids + [0] # It's always possible to reject offers with 0
+    return manager_ids + [0] # It's always possible to reject all offers with 0
+
 
 class Group(BaseGroup):
     """Group object for simulation"""
@@ -159,36 +203,22 @@ class Group(BaseGroup):
         """Return all Employee players from the current group"""
         return [player for player in self.get_players() if player.role == "Employee"]
 
-    def for_hire(self, manager):
-        """Return all Employee players still open for offer"""
-        if self is not manager.group:
-            raise RuntimeError("Trying to hire from wrong group!")
-
-        # Rejected binding offers
-        my_offers_rejected = Offer.filter(manager=manager, rejected=True)
-
-        return [
-            employee
-            for employee in self.employees                                        # Check all employees in the group
-            if not employee.player_matched                                        # Must not have an accepted employer
-            and employee not in (offer.employee for offer in my_offers_rejected)  # Must not have rejected manager's offer
-        ]
-
 
 # Extra models
 
 class Offer(ExtraModel):
     """An offer from manager to employee"""
-    period   = models.IntegerField()
-    step     = models.IntegerField()
-    manager  = models.Link(Player)
-    employee = models.Link(Player)
-    group    = models.Link(Group)
-    wage     = models.CurrencyField()
-    training = models.BooleanField()
-    accepted = models.BooleanField(initial=False)
-    rejected = models.BooleanField(initial=False)
-    effort   = models.IntegerField(initial=0)
+    period   = models.IntegerField()               # Period in which the offer was made
+    step     = models.IntegerField()               # Hiring step in which the offer was made
+    manager  = models.Link(Player)                 # Manager that made the offer
+    employee = models.Link(Player)                 # Employee to which the offer was made
+    group    = models.Link(Group)                  # Group that the Manager/Employee belonged to
+    wage     = models.CurrencyField()              # Offered wage
+    training = models.BooleanField()               # Whether training is included
+    accepted = models.BooleanField(initial=False)  # True if Employee accepted (offer becomes contract)
+    rejected = models.BooleanField(initial=False)  # True is Employee rejected (same Manager can't do another offer this Period)
+    effort   = models.IntegerField(initial=0)      # Effort exerted by the Employee (after work period)
+    revenue  = models.CurrencyField(initial=cu(0)) # Revenue generated by the Employee (after work period)
 
 # Pages
 
@@ -197,7 +227,7 @@ def stage_counter(player: Player, with_step: bool = False) -> str:
     return f"(Period { player.subsession.round_number }/{ C.NUM_ROUNDS }" + (f" | Step { player.offer_step }/{ C.HIRING_STEPS })" if with_step else ")")
 
 class WaitForAllPlayers(WaitPage):
-    """Wait page to synchronize everyone before a Period starts"""
+    """Wait page to synchronize everyone before a Period starts. Used to set skill levels appropriately."""
     @staticmethod
     def vars_for_template(player: Player):
         return {
@@ -205,6 +235,7 @@ class WaitForAllPlayers(WaitPage):
             "body_text": "Please wait until all participants have entered this Period..."
         }
 
+    # Use this Page to set skill from previous period + increase if necessary
     @staticmethod
     def after_all_players_arrive(group: Group):
         if group.round_number > 1:
@@ -212,19 +243,16 @@ class WaitForAllPlayers(WaitPage):
                 prev_player = player.in_round(group.round_number - 1)
                 player.skill = prev_player.skill
                 if prev_player.skill_increase:
-                    player.skill += 1
-
-    @staticmethod
-    def is_displayed(player):
-        return player.offer_step == 1
+                    player.skill = min(player.skill + 1, 10)
 
 class MakeOffer(Page):
-    """Hiring phase page"""
+    """Hiring phase page. Shown to Managers without an accepted offer who still can hire."""
     form_model = "player"
     form_fields = ["offer_employee", "offer_wage", "offer_training"]
 
     @staticmethod
     def vars_for_template(player):
+        # List that holds data for building an employee table (both eligible and ineligible)
         employee_pool = [ {
             "employee": employee,
             "rejected": employee.rejected_from(player),
@@ -232,17 +260,21 @@ class MakeOffer(Page):
             "choice_id": employee.choice_id(player)
         } for employee in player.group.employees ]
 
-        return dict(
-            employee_pool=employee_pool,
-            offers=player.offer_history
-        )
+        return {
+            "employee_pool": employee_pool,
+            "offers": player.offer_history
+        }
 
+    # Shown only the player is a Manager,
+    # without an accepted offer (= matched employee)
+    # and still has eligible candidates
     @staticmethod
     def is_displayed(player: Player):
         return player.role == "Manager" and \
                player.player_matched == 0 and \
-               len(player.group.for_hire(player)) > 0
+               len(player.for_hire()) > 0
 
+    # Create an Offer object based on the submitted data (or lack thereof if timed out)
     @staticmethod
     def before_next_page(manager: Player, timeout_happened: bool):
         if timeout_happened:
@@ -268,6 +300,7 @@ class WaitForOffers(WaitPage):
             "body_text": "You are an Employee. Please wait until all managers have made their offers..."
         }
 
+    # Shown to Employees without a contract
     @staticmethod
     def is_displayed(player):
         return player.role == "Employee" and player.player_matched == 0
@@ -281,17 +314,19 @@ class GetOffers(Page):
     @staticmethod
     def vars_for_template(player: Player):
         open_offers = Offer.filter(employee=player, accepted=False, rejected=False)
-        return dict(
-            open_offers=open_offers,
-            num_offers=len(open_offers),
-            offers=Offer.filter(group=player.group)
-        )
+        return {
+            "open_offers": open_offers,
+            "num_offers": len(open_offers),
+            "offers": player.offer_history
+        }
 
+    # Shown to Employees without a contract, but with open offers in this step
     @staticmethod
     def is_displayed(player):
         open_offers = Offer.filter(employee=player, accepted=False, rejected=False)
         return player.role == "Employee" and player.player_matched == 0 and len(open_offers) > 0
 
+    # Accept an offer (if any accepted), mark others rejected
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
         if timeout_happened:
@@ -327,54 +362,50 @@ class WaitForAcceptance(WaitPage):
                 "body_text": "You are an Employee. You did not receive any offers this hiring step. Please wait until all Employees decide on their offers..."
             }
 
-
+    # Shown to:
+    # 1) Managers without a match (yet),
+    # 2) Employess without a match that didn't get offers (and didn't get shown GetOffers)
     @staticmethod
     def is_displayed(player: Player):
         open_offers = Offer.filter(employee=player, accepted=False, rejected=False)
         return (player.role == "Manager" and player.player_matched == 0) or \
             (player.role == "Employee" and player.player_matched == 0 and len(open_offers) == 0)
 
+    # For everyone still looking, advance Hiring phase step
     @staticmethod
     def after_all_players_arrive(group: Group):
         for player in group.get_players():
             player.offer_step += 1
 
 
-class WaitForWork(WaitPage):
-    """Wait for work page"""
-    @staticmethod
-    def vars_for_template(player: Player):
-        return {
-            "title_text": f"Waiting for the work phase { stage_counter(player) }",
-            "body_text": "You have a match! Please wait until the hiring phase is over for everyone..."
-        }
-
 class ChooseEffort(Page):
     """Page where employees choose how much effort to apply"""
     form_model = "player"
     form_fields = ["work_effort"]
 
+    # Shown to Employees with a match
     @staticmethod
     def is_displayed(player: Player):
-        return player.role == "Employee" and player.player_matched != 0
+        return player.role == "Employee" and player.player_matched > 0
 
     @staticmethod
     def vars_for_template(employee: Player):
-        return dict(
-            contract=employee.contract,
-            offers=Offer.filter(group=employee.group),
-            effort_costs=employee.session.config["effort_costs"]
-        )
+        return {
+            "contract": employee.contract,
+            "offers": employee.offer_history,
+            "effort_costs": employee.session.config["effort_costs"]
+        }
 
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
         if timeout_happened:
             print(f"Timeout for Employee {employee.id_in_group}, applying minimum effort")
             employee.work_effort = 1
+        # Record effort spent in the Offer table
         employee.contract.effort = employee.work_effort
 
 class WaitForEffort(WaitPage):
-    """Wait page for managers while employees choose effort"""
+    """Wait page until everyone finishes Work phase"""
     @staticmethod
     def vars_for_template(player: Player):
         return {
@@ -382,6 +413,7 @@ class WaitForEffort(WaitPage):
             "body_text": "Waiting for everyone to finish the work phase..."
         }
 
+    # Main place where payoffs are calculated
     @staticmethod
     def after_all_players_arrive(group: Group):
         """Calculate all payoffs"""
@@ -427,10 +459,10 @@ class WaitForEffort(WaitPage):
 
 class PeriodResults(Page):
     """Period outcomes display"""
+    # A lot of payoff iscalculated again here for display
     @staticmethod
     def vars_for_template(player: Player):
         if player.role == "Manager":
-            offers = Offer.filter(manager=player)
             if player.field_maybe_none("contract"):
                 skill_multiplier = player.session.config["skill_multipliers"][player.contract.employee.skill - 1]
                 base_revenue = player.session.config["base_revenue"]
@@ -439,20 +471,34 @@ class PeriodResults(Page):
                 skill_multiplier = 0
                 revenue = cu(0)
             return {
-                "offers": offers,
+                "offers": player.offer_history,
                 "skill_multiplier": skill_multiplier,
                 "revenue": revenue,
                 "multiplied_revenue": revenue * player.session.config["training_productivity_multiplier"]
             }
         else:
-            offers = Offer.filter(employee=player)
             if player.field_maybe_none("work_effort"):
                 effort_cost = cu(player.session.config["effort_costs"][player.work_effort - 1])
             else:
                 effort_cost = 0
             return {
-                "offers": offers,
+                "offers": player.offer_history,
                 "effort_cost": effort_cost
             }
 
-page_sequence = [WaitForAllPlayers, MakeOffer, WaitForOffers, GetOffers, WaitForAcceptance] * C.HIRING_STEPS + [WaitForWork, ChooseEffort, WaitForEffort, PeriodResults]
+# Repeat for NUM_ROUNDS periods (rounds/subsessions)
+# * WaitForAllPlayers to set skill levels based on previous period
+# Hiring Phase:
+#   Repeat HIRING_STEPS times the Hiring Phase step:
+#   * MakeOffer is shown to Managers who can still make offers
+#   * WaitForOffers is shown to Employees who aren't matched until all offers are made
+#   * GetOffers is shown to Employees with open offers, to accept or reject
+#   * WaitForAcceptance is show to all without a match
+#   (Whoever has a match falls through to the Work phase)
+# Work Phase:
+# * ChooseEffort is shown to Employees with contracts to select effort
+# * WaitForEffort is shown to everyone until all effort is selected
+# Results Phase:
+# * PeriodResults is shown to everyone to summarize their payoffs
+
+page_sequence = [WaitForAllPlayers] + [MakeOffer, WaitForOffers, GetOffers, WaitForAcceptance] * C.HIRING_STEPS + [ChooseEffort, WaitForEffort, PeriodResults]
