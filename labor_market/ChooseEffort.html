@@ -1,89 +1,99 @@
 {% block title %}Work Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
 
 {% block content %}
-<p>You are an Employee. Your skill level is {{ player.skill }}.</p>
+<div class="row gx-5 px-3">
+  <div class="col-7">
+    <h3>Effort choice</h3>
 
-<p>You have been hired by {{ contract.manager.label }}.</p>
+    <p>You have been hired by <b>{{ contract.manager.label }}</b>. Your offer history with them is highlighted.</p>
 
-<p>
-  Your contract for this period gives you a wage of {{ contract.wage }}
-  and {%if contract.training %}includes{% else %}doesn't include{% endif %} training.
-</p>
+    <p>
+      Your contract for this Period pays a <b>wage of {{ contract.wage }}</b>
+      and <b>{%if contract.training %}includes{% else %}doesn't include{% endif %} training</b>.
+    </p>
+    
+    <p>
+      In addition to your wage, you get a basic endowment of {{ session.config.employee_endowment | cu }}.
+    </p>
+    
+    <p>
+      To conclude the work phase, you must select the level of effort you wish to apply to your work in this period.
+      Effort costs you some of your payoff, and increases the profit for the employer.
+    </p>
 
-<p>
-  In addition to your wage, you get a basic endowment of {{ session.config.employee_endowment | cu }}.
-</p>
+    {{ formfield_errors 'work_effort' }}
 
-<p>
-  To conclude the work phase, you must select the level of effort you wish to apply to your work in this period.
-  Effort costs you some of your endowment, and increases the profit for the employer.
-</p>
+    <table class="table table-bordered text-center costs-table">
+      <tbody>
+        <tr>
+          <th scope="row">Choice</th>
+          {{ for cost in effort_costs }}
+          <td data-effort-level="{{forloop.counter}}"><input class="form-check-input" type="radio" id="id_work_effort-{{forloop.counter0}}" name="work_effort" required value="{{forloop.counter}}" /></td>
+          {{ endfor }}
+        </tr>
+        <tr>
+          <th scope="row">Effort level</th>
+          {{ for cost in effort_costs }}
+          <td data-effort-level="{{forloop.counter}}">{{forloop.counter}}</td>
+          {{ endfor }}
+        </tr>
+        <tr>
+          <th scope="row">Cost to you</th>
+          {{ for cost in effort_costs }}
+          <td data-effort-level="{{forloop.counter}}">{{cost | cu}}</td>
+          {{ endfor }}
+        </tr>
+      </tbody>
+    </table>
 
-{{ formfield_errors 'work_effort' }}
+    <button class="btn btn-primary btn-lg">Confirm effort</button>
+  </div>
 
-<table class="table table-bordered text-center costs-table">
-  <colgroup>
-    <col>
-    {{ for cost in effort_costs }}
-    <col>
-    {{ endfor }}
-  </colgroup>
-  <tbody>
-    <tr>
-      <th scope="row">Choice</th>
-      {{ for cost in effort_costs }}
-      <td><input class="form-check-input" type="radio" id="id_work_effort-{{forloop.counter0}}" name="work_effort" required value="{{forloop.counter}}" /></td>
-      {{ endfor }}
-    </tr>
-    <tr>
-      <th scope="row">Effort</th>
-      {{ for cost in effort_costs }}
-      <td>{{forloop.counter}}</td>
-      {{ endfor }}
-    </tr>
-    <tr>
-      <th scope="row">Cost</th>
-      {{ for cost in effort_costs }}
-      <td>{{cost}}</td>
-      {{ endfor }}
-    </tr>
-  </tbody>
-</table>
+  <div class="col-5">
+    {{ include 'labor_market/components/EmployeeSidebar.html' }}
+  </div>
+</div>
+{% endblock %}
 
-<button class="btn btn-primary btn-lg">Confirm effort</button>
+{% block scripts %}
+<script type="module">
+  for (const row of document.querySelectorAll(`.offer-history-table tr[data-id-in-group='${js_vars.manager_id}']`)) {
+    row.classList.add("row-selected");
+  }
 
-<h3>Offer history</h3>
+  function selectChoice() {
+    for (const el of document.querySelectorAll("[data-effort-level]")) {
+      el.classList.toggle("col-selected", el.dataset.effortLevel == this.value);
+    }
+  }
 
-<table class="table table-bordered table-striped text-center">
-  <thead>
-    <tr>
-      <th>Period</th>
-      <th>Step</th>
-      <th>Company</th>
-      <th>Wage</th>
-      <th>Training</th>
-      <th>Accepted</th>
-      <th>Effort</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for offer in offers %}
-    <tr>
-      <td>{{ offer.period }}</td>
-      <td>{{ offer.step }}</td>
-      <td>{{ offer.manager.label }}</td>
-      <td>{{ offer.wage }}</td>
-      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
-      {% if offer.rejected %}
-      <td class="table-danger">No</td>
-      {% else %}
-      <td class="table-success">Yes</td>
-      {% endif %}
-      <td>
-        {{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  for (const el of document.querySelectorAll("input[name='work_effort']")) {
+    el.addEventListener("change", selectChoice);
+  }
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .otree-body {
+    max-width: 1870px;
+  }
+
+  .otree-title {
+    text-align: center;
+    padding-top: 0;
+  }
+
+  .form-label {
+    font-weight: bold;
+  }
+
+  .costs-table td.col-selected {
+    background-color: hsl(from var(--bs-primary) h s 90%);
+  }
+
+  .offer-history-table tr.row-selected {
+    background-color: hsl(from var(--bs-info) h s 90%);
+  }
+</style>
 {% endblock %}

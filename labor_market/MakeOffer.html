@@ -1,98 +1,188 @@
-{% block title %}Hiring Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+{% block title %}Hiring Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Hiring step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
 
 {% block content %}
-<p>You are a Manager for {{ player.label }}. Below is the list of available Employees you can hire.</p>
+<div class="row gx-5 px-3">
+  <div class="col-7">
+    <h3>Hiring offer</h3>
 
-<h3>Hiring offer</h3>
+    <p>
+      Below is the list of available Employees you can hire.
+      Select one available Employee, enter proposed wage and training, then submit your offer.
+      The Employee will then review and decide on all offers received in this hiring Step.
+    </p>
 
-<p>Select one available Employee, enter proposed wage and training, then submit your offer.</p>
+    <p>
+      The offer you make is a final, binding offer: if it is not accepted, you cannot make another offer to the <em>same</em> Employee in this Period.
+    </p>
 
-<table class="table table-bordered table-striped text-center table-employee-choice">
-  <thead>
-    <tr>
-      <th>Choice</th>
-      <th>Employee</th>
-      <th>Skill</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for choice in employee_pool %}
-    <tr>
-      <td>
-        {% if choice.eligible %}
-        <input class="form-check-input" type="radio" id="id_offer_employee-{{ choice.choice_id }}" name="offer_employee" required value="{{ choice.employee.id_in_group }}" />
-        {% else %}
-        N/A
-        {% endif %}
-      </td>
-      <td>{{ choice.employee.label }}</td>
-      <td>{{ choice.employee.skill }}</td>
-      {% if choice.eligible %}
-      <td class="table-success">Looking for work</td>
-      {% elif choice.rejected %}
-      <td class="table-danger">Rejected your offer</td>
-      {% else %}
-      <td class="table-warning">Hired by competitor</td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <p>
+      You can also choose not to make any offers for the rest of this Period.
+    </p>
+    
+    <table class="table table-sm table-bordered table-striped text-center employee-choice-table">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Choice</th>
+          <th style="width: 40%;">Employee</th>
+          <th style="width: 10%;">Skill Level</th>
+          <th style="width: 40%;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for choice in employee_pool %}
+        <tr>
+          <td>
+            {% if choice.eligible %}
+            <input class="form-check-input" type="radio" id="id_offer_employee-{{ choice.choice_id }}" name="offer_employee" required value="{{ choice.employee.id_in_group }}" data-skill-level="{{ choice.employee.skill }}"/>
+            {% else %}
+            N/A
+            {% endif %}
+          </td>
+          <td>{{ choice.employee.label }}</td>
+          <td>{{ choice.employee.skill }}</td>
+          {% if choice.eligible %}
+          <td class="table-success">Looking for work</td>
+          {% elif choice.rejected %}
+          <td class="table-danger">Rejected your offer</td>
+          {% else %}
+          <td class="table-warning">Hired by competitor</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-{{ formfield_errors 'offer_employee' }}
+    <input class="d-none" type="radio" id="id_offer_employee-{{ eligible_offers }}" name="offer_employee" value="0" />
+    
+    {{ formfield_errors 'offer_employee' }}
+    {{ formfield_errors 'offer_wage' }}
+    {{ formfield_errors 'offer_training' }}
+    
+    <div class="row">
+      <div class="col-auto">
+        <div class="mb-3">
+          <label class="form-label" for="id_offer_wage">Wage offer (1–150)</label>
+          <div class="input-group input-group-narrow">
+            <input class="form-control" type="number" inputmode="numeric" min="1" max="150" id="id_offer_wage" name="offer_wage" required>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto mt-2">
+        <label class="form-label" for="id_offer_wage">Include training?</label>
+        <div id="id_offer_wage">
+          <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" id="id_offer_training-0" name="offer_training" required value="True">
+              <label for="id_offer_training-0" class="form-check-label">Yes</label>
+          </div>
+          <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" id="id_offer_training-1" name="offer_training" required value="False">
+              <label for="id_offer_training-1" class="form-check-label">No</label>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto mt-4">
+        <button class="btn btn-primary btn-lg" id="send_offer">Make offer</button>
+      </div>
+      <div class="col-auto mt-4">
+        <button class="btn btn-warning btn-lg" id="no_offers">Make no further offers this Period</button>
+      </div>
+    </div>
 
-<div class="row">
-  <div class="col-auto">{{ formfield 'offer_wage' }}</div>
-  <div class="col-auto">{{ formfield 'offer_training' }}</div>
-  <div class="col-auto align-self-center">
-      <button class="btn btn-primary btn-lg">Make offer</button>
+    <h3>Revenue table</h3>
+
+    <p>
+      Here you can review the potential revenue from an Employee based on their Skill
+      and the Effort they choose to exert.
+    </p>
+
+    <p>
+      If you offer training, the Skill increase will not apply until next Period, and the revenue will be reduced.
+    </p>
+
+    {{ include '_tables/revenue.html' }}
+  </div>
+  <div class="col-5">
+    {{ include 'labor_market/components/ManagerSidebar.html' }}
   </div>
 </div>
 
-<h3>Offer history</h3>
+{% endblock %}
 
-<table class="table table-bordered table-striped text-center">
-  <thead>
-    <tr>
-      <th>Period</th>
-      <th>Step</th>
-      <th>Employee</th>
-      <th>Wage</th>
-      <th>Training</th>
-      <th>Accepted</th>
-      <th>Effort</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for offer in offers %}
-    <tr>
-      <td>{{ offer.period }}</td>
-      <td>{{ offer.step }}</td>
-      <td>{{ offer.employee.label }}</td>
-      <td>{{ offer.wage }}</td>
-      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
-      {% if offer.rejected %}
-      <td class="table-danger">No</td>
-      {% else %}
-      <td class="table-success">Yes</td>
-      {% endif %}
-      <td>{{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% block scripts %}
+<script type="module">
+  import {InputSpinner} from "{{ static 'global/InputSpinner.js' }}";
 
-<h3>Revenue table</h3>
+  new InputSpinner(document.querySelector("#id_offer_wage"));
 
-{{ include '_tables/revenue.html' }}
+  function selectChoice() {
+    for (const el of document.querySelectorAll(".row-selected")) {
+      el.classList.remove("row-selected");
+    }
 
+    const selectedRow = this.closest("tr");
+    selectedRow.classList.add("row-selected");
+    const skillLevel = this.dataset.skillLevel;
+
+    const skillRow = document.querySelector(`.revenue-table tr[data-skill-level='${skillLevel}']`);
+    if (skillRow) {
+      skillRow.classList.add("row-selected");
+    }
+
+    for (const row of document.querySelectorAll(`.offer-history-table tr[data-id-in-group='${this.value}']`)) {
+      row.classList.add("row-selected");
+    }
+  }
+
+  for (const el of document.querySelectorAll("input[name='offer_employee']")) {
+    if (el.value > 0) {
+      el.addEventListener("change", selectChoice);
+    }
+  }
+
+  // Hidden radiobutton for "no offers" choice
+  const nullChoice = document.querySelector("input[name='offer_employee'][value='0']");
+
+  document.querySelector("#send_offer").addEventListener("click", function() {
+    // Unset "no offers" choice before trying to submit the offer, in case it was preselected somehow
+    nullChoice.checked = false;
+  });
+  document.querySelector("#no_offers").addEventListener("click", function() {
+    // Set the "no offers" choice, and preset other values to pass validation
+    nullChoice.checked = true;
+    document.querySelector("input[name='offer_training'][value='False']").checked = true;
+    // Required by InputSpinner
+    document.querySelector("input[name='offer_wage']").setValue(1);
+    document.querySelector("#id_offer_wage:input_spinner").setValue(1);
+  });
+
+</script>
 {% endblock %}
 
 {% block styles %}
 <style>
-  .table-employee-choice tr:has(input[type="radio"]:checked) td {
-    background-color: lch(from var(--bs-primary) 90 c h);
+  .otree-body {
+    max-width: 1870px;
+  }
+
+  .otree-title {
+    text-align: center;
+    padding-top: 0;
+  }
+
+  .form-label {
+    font-weight: bold;
+  }
+
+  .employee-choice-table tr.row-selected {
+    background-color: hsl(from var(--bs-primary) h s 90%);
+  }
+
+  .revenue-table tr.row-selected {
+    background-color: hsl(from var(--bs-info) h s 90%);
+  }
+
+  .offer-history-table tr.row-selected {
+    background-color: hsl(from var(--bs-info) h s 90%);
   }
 </style>
 {% endblock %}

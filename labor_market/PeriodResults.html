@@ -1,137 +1,116 @@
 {% block title %}Outcomes (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
 
 {% block content %}
+<div class="row gx-5 px-3">
 {% if player.role == "Employee" %}
-  <p>You are an Employee.</p>
-  {{ if player.field_maybe_none("contract") }}
-  <p>
-    You were hired by {{player.contract.manager.label}}, your wage was {{player.contract.wage}} and
-    {{ if player.contract.training }}
-      training was offered, increasing your skill to {{ player.skill }}.
+  <div class="col-7">
+    {{ if player.field_maybe_none("contract") }}
+    <p>
+      You were hired by <b>{{player.contract.manager.label}}</b>, your <b>wage was {{player.contract.wage}}</b> and 
+      {{ if player.contract.training }}
+        <b>training was offered</b>, increasing your <b>Skill to {{ player.skill }}</b>.
+      {{ else }}
+        <b>no training was offered</b>.
+      {{ endif }}
+    </p>
+    <p>
+      You decided to exert {{ player.work_effort }} Effort, which cost you {{ effort_cost }}.
+    </p>
+    <h4>Payoff calculation</h4>
+    <p>
+      {{ session.config.employee_endowment | cu }} (endowment) +
+      {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.payoff }}.
+    </p>
     {{ else }}
-      no training was offered.
+    <p>
+      You weren't hired in this Period.
+    </p>
+    <h4>Payoff calculation</h4>
+    <p>
+      Your payoff is the basic endowment of {{ session.config.employee_endowment | cu }}.
+    </p>
     {{ endif }}
-  </p>
-  <p>
-    You decided to exert {{ player.work_effort }} effort, which cost you {{ effort_cost }}.
-  </p>
-  <p>
-    Your payoff this Period was {{ session.config.employee_endowment | cu }} (endowment) +
-    {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.payoff }},
-    and the total is now {{ participant.payoff }}.
-  </p>
-  {{ else }}
-  <p>
-    You weren't hired in this Period, and so your payoff is
-    the basic endowment of {{ session.config.employee_endowment | cu }},
-    with your total being {{ participant.payoff }}.
-  </p>
-  {{ endif }}
-  <h3>Offer history</h3>
-
-  <table class="table table-bordered table-striped text-center">
-    <thead>
-      <tr>
-        <th>Period</th>
-        <th>Step</th>
-        <th>Company</th>
-        <th>Wage</th>
-        <th>Training</th>
-        <th>Accepted</th>
-        <th>Effort</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for offer in offers %}
-      <tr>
-        <td>{{ offer.period }}</td>
-        <td>{{ offer.step }}</td>
-        <td>{{ offer.manager.label }}</td>
-        <td>{{ offer.wage }}</td>
-        <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
-        {% if offer.rejected %}
-        <td class="table-danger">No</td>
-        {% else %}
-        <td class="table-success">Yes</td>
-        {% endif %}
-        <td>
-          {{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <p>
+      Your <b>total payoff</b> after {{ subsession.round_number }} Period(s) is now <b>{{ participant.payoff }}</b>.
+    </p>
+    {{ next_button }}
+  </div>
+  <div class="col-5">
+    {{ include 'labor_market/components/EmployeeSidebar.html' }}
+  </div>
 {% else %}
-  <p>
-    You are a Manager.
-  </p>
-  {% if player.field_maybe_none("contract") %}
-  <p>
-    You had a contract with {{ player.contract.employee.label }} with a wage of {{ player.contract.wage }}
-    and
+  <div class="col-7">
+    <h3>Period outcome</h3>
+    {% if player.field_maybe_none("contract") %}
+    <p>
+      You had a contract with <b>{{ player.contract.employee.label }}</b> which included
+      a <b>{{ player.contract.wage }} wage</b> and
+      {{ if player.contract.training }}
+        <b>training was offered</b>.
+      {{ else }}
+        <b>no training was offered</b>.
+      {{ endif }}
+    </p>
+    <p>
+      The Employee had a <b>Skill level of {{ player.contract.employee.skill }}</b>
+      and decided to exert <b>{{ player.contract.employee.work_effort }} Effort</b>.
+      
+    </p>
     {{ if player.contract.training }}
-      training was offered.
+    <p>
+      This would have resulted in a <b>{{ revenue }} revenue</b>.
+      Because you offered training, the revenue was <b>reduced to {{ multiplied_revenue }}</b>.
+    </p>
     {{ else }}
-      no training was offered.
+    <p>
+      This resulted in a <b>{{ revenue }} revenue</b>.
+    </p>
     {{ endif }}
-  </p>
-  <p>
-    The Employee has a skill level of {{ player.contract.employee.skill }}
-    and decided to exert effort {{ player.contract.employee.work_effort }}.
-    This resulted in a revenue bonus of {{ revenue }}.
-    {{ if player.contract.training }}
-      Because you offered training, the revenue was reduced to {{ multiplied_revenue }}.
-    {{ endif }}
-  </p>
-  <p>
-    Your payoff this Period was 
-    {{ session.config.manager_endowment | cu }} (endowment)
-    {{ if player.contract.training }}
-    + {{ multiplied_revenue }} (revenue)
-    - {{ session.config.training_cost | cu }} (training cost)
-    {{ else }}
-    + {{ revenue }} (revenue)
-    {{ endif }}
-    - {{ player.contract.wage }} (wage) = {{player.payoff}},
-    and the total is now {{ participant.payoff }}.
-  </p>
-  {% else %}
-  <p>
-    You did not manage to contract an Employee this period, and so your payoff is
-    the basic endowment of {{ session.config.manager_endowment | cu }},
-    with your total being {{ participant.payoff }}.
-  </p>
-  {% endif %}
-  <table class="table table-bordered table-striped text-center">
-    <thead>
-      <tr>
-        <th>Period</th>
-        <th>Step</th>
-        <th>Employee</th>
-        <th>Wage</th>
-        <th>Training</th>
-        <th>Accepted</th>
-        <th>Effort</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for offer in offers %}
-      <tr>
-        <td>{{ offer.period }}</td>
-        <td>{{ offer.step }}</td>
-        <td>{{ offer.employee.label }}</td>
-        <td>{{ offer.wage }}</td>
-        <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
-        {% if offer.rejected %}
-        <td class="table-danger">No</td>
-        {% else %}
-        <td class="table-success">Yes</td>
-        {% endif %}
-        <td>{{ if offer.effort }}{{ offer.effort }}{{ else }}N/A{{ endif }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <h4>Payoff calculation</h4>
+    <p>
+      {{ session.config.manager_endowment | cu }} (endowment)
+      {{ if player.contract.training }}
+      + {{ multiplied_revenue }} (revenue)
+      - {{ session.config.training_cost | cu }} (training cost)
+      {{ else }}
+      + {{ revenue }} (revenue)
+      {{ endif }}
+      - {{ player.contract.wage }} (wage) = {{player.payoff}}.
+    </p>
+    {% else %}
+    <p>
+      You did not manage to contract an Employee this Period.
+    </p>
+    <h4>Payoff calculation</h4>
+    <p>
+      Your payoff is the basic endowment of {{ session.config.manager_endowment | cu }}.
+    </p>
+    {% endif %}
+    <p>
+      Your <b>total payoff</b> after {{ subsession.round_number }} Period(s) is now <b>{{ participant.payoff }}</b>.
+    </p>
+    {{ next_button }}
+  </div>
+  <div class="col-5">
+    {{ include 'labor_market/components/ManagerSidebar.html' }}
+  </div>
+</div>
 {% endif %}
-{{ next_button }}
 {% endblock %}
+
+{{ block styles }}
+<style>
+  .otree-body {
+    max-width: 1870px;
+  }
+
+  .otree-title {
+    text-align: center;
+    padding-top: 0;
+  }
+
+  .payoff-table tr.row-selected {
+    background-color: hsl(from var(--bs-info) h s 90%);
+  }
+</style>
+{{ endblock }}
