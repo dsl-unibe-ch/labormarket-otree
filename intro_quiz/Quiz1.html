@@ -19,12 +19,10 @@
 <ol>
     {{ for question in questions }}
     <li>
-        {{ question.text }}
-        <ol type="a">
-            {{ for choice in question.choices }}
-                <li>{{ choice }}</li>
-            {{ endfor }}
-        </ol>
+        <p>{{ question.text }}</p>
+        {{ for choice in question.choices }}
+            <input type="radio" name="q{{question.idx}}">{{ choice }}</input><br/>
+        {{ endfor }}
     </li>
     {{ endfor }}
 </ol>

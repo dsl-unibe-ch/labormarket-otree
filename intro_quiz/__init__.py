@@ -5,12 +5,19 @@ from otree.api import *
 
 class C(BaseConstants):
     """Constants for the intro_quiz app"""
+
+    @staticmethod
+    def add_indices(l):
+        for i, item in enumerate(l):
+            item['idx'] = i
+        return l
+
     NAME_IN_URL = "intro_quiz"
     PLAYERS_PER_GROUP = None
     TRUE = 'True'
     FALSE = 'False'
     TRUE_FALSE = [TRUE, FALSE]
-    QUESTIONS = [
+    QUESTIONS = add_indices([
         dict(text="This study consists of 10 periods.", choices=TRUE_FALSE, correct=TRUE),
         dict(text="Each period consists of a hiring phase and a work phase.", choices=TRUE_FALSE, correct=TRUE),
         dict(text="In the hiring phase of each period, each employer <strong>must</strong> make a contract offer to "
@@ -38,7 +45,7 @@ class C(BaseConstants):
         dict(text="In the hiring phase in <strong>each</strong> of the 10 periods, every employer can again select "
                   "<strong>any</strong> potential worker to make a contract offer to and every worker can freely "
                   "accept one of the contract offers they receive.", choices=TRUE_FALSE, correct=TRUE),
-    ]
+    ])
     NUM_ROUNDS = len(QUESTIONS)
 
 # Objects
