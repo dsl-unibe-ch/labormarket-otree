@@ -1,10 +1,33 @@
 {{ block title }}Comprehension Quiz{{ endblock }}
-{{ block content }}
+{{ block scripts }}
+<script type="module">
+  function selectChoice() {
+    for (const el of document.querySelectorAll("[data-effort-level]")) {
+      el.classList.toggle("col-selected", el.dataset.effortLevel == this.value);
+    }
+  }
+</script>
+{{ endblock }}
 
+{{ block content }}
+<!--{{ formfield_errors 'response' }}-->
 <p>
     Based on the task overview, please answer the questions below. You must get all of the answers correct to continue
     with the experiment. You can review the paper copy of instructions provided to you at any time.
 </p>
+
+<ol>
+    {{ for question in questions }}
+    <li>
+        {{ question.text }}
+        <ol type="a">
+            {{ for choice in question.choices }}
+                <li>{{ choice }}</li>
+            {{ endfor }}
+        </ol>
+    </li>
+    {{ endfor }}
+</ol>
 
 {{ next_button }}
 
