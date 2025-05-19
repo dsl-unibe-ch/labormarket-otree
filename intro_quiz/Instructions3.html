@@ -1,0 +1,64 @@
+{{ block title }}Employers' and Workers' Task{{ endblock }}
+
+{{ block content }}
+
+<h3>Work Phase</h3>
+<p>
+  Employers and workers that form a contract in the hiring phase continue to the work phase. In this phase, workers
+  decide how much effort, from level 1 to 10, to exert for the employer.
+</p>
+
+<h4>Worker costs based on worker effort level</h4>
+<ul>
+  <li>
+    Effort is costly to the worker, such that higher effort levels chosen by the worker increase the worker's costs.
+  </li>
+</ul>
+
+<p>
+  The table below shows the different effort levels and the corresponding costs to the worker
+</p>
+{{ include '_tables/effort.html' }}
+
+<h4>Employer revenue based on a worker's effort level and a worker's skill level</h4>
+<ul>
+  <li>
+    Employer revenue depends on both a worker's chosen effort level and a worker's skill level.
+  </li>
+  <li>
+    A worker's skill level determines a worker's productivity. The higher a worker's skill level, the higher the
+    worker's productivity and thus the higher the employer's revenues, for any given effort level. Specifically:
+    Employer revenue = worker effort level × worker productivity. For example, if a worker with skill level 1 chooses
+    effort level 4, employer revenue = 100 x 4 = 400, but if a worker with skill level 5 chooses effort level 4,
+    employer revenue = 242 x 4 = 968.
+  </li>
+  <li>
+    As you can see from the table below, for every worker's skill level, the higher the effort level the worker chooses,
+    the higher the employer's revenues. For example, if a worker with a skill level of 1 chooses effort level 4,
+    employer revenue = 100 x 4 = 400, but if a worker with a skill level of 1 chooses effort level 8, employer
+    revenue = 100 x 8 = 800.
+  </li>
+  <li>
+    A worker's skill level can be increased if the worker receives training (as discussed below).
+  </li>
+</ul>
+<p>
+  The table below shows employer revenue for each combination of skill and effort level:
+</p>
+{{ include '_tables/revenue.html' }}
+
+<p>
+  After the worker has made their effort decision, both the employer and worker will be informed about their earnings
+  for the period.
+</p>
+
+<h3>Next Period</h3>
+
+<p>
+  The next period begins again with the hiring phase, meaning that employers can again offer contracts to all six
+  workers, workers review contract offers, and so on.
+</p>
+
+{{ next_button }}
+
+{{ endblock }}

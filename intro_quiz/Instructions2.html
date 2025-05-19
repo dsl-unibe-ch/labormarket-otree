@@ -1,0 +1,94 @@
+{{ block title }}Employers' and Workers' Task{{ endblock }}
+
+{{ block content }}
+
+<p>
+  In this study, employers and workers act in a labor market with six employers and six workers.
+  This study consists of <strong>10 periods</strong> in total.
+  Each period will be identical.
+  Every period consists of two parts: <strong>(1) The hiring phase and (2) the work phase</strong>.
+</p>
+
+<h3>Hiring Phase</h3>
+
+<p>
+  The hiring phase consists of several steps in which employers and workers interact to form contracts.
+  That is, employers can make contract offers to workers and workers can decide whether to accept a contract offer.
+</p>
+
+<h4>Employer makes contract offers</h4>
+
+<p>
+  In each period, employers start with reviewing the workers. Information about workers includes:
+</p>
+<ul>
+  <li>each worker's color alias, and</li>
+  <li>each worker's skill level (as described in more detail below).</li>
+</ul>
+<p>
+  Then, each employer has to decide whether to:
+</p>
+<ul>
+  <li><strong>Make</strong> a contract offer <strong>to one worker</strong> from the six potential workers on the labor market, or</li>
+  <li><strong>Not make</strong> any contract offer in that period.</li>
+</ul>
+
+<p>
+  A contract offer includes the following information about what will be offered by the employer to the worker in that
+  period:
+</p>
+<ul>
+  <li>a <strong>salary</strong> between 1 and 1500 points, and</li>
+  <li>whether or not <strong>training</strong> will be provided (as discussed in more detail below).</li>
+</ul>
+<p>
+  Importantly, employers <strong>must</strong> fulfill the salary and training specified in the contract, if the contract offer is
+  accepted by a worker.
+</p>
+
+<h4>Workers decide whether to accept a contract offer</h4>
+<p>
+  Next, workers will be provided with a list of all contract offers they received in this period. It is possible that a worker does not receive any offer, receives one offer, or receives multiple offers.
+</p>
+
+<p>
+  Each worker has to decide whether to:
+</p>
+<ul>
+  <li><strong>Accept one</strong> of the contract offers, or</li>
+  <li><strong>Decline all</strong> contract offers.</li>
+</ul>
+<p>
+  Employers and workers that form a contract will be matched for the subsequent work phase of the period.
+</p>
+
+<h4>Unmatched employers and workers</h4>
+<p>
+  Employers and workers that do not form a contract remain on the labor market.
+</p>
+
+<p>
+  Employers can decide to:
+</p>
+<ul>
+  <li>select a <strong>different worker</strong> to make a contract offer to, or</li>
+  <li><strong>not make</strong> an offer for that period.</li>
+</ul>
+
+<p>
+  Importantly, an employer cannot make an offer to a worker that has already rejected a contract offer from this
+  employer in this period. That means, if the worker rejects the offer, the employer can make an offer to one of the
+  other workers he/she has not attempted to hire yet and that are still available on the market but cannot make more
+  than one offer to the same worker in the same period.
+</p>
+
+<p>
+  The process will continue until either all employers and workers form contracts and are matched or until the remaining
+  (unmatched) employers and workers cannot agree on a contract. In case the remaining employers and workers cannot agree
+  on a contract, they will miss out on the work phase for this period and only receive the initial endowment as payment
+  for that period (described below).
+</p>
+
+{{ next_button }}
+
+{{ endblock }}
