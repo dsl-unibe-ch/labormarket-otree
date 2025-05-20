@@ -10,22 +10,12 @@
 {{ endblock }}
 
 {{ block content }}
-<!--{{ formfield_errors 'response' }}-->
 <p>
     Based on the task overview, please answer the questions below. You must get all of the answers correct to continue
     with the experiment. You can review the paper copy of instructions provided to you at any time.
 </p>
 
-<ol>
-    {{ for question in questions }}
-    <li>
-        <p>{{ question.text }}</p>
-        {{ for choice in question.choices }}
-            <input type="radio" name="q{{question.idx}}">{{ choice }}</input><br/>
-        {{ endfor }}
-    </li>
-    {{ endfor }}
-</ol>
+{{ formfields }}
 
 {{ next_button }}
 
