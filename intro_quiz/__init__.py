@@ -170,7 +170,7 @@ class Consent(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        """Providing participation fee"""
+        """Providing variables for template"""
         session = player.session
 
         return dict(
@@ -183,7 +183,7 @@ class Instructions1(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        """Providing participation fee"""
+        """Providing variables for template"""
         session = player.session
 
         return dict(

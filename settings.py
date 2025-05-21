@@ -23,7 +23,7 @@ SESSION_CONFIGS = [
 
 SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00,
-    participation_fee=0.00,
+    participation_fee=5.00,
     starting_skills=[5, 5, 5, 1, 1, 1],
     skill_multipliers=[100, 140, 177, 211, 242, 270, 295, 317, 336, 352, 365, 375, 382, 386, 387],
     effort_costs=[0, 20, 40, 60, 100, 140, 180, 240, 300, 360],
