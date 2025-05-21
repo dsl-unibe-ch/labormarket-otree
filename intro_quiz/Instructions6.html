@@ -1,0 +1,70 @@
+{{ block title }}Employers' and Workers' Task{{ endblock }}
+
+{{ block content }}
+
+<h4>Training and worker skill level</h4>
+
+<p>
+  As we explained above, an employer can offer a worker a contract that
+</p>
+<ul>
+  <li><strong>does not provide training</strong>, or</li>
+  <li><strong>provides training</strong>.</li>
+</ul>
+
+<h5>Contract <em>without</em> Training</h5>
+
+<p>
+  In the work phase of the current period, the worker chooses the effort level as described above.
+</p>
+<p>
+  If a contract does not provide training, the worker's skill level <strong>will not change</strong>. That is,
+  the worker's skill level in the subsequent period will remain equal to his/her skill level in the current period.
+</p>
+<p>
+  In this case, the employer does not incur any costs related to training. That means, the employer will receive
+  the full amount of revenue resulting from the worker's skill level and the effort level chosen by the worker.
+  Likewise, there is no direct cost of training for the employer.
+</p>
+
+<h5>Contract <em>with</em> Training</h5>
+
+<p>
+  In the work phase of the current period, the worker chooses the effort level as described above.
+</p>
+<p>
+  If an employer offers a contract that provides training, the <strong>training will increase the worker's
+  skill level by 1 in all <em>future</em> period(s)</strong> but the
+  <strong>worker's skill level will <em>not</em> change in the <em>current</em> period</strong>.
+  For example, if a worker has a skill level of 1 (Productivity = 100) and accepts a contract with training,
+  their skill level will then be 2 (Productivity = 140) in the <strong>next period</strong>.
+  <strong>Increases</strong> in worker skill level are <strong>permanent</strong>.
+</p>
+<p>
+  <strong>A worker does not incur any costs for training</strong> when accepting a contract offer that offers training.
+</p>
+<p>
+  However, like in the real world, <strong>an employer incurs costs when offering training</strong> to a worker.
+  There are two types of costs for the employer:
+</p>
+<ul>
+  <li>
+    Direct cost of training:<br/>
+    The employer will incur a direct training cost of <strong>50 points</strong>.
+  </li>
+  <li>
+    Reduced worker productivity:<br/>
+    When training is provided, the worker's productivity <strong>will be halved during the training period</strong>,
+    reducing the employer's revenue for that period. Specifically, for any combination of a worker's skill level
+    and chosen effort level, the employer will only receive <strong>half</strong> of the revenue that is generated
+    by this combination. For example, if a worker has a skill level of 1 and chooses an effort level of 5,
+    the employer will not receive the revenue of 500 displayed in the table above, but only half of this revenue
+    (500/2 = 250).
+  </li>
+</ul>
+
+{{ include '_tables/revenue.html' }}
+
+{{ next_button }}
+
+{{ endblock }}

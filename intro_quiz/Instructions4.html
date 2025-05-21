@@ -1,0 +1,29 @@
+{{ block title }}Employers' and Workers' Task{{ endblock }}
+
+{{ block content }}
+
+<h3>Worker Skill Level and Training</h3>
+
+<h4>Worker skill levels, productivity and employer revenue</h4>
+
+<p>
+  Recall that an employer's revenue depends on both the worker's chosen effort level and the worker's skill level:
+</p>
+<p>
+  The <strong>higher the worker's skill level</strong>, the <strong>higher the employer's revenue</strong> for any
+  level of worker's effort. This is because a higher worker's skill level is associated with a higher worker's
+  productivity.
+</p>
+<p>
+  However, as a worker's skill level increases, the <strong>additional worker's productivity and employer's
+  revenue</strong> gained from each increase in skill becomes <strong>smaller</strong>. For example,
+  increasing a worker's skill level from 1 to 2 boosts
+  productivity from 100 to 140 (an increase of 40), while increasing the skill level from 5 to 6 only raises
+  productivity from 242 to 270 (an increase of 28).
+</p>
+
+{{ include '_tables/revenue.html' }}
+
+{{ next_button }}
+
+{{ endblock }}

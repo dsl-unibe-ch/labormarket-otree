@@ -26,7 +26,7 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     return {
         "level": index + 1,
         "multiplier": multiplier,
-        "revenue": [round(effort * multiplier) for effort in range(1, 11)]
+        "revenue": [effort * multiplier for effort in range(1, 11)]
     }
 
 class Subsession(BaseSubsession):
@@ -199,6 +199,44 @@ class Instructions3(Page):
     """Intro page with instructions"""
 
 
+class Instructions4(Page):
+    """Intro page with instructions"""
+
+
+class Instructions5(Page):
+    """Intro page with instructions"""
+
+    MARKET_DESCRIPTION = dict(
+        homoogenous_low="all workers start with a skill level of 1",
+        homoogenous_high="all workers start with a skill level of 5",
+        heterogenous="three workers start with a skill level of 1 and three workers start with a skill level of 5"
+    )
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        """Providing variables for template"""
+        session = player.session
+        market = session.config["market"]
+
+        market_productivity = dict(
+            homoogenous_low=f"all workers have a productivity of {session.config["skill_multipliers"][0]}",
+            homoogenous_high=f"all workers have a productivity of {session.config["skill_multipliers"][4]}",
+            heterogenous=f"three workers have a productivity of {session.config["skill_multipliers"][0]} "
+                         f"and three workers have a productivity of {session.config["skill_multipliers"][4]}"
+        )
+
+        return dict(
+            market_description=Instructions5.MARKET_DESCRIPTION[market],
+            market_productivity=market_productivity[market],
+            worker_info=f"Your skill level in the first period is {player.skill}."
+                    if player.role == "Employee" else None
+        )
+
+
+class Instructions6(Page):
+    """Intro page with instructions"""
+
+
 class Quiz1(Page):
     """Quiz page to test comprehension"""
     form_model = 'player'
@@ -206,4 +244,5 @@ class Quiz1(Page):
                    'question8', 'question9', 'question10', 'question11']
 
 
-page_sequence = [Consent, Instructions1, Instructions2, Instructions3, Quiz1]
+page_sequence = [Consent, Instructions1, Instructions2, Instructions3, Quiz1, Instructions4, Instructions5,
+                 Instructions6]

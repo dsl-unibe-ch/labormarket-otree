@@ -16,6 +16,14 @@ SESSION_CONFIGS = [
     ),
 ]
 
+
+# Starting skills based on the market
+STARTING_SKILLS_BY_MARKET = dict(
+    homoogenous_low=[1, 1, 1, 1, 1, 1],
+    homoogenous_high=[5, 5, 5, 5, 5, 5],
+    heterogenous=[5, 5, 5, 1, 1, 1]
+)
+
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
 # in SESSION_CONFIGS, except those that explicitly override it.
 # the session config can be accessed from methods in your apps as self.session.config,
@@ -24,7 +32,7 @@ SESSION_CONFIGS = [
 SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00,
     participation_fee=5.00,
-    starting_skills=[5, 5, 5, 1, 1, 1],
+    market="heterogenous",
     skill_multipliers=[100, 140, 177, 211, 242, 270, 295, 317, 336, 352, 365, 375, 382, 386, 387],
     effort_costs=[0, 20, 40, 60, 100, 140, 180, 240, 300, 360],
     employee_endowment=400,
@@ -36,6 +44,9 @@ SESSION_CONFIG_DEFAULTS = dict(
     doc="",
     randomize_roles=False
 )
+
+# Setting the starting_skills value depending on the market.
+SESSION_CONFIG_DEFAULTS.update(starting_skills=STARTING_SKILLS_BY_MARKET[SESSION_CONFIG_DEFAULTS["market"]])
 
 SESSION_FIELDS = ["skill_table"]
 PARTICIPANT_FIELDS = ["dropout"]

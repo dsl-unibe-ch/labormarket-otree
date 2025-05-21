@@ -1,0 +1,20 @@
+{{ block title }}Employers' and Workers' Task{{ endblock }}
+
+{{ block content }}
+
+<h3>Labor Market Composition</h3>
+
+<p>
+  Please recall that there are six employers and six workers on the labor market. In the first period
+  <strong>{{ market_description }}</strong>. That means, in the first period, {{ market_productivity }}.
+</p>
+
+{{ if worker_info }}
+  <p>{{ worker_info }}</p>
+{{ endif }}
+
+{{ include '_tables/revenue.html' }}
+
+{{ next_button }}
+
+{{ endblock }}
