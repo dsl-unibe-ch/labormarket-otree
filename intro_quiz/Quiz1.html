@@ -1,13 +1,4 @@
 {{ block title }}Comprehension Quiz{{ endblock }}
-{{ block scripts }}
-<script type="module">
-  function selectChoice() {
-    for (const el of document.querySelectorAll("[data-effort-level]")) {
-      el.classList.toggle("col-selected", el.dataset.effortLevel == this.value);
-    }
-  }
-</script>
-{{ endblock }}
 
 {{ block content }}
 <p>
