@@ -78,6 +78,28 @@ class Subsession(BaseSubsession):
             counts[skill] = counts.get(skill, 0) + 1
         return ", ".join([f"{counts[skill]} Employee(s) with Skill {skill}" for skill in counts.keys()])
 
+@staticmethod
+def creating_session(subsession: Subsession):
+    """Set per-session participant data"""
+    # In the first Period, set labels and reshuffle participants
+    if subsession.round_number == 1:
+        # If session config dictates, reshuffle participants randomly
+        if subsession.session.config["randomize_roles"]:
+            subsession.group_randomly()
+        for group in subsession.get_groups():
+            # Set random labels (company names for Managers, nicknames for Employees)
+            labels = random_labels()
+            for player in group.get_players():
+                player.label = labels[player.id_in_group - 1]
+            # Set initial skills according to session config
+            for index, player in enumerate(group.employees):
+                player.skill = subsession.session.config["starting_skills"][index]
+    else:
+        # In subsequent Periods, retain the same group/role and labels
+        subsession.group_like_round(1)
+        for player in subsession.get_players():
+            player.label = player.in_round(1).label
+
 
 class Player(BasePlayer):
     """Player object for simulation"""
