@@ -57,7 +57,7 @@ def multiplier_to_table_item(mult_tuple: tuple[int, float]):
     return {
         "level": index + 1,
         "multiplier": multiplier,
-        "revenue": [round(10 * effort * multiplier) for effort in range(1, 11)]
+        "revenue": [round(1 * effort * multiplier) for effort in range(1, 11)] # TODO make 1 configurable through base_revenue
     }
 
 class Subsession(BaseSubsession):
@@ -120,7 +120,9 @@ class Player(BasePlayer):
     # Which employee to make an offer to
     offer_employee    = models.IntegerField(widget=widgets.RadioSelect)
     # What wage to include in the offer
-    offer_wage        = models.CurrencyField(label="Binding wage offer (1–150)", min=1, max=150)
+    # Max is set up programmatically in offer_wage_max()
+    # Label is set up programmatically in the form template
+    offer_wage        = models.CurrencyField(label="Binding wage offer", min=1)
     # Whether to include training in the offer
     offer_training    = models.BooleanField(label="Include training?", widget=widgets.RadioSelectHorizontal)
     # Whether the Manager decided to have no more offers
@@ -187,6 +189,8 @@ class Player(BasePlayer):
         # Reverse the list of offers: most recent first
         return list(reversed(offer_history))
 
+def offer_wage_max(player: Player):
+    return player.session.config["max_wage"]
 
 def offer_employee_choices(manager: Player):
     """Dynamically provide employee choices"""

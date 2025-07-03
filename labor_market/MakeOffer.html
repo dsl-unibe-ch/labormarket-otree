@@ -61,9 +61,9 @@
     <div class="row">
       <div class="col-auto">
         <div class="mb-3">
-          <label class="form-label" for="id_offer_wage">Wage offer (1–150)</label>
+          <label class="form-label" for="id_offer_wage">Wage offer (1–{{ session.config.max_wage }})</label>
           <div class="input-group input-group-narrow">
-            <input class="form-control" type="number" inputmode="numeric" min="1" max="150" id="id_offer_wage" name="offer_wage" required>
+            <input class="form-control" type="number" inputmode="numeric" min="1" max="{{ session.config.max_wage }}" id="id_offer_wage" name="offer_wage" required>
           </div>
         </div>
       </div>

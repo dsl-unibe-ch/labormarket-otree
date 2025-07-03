@@ -27,11 +27,12 @@ SESSION_CONFIG_DEFAULTS = dict(
     starting_skills=[5, 5, 5, 1, 1, 1],
     skill_multipliers=[100, 140, 177, 211, 242, 270, 295, 317, 336, 352, 365, 375, 382, 386, 387],
     effort_costs=[0, 20, 40, 60, 100, 140, 180, 240, 300, 360],
-    employee_endowment=20.00,
-    manager_endowment=50.00,
-    base_revenue=10.00,
+    employee_endowment=400,
+    manager_endowment=800,
+    base_revenue=1,
     training_productivity_multiplier=0.5,
-    training_cost=5.00,
+    training_cost=50,
+    max_wage=1500,
     doc="",
     randomize_roles=False
 )
