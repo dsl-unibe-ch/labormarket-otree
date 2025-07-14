@@ -73,7 +73,7 @@ class Subsession(BaseSubsession):
         counts = {}
         for skill in self.session.config["starting_skills"]:
             counts[skill] = counts.get(skill, 0) + 1
-        return ", ".join([f"{counts[skill]} Worker(s) with Skill {skill}" for skill in counts.keys()])
+        return ", ".join([f"{counts[skill]} Worker(s) with Skill level {skill}" for skill in counts.keys()])
 
 @staticmethod
 def creating_session(subsession: Subsession):
