@@ -49,7 +49,7 @@ SESSION_CONFIG_DEFAULTS = dict(
 SESSION_CONFIG_DEFAULTS.update(starting_skills=STARTING_SKILLS_BY_MARKET[SESSION_CONFIG_DEFAULTS["market"]])
 
 SESSION_FIELDS = ["skill_table"]
-PARTICIPANT_FIELDS = ["dropout"]
+PARTICIPANT_FIELDS = ["dropout", "q_idx"]
 
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans

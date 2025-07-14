@@ -1,0 +1,14 @@
+{% block title %}Result{% endblock %}
+
+{% block content %}
+  <p>
+    {% if right %}
+      Your response is correct.
+    {% else %}
+      Your response is incorrect.
+    {% endif %} {{ question }}<br>
+    Your answer: <strong>{{ your_answer }}</strong><br>
+    Correct answer: <strong>{{ correct_answer }}</strong><br>
+  </p>
+  {{ next_button }}
+{% endblock %}
