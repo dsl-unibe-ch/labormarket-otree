@@ -30,9 +30,6 @@
       Your payoff is the basic endowment of {{ session.config.employee_endowment | cu }}.
     </p>
     {{ endif }}
-    <p>
-      Your <b>total payoff</b> after {{ subsession.round_number }} Period(s) is now <b>{{ participant.payoff }}</b>.
-    </p>
     {{ next_button }}
   </div>
   <div class="col-5">
@@ -85,9 +82,6 @@
       Your payoff is the basic endowment of {{ session.config.manager_endowment | cu }}.
     </p>
     {% endif %}
-    <p>
-      Your <b>total payoff</b> after {{ subsession.round_number }} Period(s) is now <b>{{ participant.payoff }}</b>.
-    </p>
     {{ next_button }}
   </div>
   <div class="col-5">
