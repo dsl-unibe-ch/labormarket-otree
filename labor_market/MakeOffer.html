@@ -6,13 +6,14 @@
     <h3>Hiring offer</h3>
 
     <p>
-      Below is the list of available Employees you can hire.
-      Select one available Employee, enter proposed wage and training, then submit your offer.
-      The Employee will then review and decide on all offers received in this hiring Step.
+      Below is the list of available Workers you can hire.
+      Select one available Worker, enter proposed wage and training, then submit your offer.
+      The Worker will then review and decide on all offers received in this hiring Step.
     </p>
 
     <p>
-      The offer you make is a final, binding offer: if it is not accepted, you cannot make another offer to the <em>same</em> Employee in this Period.
+      The offer you make is a final, binding offer: if it is not accepted, you cannot make another offer to the
+      <em>same</em> Worker in this Period.
     </p>
 
     <p>
@@ -23,7 +24,7 @@
       <thead>
         <tr>
           <th style="width: 10%;">Choice</th>
-          <th style="width: 40%;">Employee</th>
+          <th style="width: 40%;">Worker</th>
           <th style="width: 10%;">Skill Level</th>
           <th style="width: 40%;">Status</th>
         </tr>
@@ -45,7 +46,7 @@
           {% elif choice.rejected %}
           <td class="table-danger">Rejected your offer</td>
           {% else %}
-          <td class="table-warning">Hired by competitor</td>
+          <td class="table-warning">Hired by a competitor</td>
           {% endif %}
         </tr>
         {% endfor %}
@@ -91,7 +92,7 @@
     <h3>Revenue table</h3>
 
     <p>
-      Here you can review the potential revenue from an Employee based on their Skill
+      Here you can review the potential revenue from a Worker based on their Skill
       and the Effort they choose to exert.
     </p>
 

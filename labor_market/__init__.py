@@ -15,6 +15,8 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = 6
     NUM_MANAGERS = 3
     NUM_EMPLOYEES = 3
+
+    # "Magic" constants (ending with _ROLE) for OTree to instantiate roles
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
@@ -22,6 +24,7 @@ class C(BaseConstants):
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
 
+    # Used in page sequence
     HIRING_STEPS = NUM_EMPLOYEES # Max number of repeated attempts at hiring (should equal number of employees)
 
 # Name generators
@@ -70,7 +73,7 @@ class Subsession(BaseSubsession):
         counts = {}
         for skill in self.session.config["starting_skills"]:
             counts[skill] = counts.get(skill, 0) + 1
-        return ", ".join([f"{counts[skill]} Employee(s) with Skill {skill}" for skill in counts.keys()])
+        return ", ".join([f"{counts[skill]} Worker(s) with Skill {skill}" for skill in counts.keys()])
 
 @staticmethod
 def creating_session(subsession: Subsession):
@@ -203,7 +206,7 @@ class Group(BaseGroup):
     """Group object for simulation"""
 
     @property
-    def managers(self):
+    def managers(self) -> List[Player]:
         """Return all Manager players from the current group"""
         return [player for player in self.get_players() if player.role == "Manager"]
 
@@ -308,7 +311,7 @@ class MakeOffer(Page):
         if timeout_happened:
             print(f"Timeout for Manager {manager.id_in_group}, not putting forward any offers")
         else:
-            if manager.offer_employee:
+            if manager.offer_employee > 0:
                 employee = manager.group.get_player_by_id(manager.offer_employee)
                 Offer.create(
                     manager=manager,
@@ -328,7 +331,7 @@ class WaitForOffers(WaitPage):
     def vars_for_template(player: Player):
         return {
             "title_text": f"Waiting for offers { stage_counter(player, with_step=True) }",
-            "body_text": "You are an Employee. Please wait until all managers have made their offers..."
+            "body_text": "You are a Worker. Please wait until all managers have made their offers..."
         }
 
     # Shown to Employees without a contract
@@ -385,17 +388,17 @@ class WaitForAcceptance(WaitPage):
         if player.role == "Manager":
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": "You are a Manager. Please wait until all Employees decide on their offers..."
+                "body_text": "You are a Manager. Please wait until all Workers decide on their offers..."
             }
         else:
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": "You are an Employee. You did not receive any offers this hiring step. Please wait until all Employees decide on their offers..."
+                "body_text": "You are a Worker. You did not receive any offers this hiring step. Please wait until all Employees decide on their offers..."
             }
 
     # Shown to:
     # 1) Managers without a match (yet) that didn't choose "no offers",
-    # 2) Employess without a match that didn't get offers (and didn't get shown GetOffers)
+    # 2) Employees without a match that didn't get offers (and didn't get shown GetOffers) or rejected all offers
     @staticmethod
     def is_displayed(player: Player):
         open_offers = Offer.filter(employee=player, accepted=False, rejected=False)
@@ -436,7 +439,7 @@ class ChooseEffort(Page):
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
         if timeout_happened:
-            print(f"Timeout for Employee {employee.id_in_group}, applying minimum effort")
+            print(f"Timeout for Worker {employee.id_in_group}, applying minimum effort")
             employee.work_effort = 1
         # Record effort spent in the Offer table
         employee.contract.effort = employee.work_effort
@@ -463,12 +466,12 @@ class WaitForEffort(WaitPage):
                 endowment = cu(config["employee_endowment"])
 
                 if contract:
-                    print(f"Payoff for Employee {player.id_in_group}: {endowment} + {contract.wage} - {-contract.effort_cost}")
+                    print(f"Payoff for Worker {player.id_in_group}: {endowment} + {contract.wage} - {-contract.effort_cost}")
                     player.payoff = endowment + contract.wage + contract.effort_cost
                     if contract.training:
                         player.skill_increase = True
                 else:
-                    print(f"Payoff for Employee {player.id_in_group}: {endowment}")
+                    print(f"Payoff for Worker {player.id_in_group}: {endowment}")
                     player.payoff = endowment
             elif player.role == "Manager":
                 endowment = cu(config["manager_endowment"])

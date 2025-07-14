@@ -52,9 +52,8 @@
       {{ endif }}
     </p>
     <p>
-      The Employee had a <b>Skill level of {{ player.contract.employee.skill }}</b>
+      The Worker had a <b>Skill level of {{ player.contract.employee.skill }}</b>
       and decided to exert <b>{{ player.contract.employee.work_effort }} Effort</b>.
-      
     </p>
     {{ if player.contract.training }}
     <p>
@@ -79,7 +78,7 @@
     </p>
     {% else %}
     <p>
-      You did not manage to contract an Employee this Period.
+      You did not manage to contract a Worker this Period.
     </p>
     <h4>Payoff calculation</h4>
     <p>
