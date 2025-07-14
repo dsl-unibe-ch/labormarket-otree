@@ -10,23 +10,17 @@ from otree.api import *
 class C(BaseConstants):
     """Constants for the labor_market app"""
     NAME_IN_URL = "labor_market"
-    NUM_ROUNDS = 10 # Number of periods of simulation
+    NUM_ROUNDS = 5 # Number of periods of simulation
 
-    PLAYERS_PER_GROUP = 12
-    NUM_MANAGERS = 6
-    NUM_EMPLOYEES = 6
+    PLAYERS_PER_GROUP = 6
+    NUM_MANAGERS = 3
+    NUM_EMPLOYEES = 3
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
-    MANAGER4_ROLE = "Manager"
-    MANAGER5_ROLE = "Manager"
-    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
-    EMPLOYEE4_ROLE = "Employee"
-    EMPLOYEE5_ROLE = "Employee"
-    EMPLOYEE6_ROLE = "Employee"
 
     HIRING_STEPS = NUM_EMPLOYEES # Max number of repeated attempts at hiring (should equal number of employees)
 
