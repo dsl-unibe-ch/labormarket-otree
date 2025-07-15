@@ -16,10 +16,21 @@
     <p>
       You decided to exert {{ player.work_effort }} Effort, which cost you {{ effort_cost }}.
     </p>
-    <h4>Payoff calculation</h4>
+    <h4>Your payoff calculation</h4>
     <p>
       {{ session.config.employee_endowment | cu }} (endowment) +
       {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.payoff }}.
+    </p>
+    <h4>Manager's payoff calculation</h4>
+    <p>
+      {{ session.config.manager_endowment | cu }} (endowment)
+      {{ if player.contract.training }}
+      + {{ multiplied_revenue }} (revenue)
+      - {{ session.config.training_cost | cu }} (training cost)
+      {{ else }}
+      + {{ revenue }} (revenue)
+      {{ endif }}
+      - {{ player.contract.wage }} (wage) = {{player.contract.manager.payoff}}.
     </p>
     {{ else }}
     <p>
@@ -62,7 +73,7 @@
       This resulted in a <b>{{ revenue }} revenue</b>.
     </p>
     {{ endif }}
-    <h4>Payoff calculation</h4>
+    <h4>Your payoff calculation</h4>
     <p>
       {{ session.config.manager_endowment | cu }} (endowment)
       {{ if player.contract.training }}
@@ -72,6 +83,11 @@
       + {{ revenue }} (revenue)
       {{ endif }}
       - {{ player.contract.wage }} (wage) = {{player.payoff}}.
+    </p>
+    <h4>Worker's payoff calculation</h4>
+    <p>
+      {{ session.config.employee_endowment | cu }} (endowment) +
+      {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.contract.employee.payoff }}.
     </p>
     {% else %}
     <p>

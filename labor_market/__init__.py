@@ -534,29 +534,26 @@ class PeriodResults(Page):
     # A lot of payoff is calculated again here for display
     @staticmethod
     def vars_for_template(player: Player):
-        if player.role == "Manager":
-            if player.field_maybe_none("contract"):
-                skill_multiplier = player.session.config["skill_multipliers"][player.contract.employee.skill - 1]
-                base_revenue = player.session.config["base_revenue"]
-                revenue = cu(round(base_revenue * skill_multiplier * player.contract.employee.work_effort))
-            else:
-                skill_multiplier = 0
-                revenue = cu(0)
-            return {
-                "offers": player.offer_history,
-                "skill_multiplier": skill_multiplier,
-                "revenue": revenue,
-                "multiplied_revenue": revenue * player.session.config["training_productivity_multiplier"]
-            }
+        if player.field_maybe_none("contract"):
+            skill_multiplier = player.session.config["skill_multipliers"][player.contract.employee.skill - 1]
+            base_revenue = player.session.config["base_revenue"]
+            revenue = cu(round(base_revenue * skill_multiplier * player.contract.employee.work_effort))
         else:
-            if player.field_maybe_none("work_effort"):
-                effort_cost = cu(player.session.config["effort_costs"][player.work_effort - 1])
-            else:
-                effort_cost = 0
-            return {
-                "offers": player.offer_history,
-                "effort_cost": effort_cost
-            }
+            skill_multiplier = 0
+            revenue = cu(0)
+
+        if player.field_maybe_none("work_effort"):
+            effort_cost = cu(player.session.config["effort_costs"][player.work_effort - 1])
+        else:
+            effort_cost = 0
+
+        return {
+            "offers": player.offer_history,
+            "skill_multiplier": skill_multiplier,
+            "revenue": revenue,
+            "multiplied_revenue": revenue * player.session.config["training_productivity_multiplier"],
+            "effort_cost": effort_cost
+        }
 
 # Repeat for NUM_ROUNDS periods (rounds/subsessions)
 # * WaitForAllPlayers to set skill levels based on previous period
