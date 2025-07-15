@@ -216,7 +216,7 @@ export class InputSpinner {
             if (updateInput === undefined) {
                 updateInput = true
             }
-            if (isNaN(newValue) || newValue === "") {
+            if (isNaN(newValue) || newValue === "" || newValue > self.max || newValue < self.min) {
                 self.$original[0].value = ""
                 if (updateInput) {
                     self.$input[0].value = ""
@@ -224,7 +224,6 @@ export class InputSpinner {
                 self.value = NaN
             } else {
                 newValue = parseFloat(newValue)
-                newValue = Math.min(Math.max(newValue, self.min), self.max)
                 self.$original[0].value = newValue
                 if (updateInput) {
                     self.$input[0].value = self.$original[0].inputSpinnerEditor.render(newValue)
@@ -277,7 +276,8 @@ export class InputSpinner {
             if (isNaN(self.value)) {
                 self.value = 0
             }
-            setValue(Math.round(self.value / step) * step + step)
+            let newValue = Math.round(self.value / step) * step + step
+            setValue(Math.min(Math.max(newValue, self.min), self.max))
             dispatchEvent(self.$original, "input")
         }
 
