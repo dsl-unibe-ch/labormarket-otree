@@ -9,7 +9,7 @@
 
     <p>
       Your contract for this Period pays a <b>wage of {{ contract.wage }}</b>
-      and <b>{%if contract.training %}includes{% else %}doesn't include{% endif %} training</b>.
+      and <b>{%if contract.training %}includes{% else %}does not include{% endif %} training</b>.
     </p>
     
     <p>
@@ -41,6 +41,12 @@
           <th scope="row">Cost to you</th>
           {{ for cost in effort_costs }}
           <td data-effort-level="{{forloop.counter}}">{{cost | cu}}</td>
+          {{ endfor }}
+        </tr>
+        <tr>
+          <th scope="row">Payoff to employer</th>
+          {{ for employer_payoff in employer_payoff_values }}
+          <td data-effort-level="{{forloop.counter}}">{{employer_payoff | cu}}</td>
           {{ endfor }}
         </tr>
       </tbody>

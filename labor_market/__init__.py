@@ -45,6 +45,27 @@ def random_labels():
     return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
            random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
 
+# Helper methods
+
+def calculate_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, wage: int, has_training: bool):
+    config = group.session.config
+    endowment: cu = cu(config["manager_endowment"])
+    if has_training:
+        training_cost = cu(config["training_cost"])
+        training_productivity_multiplier = config["training_productivity_multiplier"]
+        return {
+            "message": (f"Payoff for Manager {player.id_in_group}: {endowment} + "
+                          f"{revenue * training_productivity_multiplier} - {training_cost} - {wage}"),
+            "payoff": endowment + revenue * training_productivity_multiplier - training_cost - wage,
+            "revenue": revenue * training_productivity_multiplier
+        }
+    else:
+        return {
+            "message": f"Payoff for Manager {player.id_in_group}: {endowment} + {revenue} - {wage}",
+            "payoff": endowment + revenue - wage,
+            "revenue": revenue
+        }
+
 # Objects
 
 def multiplier_to_table_item(mult_tuple: tuple[int, float]):
@@ -424,10 +445,22 @@ class ChooseEffort(Page):
 
     @staticmethod
     def vars_for_template(employee: Player):
+        config = employee.group.session.config
+        base_revenue = config["base_revenue"]
+        contract = employee.contract
+        manager = contract.manager
+        skill_multiplier = employee.session.config["skill_multipliers"][employee.skill]
+
+        initial_revenues = [cu(round(base_revenue * skill_multiplier * effort)) for effort in range(1, 11)]
+        employer_payoff_values = [calculate_revenue_and_payoff(manager.group, manager, cu(revenue), contract.wage,
+                                                               contract.training is not None)["payoff"]
+                                  for revenue in initial_revenues]
+
         return {
-            "contract": employee.contract,
+            "contract": contract,
             "offers": employee.offer_history,
-            "effort_costs": employee.session.config["effort_costs"]
+            "effort_costs": employee.session.config["effort_costs"],
+            "employer_payoff_values": employer_payoff_values
         }
 
     @staticmethod
@@ -481,21 +514,15 @@ class WaitForEffort(WaitPage):
                     skill_multiplier = config["skill_multipliers"][contract.employee.skill - 1]
                     base_revenue = config["base_revenue"]
 
-                    revenue = cu(round(base_revenue * skill_multiplier * effort))
+                    initial_revenue = cu(round(base_revenue * skill_multiplier * effort))
+                    has_training = contract.training is not None
+                    wage = contract.wage
+                    revenue_and_payoff = calculate_revenue_and_payoff(group, player, initial_revenue, wage,
+                                                                      has_training)
 
-                    if contract.training:
-                        training_cost = cu(config["training_cost"])
-                        training_productivity_multiplier = config["training_productivity_multiplier"]
-                        print(f"Payoff for Manager {player.id_in_group}: {endowment} + " +
-                            f"{revenue * training_productivity_multiplier} - {training_cost} - {contract.wage}"
-                        )
-                        player.payoff = endowment + revenue * training_productivity_multiplier \
-                                        - training_cost - contract.wage
-                        contract.revenue = revenue * training_productivity_multiplier
-                    else:
-                        print(f"Payoff for Manager {player.id_in_group}: {endowment} + {revenue} - {contract.wage}")
-                        player.payoff = endowment + revenue - contract.wage
-                        contract.revenue = revenue
+                    print(revenue_and_payoff["message"])
+                    player.payoff = revenue_and_payoff["payoff"]
+                    contract.revenue = revenue_and_payoff["revenue"]
                 else:
                     print(f"Payoff for Manager {player.id_in_group}: {endowment}")
                     player.payoff = endowment
@@ -504,7 +531,7 @@ class WaitForEffort(WaitPage):
 
 class PeriodResults(Page):
     """Period outcomes display"""
-    # A lot of payoff iscalculated again here for display
+    # A lot of payoff is calculated again here for display
     @staticmethod
     def vars_for_template(player: Player):
         if player.role == "Manager":
