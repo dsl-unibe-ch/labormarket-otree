@@ -1,0 +1,89 @@
+{{ block title }}Employer Earnings{{ endblock }}
+
+{{ block content }}
+
+<p>
+  Employers begin each period with an initial endowment of {{ manager_endowment }} points.
+</p>
+
+<h3>Employer does not hire any worker</h3>
+<p>
+  If an employer <strong>does not</strong> hire any worker in a period, he/she will only receive the endowment in
+  this period.
+  So, if <strong>the employer does not offer any contracts or no worker accepts any of the employer's
+  contract offers</strong>, the employer's earnings for this period are:
+</p>
+<p>
+  <pre>
+    Employer earnings for the period<br/>
+    = {{ manager_endowment }} (initial endowment)
+  </pre>
+</p>
+
+<h3>Employer hires and does not offer training</h3>
+<p>
+  If a worker <strong>accepts</strong> a contract offer of an employer that <strong>does not include</strong> training,
+  the employer receives the following revenues and incurs the following costs:
+</p>
+<ul>
+  <li>
+    Total revenue based on the hired worker's productivity (determined by his/her skill level) and the effort level
+    the worker chooses in this period. Specifically,<br/>
+    <pre>Employer revenue = worker effort level × worker productivity</pre>
+  </li>
+  <li>
+    Total costs based on the amount of salary paid to the hired worker.
+  </li>
+</ul>
+
+<p>So, if a worker accepts a contract that does not include training, the employer's earnings for this period are:</p>
+<p>
+  <pre>
+    Employer earnings for the period<br/>
+    = {{ manager_endowment }} (initial endowment)<br/>
+    + worker effort level x worker productivity (employer revenue)<br/>
+    – salary paid to worker
+  </pre>
+</p>
+
+<h3>Employer hires and does offer training</h3>
+<p>
+  If a worker <strong>accepts</strong> a contract offer of an employer that <strong>does include</strong> training,
+  the employer receives the following revenues and incurs the following costs:
+</p>
+<ul>
+  <li>
+    Total revenue equals <strong>half of the revenue</strong> based on the hired worker's productivity
+    (determined by his/her skill level) and the effort level the worker chooses in this period. Specifically,<br/>
+    <pre>Employer revenue = 0.5 × worker effort level × worker productivity</pre>
+  </li>
+  <li>
+    Total costs equal the direct cost of 50 points for the training and the salary paid to the hired worker.
+  </li>
+</ul>
+
+<p>
+  So, if a worker accepts a contract that <strong>does include</strong> training, the employer's earnings 
+  for this period are:
+</p>
+<p>
+  <pre>
+    Employer earnings for the period
+    = {{ manager_endowment }} (initial endowment)
+    + 0.5 × [worker effort level × worker productivity] (employer revenue)
+    – 50 (direct training costs)
+    – salary paid to worker
+  </pre>
+</p>
+
+<h3>Payout of Earnings</h3>
+<p>
+  Your cumulative earnings for all 10 periods of the study will be converted to cash
+  (at the rate of $0.25 per 100 points).
+  This will be added to your {{ participation_fee }} participation fee.
+  The resulting amount will be paid to you in cash at the end of today’s session.
+</p>
+
+{{ next_button }}
+
+{{ endblock }}

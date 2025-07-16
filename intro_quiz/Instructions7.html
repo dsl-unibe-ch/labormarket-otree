@@ -1,0 +1,42 @@
+{{ block title }}Worker Earnings{{ endblock }}
+
+{{ block content }}
+
+<p>
+  Workers begin each period with an initial endowment of {{ employee_endowment }} points.
+</p>
+<p>
+  If a worker <strong>does not</strong> accept any contracts, he/she will only receive the endowment in this period.
+</p>
+<p>
+  If a worker <strong>accepts a contract</strong>, the worker receives the following revenues and incurs the following
+  costs:
+</p>
+<ul>
+  <li>He/she will receive the salary specified in the contract.</li>
+  <li>
+    Additionally, he/she will have to make a decision about his/her effort and will incur a <strong>cost</strong>
+    based on the level of effort selected.
+    This cost is subtracted from the worker's earnings for the period.
+    The cost of effort table is provided again below:
+  </li>
+</ul>
+{{ include '_tables/effort.html' }}
+
+<p>
+  So, if a worker <strong>does not accept</strong> any contract, the worker's earnings for this period are:
+</p>
+<p>
+  <pre>Worker earnings for the period = {{ employee_endowment }} (initial endowment)</pre>
+</p>
+
+<p>
+  If a worker <strong>accepts</strong> a contract, the worker's earnings for this period are:
+</p>
+<p>
+  <pre>Worker earnings for the period = {{ employee_endowment }} (initial endowment) + salary – cost of effort</pre>
+</p>
+
+{{ next_button }}
+
+{{ endblock }}
