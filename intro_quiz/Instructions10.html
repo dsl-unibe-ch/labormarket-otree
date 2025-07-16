@@ -1,0 +1,82 @@
+{{ block title }}Pay Examples{{ endblock }}
+
+{{ block content }}
+
+<p>
+  Please review the following examples showing how employer and worker earnings are calculated
+  and affected by different worker salary and training scenarios.
+</p>
+
+<p>
+  Scenario: Training <strong>is not</strong> offered & worker skill level = <strong>1</strong>
+</p>
+{{ with data=[
+    {'salary': 100, 'net_worker_pay': 400, 'net_employer_pay': 1200},
+    {'salary': 250, 'net_worker_pay': 550, 'net_employer_pay': 1050},
+    {'salary': 400, 'net_worker_pay': 700, 'net_employer_pay': 900}
+] }}
+  {{ with training_offered='N' }}
+    {{ with worker_skill_level='1' }}
+      {{ with employer_revenue=500 }}
+        {{ include '_tables/pay_example.html' }}
+      {{ endwith }}
+    {{ endwith }}
+  {{ endwith }}
+{{ endwith }}
+
+<p>
+  Scenario: Training <strong>is</strong> offered & worker skill level = <strong>1</strong>
+</p>
+{{ with data=[
+    {'salary': 100, 'net_worker_pay': 400, 'net_employer_pay': 900},
+    {'salary': 250, 'net_worker_pay': 550, 'net_employer_pay': 750},
+    {'salary': 400, 'net_worker_pay': 700, 'net_employer_pay': 600}
+] }}
+  {{ with training_offered='Y' }}
+    {{ with worker_skill_level='1' }}
+      {{ with employer_revenue=250 }}
+        {{ include '_tables/pay_example.html' }}
+      {{ endwith }}
+    {{ endwith }}
+  {{ endwith }}
+{{ endwith }}
+
+<p>
+  Scenario: Training <strong>is not</strong> offered & worker skill level = <strong>5</strong>
+</p>
+{{ with data=[
+    {'salary': 100, 'net_worker_pay': 400, 'net_employer_pay': 1910},
+    {'salary': 250, 'net_worker_pay': 550, 'net_employer_pay': 1760},
+    {'salary': 400, 'net_worker_pay': 700, 'net_employer_pay': 1610}
+] }}
+  {{ with training_offered='N' }}
+    {{ with worker_skill_level='5' }}
+      {{ with employer_revenue=1210 }}
+        {{ include '_tables/pay_example.html' }}
+      {{ endwith }}
+    {{ endwith }}
+  {{ endwith }}
+{{ endwith }}
+
+<p>
+  Scenario: Training <strong>is</strong> offered & worker skill level = <strong>5</strong>
+</p>
+{{ with data=[
+    {'salary': 100, 'net_worker_pay': 400, 'net_employer_pay': 1255},
+    {'salary': 250, 'net_worker_pay': 550, 'net_employer_pay': 1105},
+    {'salary': 400, 'net_worker_pay': 700, 'net_employer_pay': 955}
+] }}
+  {{ with training_offered='Y' }}
+    {{ with worker_skill_level='5' }}
+      {{ with employer_revenue=605 }}
+        {{ include '_tables/pay_example.html' }}
+      {{ endwith }}
+    {{ endwith }}
+  {{ endwith }}
+{{ endwith }}
+
+{{ next_button }}
+
+<script src="{{ static 'global/Tooltip.js' }}"></script>
+
+{{ endblock }}

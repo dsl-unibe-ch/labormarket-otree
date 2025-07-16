@@ -1,0 +1,55 @@
+<style>
+  /* Remove top and bottom border for the empty column */
+  table[name="pay"] td:nth-child(7),
+  table[name="pay"] th:nth-child(7) {
+    border-top-style : hidden;
+    border-bottom-style : hidden;
+  }
+</style>
+<table name="pay" class="table table-bordered text-center">
+  <thead>
+    <tr>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Different worker salaries">
+        Worker Salary
+      </th>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="{{ if training_offered == 'Y' }}Training is offered{{ else }}Training is NOT offered{{ endif }}">
+        Training Offered
+      </th>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Worker skill level = {{ worker_skill_level }}">Worker Skill Level</th>
+      <th scope="col">Effort Level Chosen</th>
+      <th scope="col">Cost of Effort</th>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="{{ if training_offered == 'Y' }}Employer revenue is reduced by &frac12;{{ endif }}">
+        Employer Revenue
+      </th>
+      <th scope="col"></th>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Net Worker Pay = Salary + Endowment ({{ employee_endowment }}) – Cost of Effort">
+        Net Worker Pay
+      </th>
+      <th scope="col" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Net Employer Pay = Endowment ({{ manager_endowment }}) + Employer Revenue – Worker Salary
+          {{ if training_offered == 'Y' }}– Direct Training Cost ({{ training_cost }}){{ endif }}">
+        Net Employer Pay
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+  {{ for datum in data }}
+    <tr>
+      <td>{{ datum.salary }}</td>
+      <td>{{ training_offered }}</td>
+      <td>{{ worker_skill_level }}</td>
+      <td>5</td>
+      <td>100</td>
+      <td>{{ employer_revenue }}</td>
+      <td></td>
+      <td>{{ datum.net_worker_pay }}</td>
+      <td>{{ datum.net_employer_pay }}</td>
+    </tr>
+  {{ endfor }}
+  </tbody>
+</table>

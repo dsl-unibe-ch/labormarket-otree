@@ -420,6 +420,22 @@ class Instructions8(Page):
             participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session)
         )
 
+class Instructions9(Page):
+    """Intro page with instructions"""
+
+class Instructions10(Page):
+    """Intro page with instructions"""
+
+    @staticmethod
+    def vars_for_template(player):
+        """Providing variables for template"""
+        session = player.session
+
+        return dict(
+            employee_endowment=session.config["employee_endowment"],
+            manager_endowment=session.config["manager_endowment"],
+            training_cost=session.config["training_cost"],
+        )
 
 class Quiz1(Page):
     """Quiz page to test comprehension"""
@@ -517,5 +533,5 @@ def creating_session(subsession: Subsession):
 page_sequence = [
     # Instructions4, Instructions5, Instructions6,
     # Quiz2,
-    Instructions7, Instructions8
+    Instructions7, Instructions8, Instructions9, Instructions10
 ]
