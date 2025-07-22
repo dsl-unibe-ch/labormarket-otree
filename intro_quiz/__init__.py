@@ -1,5 +1,6 @@
 """Initial intro with rules and quiz"""
 from otree.api import *
+from intro_quiz.quiz import *
 
 # Constants
 
@@ -161,6 +162,9 @@ class Player(BasePlayer):
     q_2_7 = models.BooleanField(label=q_2_7_options)
     q_2_8 = models.BooleanField(label=f"Your skill level in the first period is <strong>{skill}</strong>.")
     # TODO: q_2_9
+
+    # Quiz 3
+    # TODO: implement
 
 
 class Group(BaseGroup):
@@ -440,10 +444,35 @@ class Instructions10(Page):
 class Quiz1(Page):
     """Quiz page to test comprehension"""
     form_model = "player"
-    form_fields = ["q_1_1", "q_1_2", "q_1_3", "q_1_4", "q_1_5", "q_1_6", "q_1_7", "q_1_8", "q_1_9", "q_1_10", "q_1_11"]
+    # form_fields = ["q_1_1", "q_1_2", "q_1_3", "q_1_4", "q_1_5", "q_1_6", "q_1_7", "q_1_8", "q_1_9", "q_1_10", "q_1_11"]
+
+    @staticmethod
+    def vars_for_template(player: "Player"):
+        return dict(questions=get_questions(0))
+
+    @staticmethod
+    def js_vars(player: "Player"):
+        return dict(questions=get_questions(0), answers=get_answers(0), hints=get_hints(0))
 
 
 class Quiz2(Page):
+    """Quiz page to test comprehension"""
+    form_model = "player"
+    form_fields = ["q_2_1", "q_2_2", "q_2_3", "q_2_4", "q_2_5", "q_2_6", "q_2_7", "q_2_8"]
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        """Providing variables for template"""
+        session = player.session
+
+        return dict(
+            player=dir(player),
+            player_skill=player.skill,
+            player_role=player.role,
+            session=dir(session),
+        )
+
+class Quiz3(Page):
     """Quiz page to test comprehension"""
     form_model = "player"
     form_fields = ["q_2_1", "q_2_2", "q_2_3", "q_2_4", "q_2_5", "q_2_6", "q_2_7", "q_2_8"]
@@ -531,7 +560,8 @@ def creating_session(subsession: Subsession):
 #                  ]
 
 page_sequence = [
+    Quiz1
     # Instructions4, Instructions5, Instructions6,
     # Quiz2,
-    Instructions7, Instructions8, Instructions9, Instructions10
+    # Instructions7, Instructions8, Instructions9, Instructions10
 ]

@@ -560,7 +560,7 @@ class PeriodResults(Page):
 # Hiring Phase:
 #   Repeat HIRING_STEPS times the Hiring Phase step:
 #   * MakeOffer is shown to Managers who can still make offers
-#   * WaitForOffers is shown to Employees who aren't matched until all offers are made
+#   * WaitForOffers is shown to Employees who are not matched until all offers are made
 #   * GetOffers is shown to Employees with open offers, to accept or reject
 #   * WaitForAcceptance is show to all without a match
 #   (Whoever has a match falls through to the Work phase)
