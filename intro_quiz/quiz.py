@@ -1,40 +1,58 @@
-from typing import Any
-
 TRUE = 'True'
 FALSE = 'False'
 TRUE_FALSE = [FALSE, TRUE]
 
 QUIZ_1_QUESTIONS = [
-    {"index": 1, "text": "This study consists of 10 periods.", "choices": TRUE_FALSE},
-    {"index": 2, "text": "Each period consists of a hiring phase and a work phase.", "choices": TRUE_FALSE},
-    {"index": 3, "text": "In the hiring phase of each period, each employer <strong>must</strong> make a contract "
-             "offer to one worker.", "choices": TRUE_FALSE, 
-             "correct_text": "Each employer does not have to make a contract offer to a worker."},
-    {"index": 4, "text": "In the hiring phase of each period, workers review the offers they received and "
-             "<strong>must</strong> accept one offer.", "choices": TRUE_FALSE},
-    {"index": 5, "text": "If a worker rejects an offer received from an employer in the hiring phase of a period, "
-             "the worker <strong>will</strong> be able to receive another offer <strong>from the same "
-             "employer in that period</strong>.", "choices": TRUE_FALSE},
-    {"index": 6, "text": "Employer offers include a salary and whether training is provided during the period. "
-             "Regardless of the worker's effort decision during the subsequent work phase, the salary "
-             "and training specified in the accepted offer must be provided.", "choices": TRUE_FALSE},
-    {"index": 7, "text": "Employers and workers who do not contract in the hiring phase of a period receive only their "
-             "initial endowment for that period and do not complete the work phase. Employers do not receive "
-             "revenue from worker effort and workers do not receive a salary from an employer.", "choices": TRUE_FALSE},
-    {"index": 8, "text": "In the work phase of each period, every hired worker must decide how much effort to exert. "
-             "Higher levels of effort are <strong>more costly</strong> to the worker than lower levels of effort.", 
-             "choices": TRUE_FALSE},
-    {"index": 9, "text": "For every worker skill level, the higher the level of effort a worker chooses, the higher an "
-             "employer's revenue is.", "choices": TRUE_FALSE},
-    {"index": 10, "text": "Worker's productivity is based on his/her skill level. The higher the worker's skill level, "
-             "the higher the worker's productivity is and, thus, the higher the revenue for the employer is for "
-             "a given effort level.", "choices": TRUE_FALSE},
-    {"index": 11, "text": "In the hiring phase in <strong>each</strong> of the 10 periods, every employer can again "
-             "select <strong>any</strong> potential worker to make a contract offer to and every worker can freely "
-             "accept one of the contract offers they receive.", "choices": TRUE_FALSE},
+    dict(index=1, text="This study consists of 10 periods.", choices=TRUE_FALSE),
+    dict(index=2, text="Each period consists of a hiring phase and a work phase.", choices=TRUE_FALSE),
+    dict(index=3, text="In the hiring phase of each period, each employer <strong>must</strong> make a contract "
+                       "offer to one worker.", choices=TRUE_FALSE,
+         correct_text="Each employer does not have to make a contract offer to a worker."),
+    dict(index=4, text="In the hiring phase of each period, workers review the offers they received and "
+                       "<strong>must</strong> accept one offer.", choices=TRUE_FALSE),
+    dict(index=5, text="If a worker rejects an offer received from an employer in the hiring phase of a period, "
+                       "the worker <strong>will</strong> be able to receive another offer <strong>from the same "
+                       "employer in that period</strong>.", choices=TRUE_FALSE),
+    dict(index=6, text="Employer offers include a salary and whether training is provided during the period. "
+                       "Regardless of the worker's effort decision during the subsequent work phase, the salary "
+                       "and training specified in the accepted offer must be provided.", choices=TRUE_FALSE),
+    dict(index=7, text="Employers and workers who do not contract in the hiring phase of a period receive only their "
+                       "initial endowment for that period and do not complete the work phase. Employers do not receive "
+                       "revenue from worker effort and workers do not receive a salary from an employer.",
+         choices=TRUE_FALSE),
+    dict(index=8, text="In the work phase of each period, every hired worker must decide how much effort to exert. "
+                       "Higher levels of effort are <strong>more costly</strong> to the worker than lower levels of "
+                       "effort.",
+         choices=TRUE_FALSE),
+    dict(index=9, text="For every worker skill level, the higher the level of effort a worker chooses, the higher an "
+                       "employer's revenue is.", choices=TRUE_FALSE),
+    dict(index=10, text="Worker's productivity is based on his/her skill level. The higher the worker's skill level, "
+                        "the higher the worker's productivity is and, thus, the higher the revenue for the employer "
+                        "is for a given effort level.", choices=TRUE_FALSE),
+    dict(index=11, text="In the hiring phase in <strong>each</strong> of the 10 periods, every employer can again "
+                        "select <strong>any</strong> potential worker to make a contract offer to and every worker "
+                        "can freely accept one of the contract offers they receive.", choices=TRUE_FALSE),
+]
+
+QUIZ_2_QUESTIONS = [
+        dict(index=1, text="If an employer provides training to a worker, he/she incurs a 50-point direct "
+                           "training cost.", choices=TRUE_FALSE),
+        dict(index=2, text="Providing training to workers is costly to employers not only because the employer "
+                           "incurs a direct training cost of 50 points, but also because in a period with training "
+                           "the employer will only receive half of the revenue that is generated by the combination "
+                           "of the worker's skill level and the effort level chosen.", choices=TRUE_FALSE),
+        dict(index=3, text="Receiving training is costly for workers.", choices=TRUE_FALSE),
+        dict(index=4, text="If a worker receives training, his/her skill level will not increase until the following "
+                           "period.", choices=TRUE_FALSE),
+        dict(index=5, text="Increases in skill level are permanent and apply to all future periods.",
+             choices=TRUE_FALSE),
+        dict(index=6, text="When workers receive training in a period, they <strong>do not</strong> make effort "
+                           "decisions in the work phase like they would if training was not provided.",
+             choices=TRUE_FALSE),
 ]
 
 QUIZ_1_ANSWERS = [1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+QUIZ_2_ANSWERS = [1, 1, 0, 1, 1, 0, 1, 1]
 
 QUIZ_1_HINTS = [
     [
@@ -127,14 +145,78 @@ QUIZ_1_HINTS = [
     ],
 ]
 
+QUIZ_2_HINTS = [
+    [
+        "Your response is incorrect. If an employer provides training to a worker, he/she incurs a 50-point direct "
+        "training cost. Please try again.",
+        "Your response is correct. If an employer provides training to a worker, he/she incurs a 50-point direct "
+        "training cost."
+    ],
+    [
+        "Your response is incorrect. It is costly to employers not only because the employer incurs a direct "
+        "training cost of 50 points, but also because in a period with training he/she will only receive "
+        "half of the revenue generated by the worker. Please try again.",
+        "Your response is correct. It is costly to employers not only because the employer incurs a direct "
+        "training cost of 50 points, but also because in a period with training he/she will only receive "
+        "half of the revenue generated by the worker."
+    ],
+    [
+        "Your response is incorrect. Receiving training does not cost anything for workers. Please try again.",
+        "Your response is correct. Receiving training does not cost anything for workers."
+    ],
+    [
+        "Your response is incorrect. If a worker receives training, his/her skill level will not increase "
+        "until the following period. Please try again.",
+        "Your response is correct. If a worker receives training, his/her skill level will not increase "
+        "until the following period."
+    ],
+    [
+        "Your response is incorrect. Increases in skill level are permanent and apply to all future periods. "
+        "Please try again.",
+        "Your response is correct. Increases in skill level are permanent and apply to all future periods."
+    ],
+    [
+        "Your response is incorrect. When workers receive training in a period, they <strong>do</strong> make effort "
+        "decisions in the work phase like they would if training was not provided. Please try again.",
+        "Your response is correct. When workers receive training in a period, they <strong>do</strong> make effort "
+        "decisions in the work phase like they would if training was not provided."
+    ]
+]
 
-def get_questions(quiz_number: int) -> list[dict[str, int | str | list[str]]]:
-    return [QUIZ_1_QUESTIONS][quiz_number]
+
+def get_questions(quiz_number: int, player: "Player") -> list[dict[str, int | str | list[str]]]:
+    match quiz_number:
+        case 0:
+            return QUIZ_1_QUESTIONS
+        case 1:
+            q_2_7 = dict(index=7, text=player.q_2_7_text, choices=TRUE_FALSE)
+            q_2_8 = dict(index=8, text=f"Your skill level in the first period is <strong>{player.skill}</strong>.",
+                         choices=TRUE_FALSE)
+            return QUIZ_2_QUESTIONS + [q_2_7, q_2_8]
+        case _:
+            raise ValueError(f"Not supported quiz number {quiz_number}.")
 
 
 def get_answers(quiz_number: int) -> list[int]:
-    return [QUIZ_1_ANSWERS][quiz_number]
+    return [QUIZ_1_ANSWERS, QUIZ_2_ANSWERS][quiz_number]
 
 
-def get_hints(quiz_number: int) -> list[list[str]]:
-    return [QUIZ_1_HINTS][quiz_number]
+def get_hints(quiz_number: int, player: "Player") -> list[list[str]]:
+    match quiz_number:
+        case 0:
+            return QUIZ_1_HINTS
+        case 1:
+            q_2_7 = [
+                f"Your response is incorrect. In the first period, all workers start with a skill level of "
+                f"{player.q_2_7_text}. Please try again.",
+                f"Your response is correct. In the first period, all workers start with a skill level of "
+                f"{player.q_2_7_text}."
+            ]
+            q_2_8 = [
+                f"Your response is incorrect. Your skill level in the first period is <strong>{player.skill}</strong>. "
+                f"Please try again.",
+                f"Your response is correct. Your skill level in the first period is <strong>{player.skill}</strong>."
+            ]
+            return QUIZ_2_HINTS + [q_2_7, q_2_8]
+        case _:
+            raise ValueError(f"Not supported quiz number {quiz_number}.")

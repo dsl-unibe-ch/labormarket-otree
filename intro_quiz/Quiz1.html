@@ -2,9 +2,9 @@
 
 {{ block title }}Comprehension Quiz{{ endblock }}
 
-{% block styles %}
+{{ block styles }}
   <link rel="stylesheet" type="text/css" href="{{ static 'intro_quiz/css/quiz.css' }}"/>
-{% endblock %}
+{{ endblock }}
 
 {{ block content }}
 {{ include '_modals/intro_quiz/hint.html' }}
@@ -14,27 +14,7 @@
     with the experiment. You can review the paper copy of instructions provided to you at any time.
 </p>
 
-{{ for question in questions }}
-<div class="mb-3 _formfield hidden" id="container-quiz{{ question.index }}">
-  <div class="question">{{ question.index }}. {{ question.text }}</div>
-  {{ for answer in question.choices }}
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="quiz{{ question.index }}"
-             id="quiz{{ question.index }}-{{ forloop.counter0 }}">
-      <label for="quiz{{ question.index }}-{{ forloop.counter0 }}" class="label">
-        {{ answer|safe }}
-      </label>
-    </div>
-  {{ endfor }}
-</div>
-{{ endfor }}
-
-<p>
-  <button class="otree-btn-next btn btn-primary" type="button" id="next-button">
-    Submit
-  </button>
-</p>
-
+{{ include "_templates/intro_quiz/quiz_questions.html" }}
 {{ endblock }}
 
 {{ block scripts }}

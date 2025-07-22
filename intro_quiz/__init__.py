@@ -24,43 +24,6 @@ class C(BaseConstants):
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
 
-    TRUE = 'True'
-    FALSE = 'False'
-    TRUE_FALSE = [TRUE, FALSE]
-    QUIZ_1_QUESTIONS = [
-        dict(text="This study consists of 10 periods.", choices=TRUE_FALSE, correct=0),
-        dict(text="Each period consists of a hiring phase and a work phase.", choices=TRUE_FALSE, correct=0),
-        dict(text="In the hiring phase of each period, each employer <strong>must</strong> make a contract offer to "
-                  "one worker.", choices=TRUE_FALSE, correct=1,
-             correct_text="Each employer does not have to make a contract offer to a worker."),
-        dict(text="In the hiring phase of each period, workers review the offers they received and "
-                  "<strong>must</strong> accept one offer.", choices=TRUE_FALSE, correct=1),
-        dict(text="If a worker rejects an offer received from an employer in the hiring phase of a period, the worker "
-                  "<strong>will</strong> be able to receive another offer <strong>from the same employer in that "
-                  "period</strong>.", choices=TRUE_FALSE, correct=1),
-        dict(text="Employer offers include a salary and whether training is provided during the period. Regardless "
-                  "of the worker's effort decision during the subsequent work phase, the salary and training "
-                  "specified in the accepted offer must be provided.", choices=TRUE_FALSE, correct=0),
-        dict(text="Employers and workers who do not contract in the hiring phase of a period receive only their "
-                  "initial endowment for that period and do not complete the work phase. Employers do not receive "
-                  "revenue from worker effort and workers do not receive a salary from an employer.",
-             choices=TRUE_FALSE, correct=0),
-        dict(text="In the work phase of each period, every hired worker must decide how much effort to exert. Higher "
-                  "levels of effort are <strong>more costly</strong> to the worker than lower levels of effort.",
-             choices=TRUE_FALSE, correct=0),
-        dict(text="For every worker skill level, the higher the level of effort a worker chooses, the higher an "
-                  "employer's revenue is.", choices=TRUE_FALSE, correct=0),
-        dict(text="Worker's productivity is based on his/her skill level. The higher the worker's skill level, the "
-                  "higher the worker's productivity is and, thus, the higher the revenue for the employer is for "
-                  "a given effort level.", choices=TRUE_FALSE, correct=0),
-        dict(text="In the hiring phase in <strong>each</strong> of the 10 periods, every employer can again select "
-                  "<strong>any</strong> potential worker to make a contract offer to and every worker can freely "
-                  "accept one of the contract offers they receive.", choices=TRUE_FALSE, correct=0),
-    ]
-
-    NUM_ROUNDS = len(QUIZ_1_QUESTIONS)
-
-
 # Objects
 
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
@@ -98,7 +61,7 @@ class Player(BasePlayer):
         return role_to_string[self.role]
 
     @property
-    def q_2_7_options(self):
+    def q_2_7_text(self):
         session = self.session
         market = session.config["market"]
 
@@ -113,56 +76,6 @@ class Player(BasePlayer):
 
     response = models.IntegerField()
     is_correct = models.BooleanField()
-
-    # # Quiz 1
-    # q_1_1 = models.BooleanField(label="This study consists of 10 periods.")
-    # q_1_2 = models.BooleanField(label="Each period consists of a hiring phase and a work phase.")
-    # q_1_3 = models.BooleanField(label="In the hiring phase of each period, each employer <strong>must</strong> "
-    #                                       "make a contract offer to one worker.")
-    # q_1_4 = models.BooleanField(label="In the hiring phase of each period, workers review the offers they received "
-    #                                       "and <strong>must</strong> accept one offer.")
-    # q_1_5 = models.BooleanField(label="If a worker rejects an offer received from an employer in the hiring phase "
-    #                                       "of a period, the worker <strong>will</strong> be able to receive another "
-    #                                       "offer <strong>from the same employer in that period</strong>.")
-    # q_1_6 = models.BooleanField(label="Employer offers include a salary and whether training is provided during "
-    #                                       "the period. Regardless of the worker's effort decision during the "
-    #                                       "subsequent work phase, the salary and training specified in the accepted "
-    #                                       "offer must be provided.")
-    # q_1_7 = models.BooleanField(label="Employers and workers who do not contract in the hiring phase of a period "
-    #                                       "receive only their initial endowment for that period and do not complete "
-    #                                       "the work phase. Employers do not receive revenue from worker effort and "
-    #                                       "workers do not receive a salary from an employer.")
-    # q_1_8 = models.BooleanField(label="In the work phase of each period, every hired worker must decide how much "
-    #                                       "effort to exert. Higher levels of effort are <strong>more costly</strong> "
-    #                                       "to the worker than lower levels of effort.")
-    # q_1_9 = models.BooleanField(label="For every worker skill level, the higher the level of effort a worker "
-    #                                       "chooses, the higher an employer's revenue is.")
-    # q_1_10 = models.BooleanField(label="Worker's productivity is based on his/her skill level. The higher the "
-    #                                        "worker's skill level, the higher the worker's productivity is and, thus, "
-    #                                        "the higher the revenue for the employer is for a given effort level.")
-    # q_1_11 = models.BooleanField(label="In the hiring phase in <strong>each</strong> of the 10 periods, every "
-    #                                        "employer can again select <strong>any</strong> potential worker to make a "
-    #                                        "contract offer to and every worker can freely accept one of the contract "
-    #                                        "offers they receive.")
-    #
-    # Quiz 2
-    q_2_1 = models.BooleanField(label="If an employer provides training to a worker, he/she incurs a 50-point direct "
-                                      "training cost.")
-    q_2_2 = models.BooleanField(label="Providing training to workers is costly to employers not only because the "
-                                      "employer incurs a direct training cost of 50 points, but also because in "
-                                      "a period with training the employer will only receive half of the revenue "
-                                      "that is generated by the combination of the worker's skill level and "
-                                      "the effort level chosen.")
-    q_2_3 = models.BooleanField(label="Receiving training is costly for workers.")
-    q_2_4 = models.BooleanField(label="If a worker receives training, his/her skill level will not increase until "
-                                      "the following period.")
-    q_2_5 = models.BooleanField(label="Increases in skill level are permanent and apply to all future periods.")
-    q_2_6 = models.BooleanField(label="When workers receive training in a period, they <strong>do not</strong> make "
-                                      "effort decisions in the work phase like they would if training was not "
-                                      "provided.")
-    q_2_7 = models.BooleanField(label=q_2_7_options)
-    q_2_8 = models.BooleanField(label=f"Your skill level in the first period is <strong>{skill}</strong>.")
-    # TODO: q_2_9
 
     # Quiz 3
     # TODO: implement
@@ -184,134 +97,6 @@ class Group(BaseGroup):
 
 def prepare_error_message(correct_answer):
     return f"Your response is incorrect. {correct_answer} Please try again."
-
-
-# # Error messages for questions
-#
-# def q_1_1_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("This study consists of 10 periods.")
-#     else:
-#         return None
-#
-# def q_1_2_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Each period consists of a hiring phase and a work phase.")
-#     else:
-#         return None
-#
-# def q_1_3_error_message(player, value):
-#     if value:
-#         return prepare_error_message("Each employer does not have to make a contract offer to a worker.")
-#     else:
-#         return None
-#
-# def q_1_4_error_message(player, value):
-#     if value:
-#         return prepare_error_message("Workers do not have to accept an offer.")
-#     else:
-#         return None
-#
-# def q_1_5_error_message(player, value):
-#     if value:
-#         return prepare_error_message("If a worker rejects an offer received from an employer in the hiring phase of a "
-#                                      "period, the worker will not be able to receive another offer from the same "
-#                                      "employer in that period.")
-#     else:
-#         return None
-#
-# def q_1_6_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Employer offers include a salary and whether training is provided during the "
-#                                      "period. The specified salary and training must be provided.")
-#     else:
-#         return None
-#
-# def q_1_7_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Employers and workers who do not contract do not receive revenue from worker "
-#                                      "effort or a salary respectively.")
-#     else:
-#         return None
-#
-# def q_1_8_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Every hired worker must decide how much effort to exert. Higher levels of "
-#                                      "effort are more costly to them.")
-#     else:
-#         return None
-#
-# def q_1_9_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("The higher the level of effort a worker chooses, the higher an employer's "
-#                                      "revenue is.")
-#     else:
-#         return None
-#
-# def q_1_10_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Worker's productivity is based on his/her skill level. The higher the "
-#                                      "worker's skill level, the higher the worker's productivity is and, thus, "
-#                                      "the higher the revenue for the employer is for a given effort level.")
-#     else:
-#         return None
-#
-# def q_1_11_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("In the hiring phase in each of the 10 periods, every employer can again "
-#                                      "select any potential worker to make a contract offer to and every worker can "
-#                                      "freely accept one of the contract offers they receive.")
-#     else:
-#         return None
-#
-# def q_2_1_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("The employer incurs a 50-point direct training cost.")
-#     else:
-#         return None
-#
-# def q_2_2_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("In a period with training the employer will only receive half of the revenue "
-#                                      "that would have been generated without the training.")
-#     else:
-#         return None
-#
-# def q_2_3_error_message(player, value):
-#     if value:
-#         return prepare_error_message("")
-#     else:
-#         return None
-#
-# def q_2_4_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("The skill level will not increase until the following period.")
-#     else:
-#         return None
-#
-# def q_2_5_error_message(player, value):
-#     if not value:
-#         return prepare_error_message("Increases in skill level are permanent.")
-#     else:
-#         return None
-#
-# def q_2_6_error_message(player, value):
-#     if value:
-#         return prepare_error_message("")
-#     else:
-#         return None
-#
-# def q_2_7_error_message(player, value):
-#     if not value:
-#         return prepare_error_message(player.q_2_7_options)
-#     else:
-#         return None
-#
-# def q_2_8_error_message(player, value):
-#     if not value:
-#         return prepare_error_message(f"Your skill level in the first period is <strong>{player.skill}</strong>.")
-#     else:
-#         return None
 
 # Pages
 
@@ -444,51 +229,49 @@ class Instructions10(Page):
 
 class Quiz1(Page):
     """Quiz page to test comprehension"""
-    form_model = "player"
-    # form_fields = ["q_1_1", "q_1_2", "q_1_3", "q_1_4", "q_1_5", "q_1_6", "q_1_7", "q_1_8", "q_1_9", "q_1_10", "q_1_11"]
 
     @staticmethod
     def vars_for_template(player: "Player"):
-        return dict(questions=get_questions(0))
+        return dict(questions=get_questions(0, player))
 
     @staticmethod
     def js_vars(player: "Player"):
-        return dict(questions=get_questions(0), answers=get_answers(0), hints=get_hints(0))
+        return dict(questions=get_questions(0, player), answers=get_answers(0), hints=get_hints(0, player))
 
 
 class Quiz2(Page):
     """Quiz page to test comprehension"""
-    form_model = "player"
-    form_fields = ["q_2_1", "q_2_2", "q_2_3", "q_2_4", "q_2_5", "q_2_6", "q_2_7", "q_2_8"]
+
+    # @staticmethod
+    # def vars_for_template(player: Player):
+    #     """Providing variables for template"""
+    #     session = player.session
+    #
+    #     return dict(
+    #         player=dir(player),
+    #         player_skill=player.skill,
+    #         player_role=player.role,
+    #         session=dir(session),
+    #     )
 
     @staticmethod
-    def vars_for_template(player: Player):
-        """Providing variables for template"""
-        session = player.session
+    def vars_for_template(player: "Player"):
+        return dict(questions=get_questions(1, player))
 
-        return dict(
-            player=dir(player),
-            player_skill=player.skill,
-            player_role=player.role,
-            session=dir(session),
-        )
+    @staticmethod
+    def js_vars(player: "Player"):
+        return dict(questions=get_questions(1, player), answers=get_answers(1), hints=get_hints(1, player))
 
 class Quiz3(Page):
     """Quiz page to test comprehension"""
-    form_model = "player"
-    form_fields = ["q_2_1", "q_2_2", "q_2_3", "q_2_4", "q_2_5", "q_2_6", "q_2_7", "q_2_8"]
 
     @staticmethod
-    def vars_for_template(player: Player):
-        """Providing variables for template"""
-        session = player.session
+    def vars_for_template(player: "Player"):
+        return dict(questions=get_questions(0, player))
 
-        return dict(
-            player=dir(player),
-            player_skill=player.skill,
-            player_role=player.role,
-            session=dir(session),
-        )
+    @staticmethod
+    def js_vars(player: "Player"):
+        return dict(questions=get_questions(0, player), answers=get_answers(0), hints=get_hints(0, player))
 
 
 # pages.py
@@ -561,8 +344,8 @@ def creating_session(subsession: Subsession):
 #                  ]
 
 page_sequence = [
-    Quiz1,
-    Instructions4, Instructions5, Instructions6,
-    # Quiz2,
+    # Quiz1,
+    # Instructions4, Instructions5, Instructions6,
+    Quiz2,
     # Instructions7, Instructions8, Instructions9, Instructions10
 ]
