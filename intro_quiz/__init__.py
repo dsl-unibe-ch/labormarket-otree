@@ -13,6 +13,7 @@ class C(BaseConstants):
             item['idx'] = i
         return l
 
+    NUM_ROUNDS = 1
     NAME_IN_URL = "intro_quiz"
     PLAYERS_PER_GROUP = None
 
@@ -560,8 +561,8 @@ def creating_session(subsession: Subsession):
 #                  ]
 
 page_sequence = [
-    Quiz1
-    # Instructions4, Instructions5, Instructions6,
+    Quiz1,
+    Instructions4, Instructions5, Instructions6,
     # Quiz2,
     # Instructions7, Instructions8, Instructions9, Instructions10
 ]
