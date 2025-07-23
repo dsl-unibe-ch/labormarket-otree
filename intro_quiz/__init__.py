@@ -77,9 +77,6 @@ class Player(BasePlayer):
     response = models.IntegerField()
     is_correct = models.BooleanField()
 
-    # Quiz 3
-    # TODO: implement
-
 
 class Group(BaseGroup):
     """Group object for quiz"""
@@ -325,16 +322,12 @@ def creating_session(subsession: Subsession):
                 player.skill = subsession.session.config["starting_skills"][index]
 
 
-# page_sequence = [
-#     # Consent, Instructions1, Instructions2, Instructions3,
-#     # Question, Feedback
-#                  Quiz1, Instructions4, Instructions5, Instructions6
-#                  ]
 
 page_sequence = [
-    # Quiz1,
-    # Instructions4, Instructions5, Instructions6,
-    # Quiz2,
-    # Instructions7, Instructions8, Instructions9, Instructions10,
+    Consent, Instructions1, Instructions2, Instructions3,
+    Quiz1,
+    Instructions4, Instructions5, Instructions6,
+    Quiz2,
+    Instructions7, Instructions8, Instructions9, Instructions10,
     Quiz3
 ]

@@ -326,10 +326,10 @@ def get_questions(quiz_number: int, player: "Player") -> list[dict[str, int | st
         case 0:
             return QUIZ_1_QUESTIONS
         case 1:
-            q_2_7 = dict(index=7, text=player.q_2_7_text, choices=TRUE_FALSE)
+            q_2_7 = dict(index=7, text=player.q_2_7_text, choices=TRUE_FALSE, table=None)
             q_2_8 = dict(index=8, text=f"Your skill level in the first period is <strong>{player.skill}</strong>.",
-                         choices=TRUE_FALSE)
-            return QUIZ_2_QUESTIONS + [q_2_7, q_2_8]
+                         choices=TRUE_FALSE, table=None)
+            return QUIZ_2_QUESTIONS + ([q_2_7, q_2_8] if player.role == "Employee" else [q_2_7])
         case 2:
             return QUIZ_3_QUESTIONS
         case _:
