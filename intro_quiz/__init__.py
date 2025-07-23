@@ -242,18 +242,6 @@ class Quiz1(Page):
 class Quiz2(Page):
     """Quiz page to test comprehension"""
 
-    # @staticmethod
-    # def vars_for_template(player: Player):
-    #     """Providing variables for template"""
-    #     session = player.session
-    #
-    #     return dict(
-    #         player=dir(player),
-    #         player_skill=player.skill,
-    #         player_role=player.role,
-    #         session=dir(session),
-    #     )
-
     @staticmethod
     def vars_for_template(player: "Player"):
         return dict(questions=get_questions(1, player))
@@ -267,11 +255,11 @@ class Quiz3(Page):
 
     @staticmethod
     def vars_for_template(player: "Player"):
-        return dict(questions=get_questions(0, player))
+        return dict(questions=get_questions(2, player))
 
     @staticmethod
     def js_vars(player: "Player"):
-        return dict(questions=get_questions(0, player), answers=get_answers(0), hints=get_hints(0, player))
+        return dict(questions=get_questions(2, player), answers=get_answers(2), hints=get_hints(2, player))
 
 
 # pages.py
@@ -346,6 +334,7 @@ def creating_session(subsession: Subsession):
 page_sequence = [
     # Quiz1,
     # Instructions4, Instructions5, Instructions6,
-    Quiz2,
-    # Instructions7, Instructions8, Instructions9, Instructions10
+    # Quiz2,
+    # Instructions7, Instructions8, Instructions9, Instructions10,
+    Quiz3
 ]

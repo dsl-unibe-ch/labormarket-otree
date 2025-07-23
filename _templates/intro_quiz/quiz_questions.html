@@ -3,6 +3,9 @@
 {{ for question in questions }}
 <div class="mb-3 _formfield hidden" id="container-quiz{{ question.index }}">
   <div class="question">{{ question.index }}. {{ question.text }}</div>
+  {{ if question.table }}
+    {{ include question.table }}
+  {{ endif }}
   {{ for answer in question.choices }}
     <div class="form-check">
       <input class="form-check-input" type="radio" name="quiz{{ question.index }}"

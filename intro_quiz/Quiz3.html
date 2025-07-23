@@ -1,14 +1,23 @@
+{{ extends "intro_quiz/Quiz.html" }}
+
 {{ block title }}Comprehension Quiz{{ endblock }}
 
+{{ block styles }}
+  <link rel="stylesheet" type="text/css" href="{{ static 'intro_quiz/css/quiz.css' }}"/>
+{{ endblock }}
+
 {{ block content }}
-<p>
-    Based on the employer and worker earnings information, please answer the questions below.
-    You must get all of the answers correct to continue with the experiment.
-    You can review the paper copy of instructions provided to you at any time.
-</p>
+  {{ include "_modals/intro_quiz/hint.html" }}
 
-{{ formfields }}
+  <p>
+      Based on the employer and worker earnings information, please answer the questions below.
+      You must get all of the answers correct to continue with the experiment.
+      You can review the paper copy of instructions provided to you at any time.
+  </p>
 
-{{ next_button }}
+  {{ include "_templates/intro_quiz/quiz_questions.html" }}
+{{ endblock }}
 
+{{ block scripts }}
+  <script src="{{ static 'intro_quiz/js/quiz.js' }}"></script>
 {{ endblock }}
