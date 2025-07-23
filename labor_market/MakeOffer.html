@@ -1,25 +1,25 @@
-{% block title %}Hiring Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Hiring step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+{% block title %}(Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Hiring step {{ player.offer_step }}/{{ C.HIRING_STEPS }}) - Hiring Phase{% endblock %}
 
 {% block content %}
 <div class="row gx-5 px-3">
   <div class="col-7">
-    <h3>Hiring offer</h3>
+    {{ include '_tables/intro_quiz/revenue.html' }}
 
     <p>
-      Below is the list of available Workers you can hire.
-      Select one available Worker, enter proposed wage and training, then submit your offer.
-      The Worker will then review and decide on all offers received in this hiring Step.
+      As a reminder, your revenue is based on the hired worker's skill level and effort level.
+      If you choose to offer training, your revenue will be halved for this period
+      and 50 points direct training cost will be deducted from it.
     </p>
 
     <p>
-      The offer you make is a final, binding offer: if it is not accepted, you cannot make another offer to the
-      <em>same</em> Worker in this Period.
+      The following workers are available for hire. Select one worker to make an offer to.
     </p>
 
     <p>
-      You can also choose not to make any offers for the rest of this Period.
+      In the space below, select the worker you wish to hire and your salary offer in points.
+      Also, indicate whether you will provide training in this period.
     </p>
-    
+
     <table class="table table-sm table-bordered table-striped text-center employee-choice-table">
       <thead>
         <tr>
@@ -62,7 +62,7 @@
     <div class="row">
       <div class="col-auto">
         <div class="mb-3">
-          <label class="form-label" for="id_offer_wage">Wage offer (1–{{ session.config.max_wage }})</label>
+          <label class="form-label" for="id_offer_wage">Salary offer (1–{{ session.config.max_wage }})</label>
           <div class="input-group input-group-narrow">
             <input class="form-control" type="number" inputmode="numeric" min="1" max="{{ session.config.max_wage }}" id="id_offer_wage" name="offer_wage" required>
           </div>
@@ -82,25 +82,16 @@
         </div>
       </div>
       <div class="col-auto mt-4">
-        <button class="btn btn-primary btn-lg" id="send_offer">Make offer</button>
+        <button class="btn btn-primary btn-lg" id="send_offer">Make Offer</button>
       </div>
+
+      <p>
+        If you do not want to make a contract offer in this period, you may click the button below:
+      </p>
       <div class="col-auto mt-4">
-        <button class="btn btn-warning btn-lg" id="no_offers">Make no further offers this Period</button>
+        <button class="btn btn-secondary btn-lg" id="no_offers">Do Not Make Any Offers</button>
       </div>
     </div>
-
-    <h3>Revenue table</h3>
-
-    <p>
-      Here you can review the potential revenue from a Worker based on their Skill
-      and the Effort level they choose to exert.
-    </p>
-
-    <p>
-      If you offer training, the Skill level increase will not apply until next Period, and the revenue will be reduced.
-    </p>
-
-    {{ include '_tables/intro_quiz/revenue.html' }}
   </div>
   <div class="col-5">
     {{ include 'labor_market/components/ManagerSidebar.html' }}
