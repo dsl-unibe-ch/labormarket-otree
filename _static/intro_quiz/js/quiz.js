@@ -2,13 +2,15 @@ let questionIdx = 1;
 
 const MAX_ID = Object.keys(js_vars.questions).length;
 const NO_ANSWER = "Please answer the question";
-//const HINT_TIMEOUT = 4000;
 
-$(`#container-quiz${questionIdx}`).removeClass("hidden");
-$("#next-button").on("click", checkAnswers);
+// Show the first question
+document.getElementById(`container-quiz${questionIdx}`).classList.remove("hidden");
+
+// Attach click handler to Next button
+document.getElementById("next-button").addEventListener("click", checkAnswers);
 
 function getCheckedRadioButton() {
-  return $(`input[name="quiz${questionIdx}"]:checked`)[0] || null;
+  return document.querySelector(`input[name="quiz${questionIdx}"]:checked`);
 }
 
 function clearRadioButtons() {
@@ -21,17 +23,6 @@ function clearRadioButtons() {
 function checkAnswers() {
   const checkedRadioButton = getCheckedRadioButton()
   const correct = check(js_vars.answers[questionIdx - 1], checkedRadioButton);
-
-//  setTimeout(function () {
-//    $("#hint-modal").modal("hide");
-//    if (correct) {
-//      nextQuestion();
-//    }
-//
-//    if (checkedRadioButton !== null) {
-//      checkedRadioButton.checked = false;
-//    }
-//  }, HINT_TIMEOUT);
 }
 
 function check(correctId, checkedRadioButton) {
@@ -51,43 +42,57 @@ function check(correctId, checkedRadioButton) {
 }
 
 function checked(id) {
-  return $(`#${id}`).prop("checked");
+  const el = document.getElementById(id);
+  return el ? el.checked : false;
 }
 
 function showModal(message, correct) {
-  $("#modal-title").html(correct ? "&#9989; Correct" : "&#10060; Incorrect");
-  $("#modal-message").html(message);
-  $("#close-button").html(correct ? "Next" : "Try again");
+  const titleEl = document.getElementById("hint-modal-title");
+  const msgEl = document.getElementById("hint-modal-message");
+  const btnEl = document.getElementById("hint-modal-close-button");
+  const modalEl = document.getElementById("hint-modal");
 
-  const modal = $("#hint-modal");
+  titleEl.innerHTML = correct ? "&#9989; Correct" : "&#10060; Incorrect";
+  msgEl.innerHTML = message;
+  btnEl.textContent = correct ? "Next" : "Try again";
 
-  modal.off("hidden.bs.modal");
-  modal.on("hidden.bs.modal", correct ? nextQuestion : clearRadioButtons);
+  // Remove old listeners
+  modalEl.removeEventListener("hidden.bs.modal", nextQuestion);
+  modalEl.removeEventListener("hidden.bs.modal", clearRadioButtons);
 
-  modal.modal({
+  modalEl.addEventListener("hidden.bs.modal", correct ? nextQuestion : clearRadioButtons);
+
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
     backdrop: "static",
-    keyboard: false
+    keyboard: true
   });
-  modal.modal("show");
+
+  modal.show();
 }
 
 function nextQuestion() {
   // Hide current quiz
-  $(`#container-quiz${questionIdx}`).addClass("hidden");
+  const currentContainer = document.getElementById(`container-quiz${questionIdx}`);
+  if (currentContainer) {
+    currentContainer.classList.add("hidden");
+  }
 
-  // Increase quiz id
+  // Increase quiz index
   questionIdx += 1;
 
   if (questionIdx > MAX_ID) {
-    // If there are no more questions, we are done, submit form
-    $("#form").submit();
+    // Submit form if no more questions
+    document.getElementById("form").submit();
   } else {
-    // Show next quiz, skip over dropped
-    let nextQuiz = $(`#container-quiz${questionIdx}`);
-    while (nextQuiz === null && questionIdx < MAX_ID) {
+    // Show next available quiz
+    let nextContainer = document.getElementById(`container-quiz${questionIdx}`);
+    while (!nextContainer && questionIdx < MAX_ID) {
       questionIdx += 1;
-      nextQuiz = $(`#container-quiz${questionIdx}`);
+      nextContainer = document.getElementById(`container-quiz${questionIdx}`);
     }
-    nextQuiz.removeClass("hidden");
+
+    if (nextContainer) {
+      nextContainer.classList.remove("hidden");
+    }
   }
 }

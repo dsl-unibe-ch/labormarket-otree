@@ -1,0 +1,30 @@
+<div class="modal fade" id="offer-confirmation-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Offer Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          You have selected to make Worker <span id="offer-confirmation-modal-worker-name"></span>
+          the following offer:
+        </p>
+        <ul>
+          <li>Salary: <span id="offer-confirmation-modal-salary"></span></li>
+          <li>Training: <span id="offer-confirmation-modal-training"></span></li>
+        </ul>
+        <p>
+          Click the button below to confirm this offer.
+          If you wish to change your offer, click the button to return to the decision screen.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="offer-confirmation-modal-confirm-button" type="button" class="btn btn-primary">
+          Confirm Offer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

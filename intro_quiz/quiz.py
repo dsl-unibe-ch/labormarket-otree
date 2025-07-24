@@ -70,13 +70,13 @@ QUIZ_3_QUESTIONS = [
                            "training. The worker who accepts the contract has a skill level of 5 and chooses "
                            "an effort level of 5. Including the employer's initial endowment of 800 points, "
                            "what are the employer's earnings in this period?",
-             choices=[1510, 1210, 855, 710], table="_tables/intro_quiz/revenue.html"),
+             choices=[1510, 1210, 855, 710], table="_tables/global/revenue.html"),
         dict(index=6, text="Assume an employer offers a contract that <strong>includes a salary of 500</strong> "
                            "and training. The worker who accepts the contract has a <strong>skill level of 5</strong> "
                            "and chooses an <strong>effort level of 5</strong>. "
                            "Including the employer's initial endowment of 800 points, "
                            "what are the employer's earnings in this period?",
-             choices=[1510, 1210, 855, 710], table="_tables/intro_quiz/revenue.html"),
+             choices=[1510, 1210, 855, 710], table="_tables/global/revenue.html"),
         dict(index=7, text="If a worker <strong>accepts</strong> a contract, the worker's earnings for this period "
                            "are comprised of the worker's initial endowment plus the salary paid to him/her by his/her "
                            "employer less the costs associated with the chosen level of effort.",
