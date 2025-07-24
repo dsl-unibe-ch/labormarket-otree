@@ -1,13 +1,11 @@
-{% block title %}Employer offers (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}){% endblock %}
+{% block title %}(Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} | Step {{ player.offer_step }}/{{ C.HIRING_STEPS }}) - Hiring Phase{% endblock %}
 
 {{ block content }}
 <div class="row gx-5 px-3">
   <div class="col-7">
     <h3>Offer choice</h3>
 
-    <p>Below is the list of offers you got from the Managers. Choose one offer to accept, or reject them all.</p>
-
-    <p>The offers are binding: the same Managers cannot make you another offer this Period, but you may be given different offers by other Managers.</p>
+    <p>You have received the following offers:</p>
 
     <table class="table table-bordered table-striped text-center employee-choice-table">
       <thead>
@@ -22,7 +20,8 @@
         {% for offer in open_offers %}
         <tr>
           <td>
-            <input class="form-check-input" type="radio" id="id_player_matched-{{ forloop.counter0 }}" name="player_matched" required value="{{ offer.manager.id_in_group }}" />
+            <input class="form-check-input" type="radio" id="id_player_matched-{{ forloop.counter0 }}"
+                   name="player_matched" required value="{{ offer.manager.id_in_group }}" />
           </td>
           <td>{{ offer.manager.label }}</td>
           <td>{{ offer.wage }}</td>
@@ -32,12 +31,21 @@
       </tbody>
     </table>
 
-    <input class="d-none" type="radio" id="id_player_matched-{{ num_offers }}" name="player_matched" required value="0" />
+    <input class="d-none" type="radio" id="id_player_matched-{{ num_offers }}" name="player_matched" required
+           value="0" />
 
     {{ formfield_errors 'player_matched' }}
 
-    <button class="btn btn-primary btn-lg" onclick="document.getElementById('id_player_matched-{{ num_offers }}').checked = false;">Accept offer</button>
-    <button class="btn btn-warning btn-lg" name="player_matched" value="0" onclick="document.getElementById('id_player_matched-{{ num_offers }}').checked = true;">Reject all</button>
+    <p>
+      If you do not wish to accept any of the offers, click the "Reject All Offers" button below.
+      <strong>Note:</strong> if you reject all offers, you will not be able to receive another offer from
+      any of these employers in this period.
+    </p>
+
+    <button id="reject-all-offers" class="btn btn-secondary btn-lg" name="player_matched" value="0">
+      Reject All Offers
+    </button>
+    <button id="accept-offer" class="btn btn-primary btn-lg">Accept offer</button>
   </div>
   <div class="col-5">
     {{ include 'labor_market/components/EmployeeSidebar.html' }}
@@ -47,6 +55,14 @@
 
 {{ block scripts }}
 <script type="module">
+  function rejectAllOffersButtonOnClick() {
+    document.getElementById('id_player_matched-{{ num_offers }}').checked = true;
+  }
+  
+  function acceptOfferButtonOnClick() {
+    document.getElementById('id_player_matched-{{ num_offers }}').checked = false;
+  }
+
   function selectChoice() {
     for (const el of document.querySelectorAll(".row-selected")) {
       el.classList.remove("row-selected");
@@ -62,6 +78,14 @@
   for (const el of document.querySelectorAll("input[name='player_matched']")) {
     el.addEventListener("change", selectChoice);
   }
+  
+  const rejectAllOffersButton = document.getElementById("reject-all-offers");
+  rejectAllOffersButton.removeEventListener("click", rejectAllOffersButtonOnClick);
+  rejectAllOffersButton.addEventListener("click", rejectAllOffersButtonOnClick);
+  
+  const acceptOfferButton = document.getElementById("accept-offer");
+  acceptOfferButton.removeEventListener("click", acceptOfferButtonOnClick);
+  acceptOfferButton.addEventListener("click", acceptOfferButtonOnClick);
 </script>
 {{ endblock }}
 
