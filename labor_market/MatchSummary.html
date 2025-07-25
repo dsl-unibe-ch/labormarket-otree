@@ -1,0 +1,82 @@
+{{ block title }}(Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}) - Hiring Phase{{ endblock }}
+
+{{ block content }}
+<div class="row gx-5 px-3">
+  {{ if player.role == "Employee" }}
+    <div class="col-7">
+      {{ if partner_title }}
+        <!-- Match -->
+        <p>You have formed a contract for this period. Below is a summary of your contract for this period:</p>
+        <table class="table table-bordered text-center">
+          <tbody>
+            <tr>
+              <th scope="col">Employer ID</th>
+              <th scope="col">Salary</th>
+              <th scope="col">Training (Y/N)</th>
+            </tr>
+            <tr>
+              <td>{{ partner_title }}</td>
+              <td>{{ salary }}</td>
+              <td>{{ training }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>{{ body_text }}</p>
+      {{ else }}
+        <!-- No match -->
+        <p>{{ body_text }}</p>
+        <p>Please click the button below to continue.</p>
+      {{ endif }}
+
+      {{ next_button }}
+    </div>
+    <div class="col-5">
+      {{ include 'labor_market/components/EmployeeSidebar.html' }}
+    </div>
+  {{ else }}
+    <div class="col-7">
+      {{ if partner_title }}
+        <!-- Match -->
+        <p>You have formed a contract for this period. Below is a summary of your contract for this period:</p>
+        <table class="table table-bordered text-center">
+          <tbody>
+            <tr>
+              <th scope="col">Worker ID</th>
+              <th scope="col">Salary</th>
+              <th scope="col">Training (Y/N)</th>
+            </tr>
+            <tr>
+              <td>{{ partner_title }}</td>
+              <td>{{ salary }}</td>
+              <td>{{ training }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>{{ body_text }}</p>
+      {{ else }}
+        <!-- No match -->
+        <p>{{ body_text }}</p>
+        <p>Please click the button below to continue.</p>
+      {{ endif }}
+
+      {{ next_button }}
+    </div>
+    <div class="col-5">
+      {{ include 'labor_market/components/ManagerSidebar.html' }}
+    </div>
+  {{ endif }}
+</div>
+{{ endblock }}
+
+{{ block styles }}
+<style>
+  .otree-body {
+    max-width: 1870px;
+  }
+
+  .otree-title {
+    text-align: center;
+    padding-top: 0;
+  }
+</style>
+{{ endblock }}

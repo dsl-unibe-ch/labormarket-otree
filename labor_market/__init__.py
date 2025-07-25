@@ -134,6 +134,7 @@ class Player(BasePlayer):
     payoff_calculated = models.BooleanField(initial=False)
 
     ### Form fields
+
     ## Managers
     # Which employee to make an offer to
     offer_employee    = models.IntegerField(widget=widgets.RadioSelect)
@@ -145,6 +146,7 @@ class Player(BasePlayer):
     offer_training    = models.BooleanField(label="Include training?", widget=widgets.RadioSelectHorizontal)
     # Whether the Manager decided to have no more offers
     offer_none        = models.BooleanField(initial=False)
+
     ## Employees
     # Whose offer to accept (or 0 if rejecting all)
     # This field is also set for the manager to point at the employee when offer is accepted.
@@ -402,6 +404,58 @@ class GetOffers(Page):
         for offer in open_offers:
             offer.rejected = True
 
+
+class MatchSummary(Page):
+    @staticmethod
+    def vars_for_template(player: Player):
+        config = player.session.config
+
+        if player.role == "Manager":
+            contract = player.field_maybe_none("contract")
+
+            if contract:
+                # Match.
+                body_text = "Once you are ready to proceed, click the button below."
+                partner_title = contract.employee.label
+                salary = contract.wage
+                training = contract.training
+            else:
+                # No match.
+                rejected_offers = Offer.filter(manager=player, rejected=True)
+                body_text = (("You chose not to make an offer to any employees. For the following work period, "
+                              f"you will only receive your initial endowment of ${cu(config["manager_endowment"])}."
+                              if len(rejected_offers) == 0 else "Your contract offer was not accepted.")
+                             + " You will now return the wait for effort page and then to the labor market.")
+                partner_title = None
+                salary = None
+                training = None
+        else:
+            contract = player.field_maybe_none("contract")
+
+            if contract:
+                # Match.
+                body_text = "Once you are ready to advance to the work phase, click the button below."
+                partner_title = player.contract.manager.label
+                salary = player.contract.wage
+                training = player.contract.training
+            else:
+                # No match.
+                rejected_offers = Offer.filter(employee=player, rejected=True)
+                body_text = (("You did not contract with an employer." if len(rejected_offers) != 0
+                    else "No employer made you an offer.")
+                             + " You will now return the wait for effort page and then to the labor market.")
+                partner_title = None
+                salary = None
+                training = None
+
+        return {
+            "body_text": body_text,
+            "partner_title": partner_title,
+            "salary": salary,
+            "training": "Y" if training else "N",
+            "offers": player.offer_history,
+        }
+
 class WaitForAcceptance(WaitPage):
     """Wait for acceptance page; shown to Managers without a match or Employees without a valid offer."""
     @staticmethod
@@ -565,9 +619,10 @@ class PeriodResults(Page):
 #   * WaitForAcceptance is show to all without a match
 #   (Whoever has a match falls through to the Work phase)
 # Work Phase:
+# * MatchSummary is shown to all players to inform them if they have made a contract.
 # * ChooseEffort is shown to Employees with contracts to select effort
 # * WaitForEffort is shown to everyone until all effort is selected
 # Results Phase:
 # * PeriodResults is shown to everyone to summarize their payoffs
 
-page_sequence = [WaitForAllPlayers] + [MakeOffer, WaitForOffers, GetOffers, WaitForAcceptance] * C.HIRING_STEPS + [ChooseEffort, WaitForEffort, PeriodResults]
+page_sequence = [WaitForAllPlayers] + [MakeOffer, WaitForOffers, GetOffers, WaitForAcceptance] * C.HIRING_STEPS + [MatchSummary, ChooseEffort, WaitForEffort, PeriodResults]
