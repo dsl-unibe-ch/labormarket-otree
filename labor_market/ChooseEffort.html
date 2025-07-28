@@ -1,6 +1,8 @@
 {% block title %}Work Phase (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
 
 {% block content %}
+{{ include '_modals/labor_market/revenue_table.html' }}
+
 <div class="row gx-5 px-3">
   <div class="col-7">
     <h3>Effort choice</h3>
@@ -8,17 +10,21 @@
     <p>You have been hired by <b>{{ contract.manager.label }}</b>. Your offer history with them is highlighted.</p>
 
     <p>
-      Your contract for this Period pays a <b>wage of {{ contract.wage }}</b>
-      and <b>{%if contract.training %}includes{% else %}does not include{% endif %} training</b>.
+      You must now decide which level of effort you wish to exert.
+      The cost for each level of effort is shown in the table below.
+      The level of effort you select will directly affect the revenue and pay of your employer in this period.
     </p>
-    
+
+    {{ if contract.training }}
     <p>
-      In addition to your wage, you get a basic endowment of {{ session.config.employee_endowment | cu }}.
+      As a reminder, your employer is providing you with training this period.
+      As a result, your skill level will increase in the next period.
+      During the current period, your employer will only get half of the revenue for whatever effort level you select.
     </p>
-    
+    {{ endif }}
+
     <p>
-      To conclude the work phase, you must select the level of effort you wish to apply to your work in this period.
-      Effort costs you some of your payoff, and increases the profit for the employer.
+      In the space below, please indicate the level of effort you wish to exert (1-10).
     </p>
 
     {{ formfield_errors 'work_effort' }}
@@ -44,7 +50,16 @@
           {{ endfor }}
         </tr>
         <tr>
-          <th scope="row">Payoff to employer</th>
+          <td colspan="11"></td>
+        </tr>
+        <tr>
+          <th scope="row">Your pay</th>
+          {{ for employee_payoff in employee_payoff_values }}
+          <td data-effort-level="{{forloop.counter}}">{{employee_payoff | cu}}</td>
+          {{ endfor }}
+        </tr>
+        <tr>
+          <th scope="row">Employer pay</th>
           {{ for employer_payoff in employer_payoff_values }}
           <td data-effort-level="{{forloop.counter}}">{{employer_payoff | cu}}</td>
           {{ endfor }}
@@ -52,6 +67,20 @@
       </tbody>
     </table>
 
+    <p>
+      If you wish to review the employer payout table, you may click on the link below:
+    </p>
+    <ul id="links-list">
+      <li>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#revenue-table-modal">
+          Employer Payout Table
+        </a>
+      </li>
+    </ul>
+
+    <p>
+      When you are ready to submit your decision, click the button below.
+    </p>
     <button class="btn btn-primary btn-lg">Confirm effort</button>
   </div>
 
@@ -100,6 +129,10 @@
 
   .offer-history-table tr.row-selected {
     background-color: hsl(from var(--bs-info) h s 90%);
+  }
+
+  ul#links-list {
+    list-style-type: none;
   }
 </style>
 {% endblock %}

@@ -275,7 +275,9 @@ class Offer(ExtraModel):
 
 def stage_counter(player: Player, with_step: bool = False) -> str:
     """Formatted period + stage counter for display in titles"""
-    return f"(Period { player.subsession.round_number }/{ C.NUM_ROUNDS }" + (f" | Step { player.offer_step }/{ C.HIRING_STEPS })" if with_step else ")")
+    return (f"(Period { player.subsession.round_number }/{ C.NUM_ROUNDS }"
+            + (f" | Step { player.offer_step }/{ C.HIRING_STEPS })" if with_step else ")"))
+
 
 class WaitForAllPlayers(WaitPage):
     """Wait page to synchronize everyone before a Period starts. Used to set skill levels appropriately."""
@@ -501,6 +503,7 @@ class ChooseEffort(Page):
     def vars_for_template(employee: Player):
         config = employee.group.session.config
         base_revenue = config["base_revenue"]
+        employee_endowment = config["employee_endowment"]
         contract = employee.contract
         manager = contract.manager
         skill_multiplier = employee.session.config["skill_multipliers"][employee.skill]
@@ -509,11 +512,14 @@ class ChooseEffort(Page):
         employer_payoff_values = [calculate_revenue_and_payoff(manager.group, manager, cu(revenue), contract.wage,
                                                                contract.training is not None)["payoff"]
                                   for revenue in initial_revenues]
+        employee_payoff_values = [employee_endowment + contract.wage - effort_cost
+                                  for effort_cost in employee.session.config["effort_costs"]]
 
         return {
             "contract": contract,
             "offers": employee.offer_history,
             "effort_costs": employee.session.config["effort_costs"],
+            "employee_payoff_values": employee_payoff_values,
             "employer_payoff_values": employer_payoff_values
         }
 
