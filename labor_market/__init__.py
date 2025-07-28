@@ -508,7 +508,7 @@ class ChooseEffort(Page):
         manager = contract.manager
         skill_multiplier = employee.session.config["skill_multipliers"][employee.skill]
 
-        initial_revenues = [cu(round(base_revenue * skill_multiplier * effort)) for effort in range(1, 11)]
+        initial_revenues = [cu(base_revenue * skill_multiplier * effort) for effort in range(1, 11)]
         employer_payoff_values = [calculate_revenue_and_payoff(manager.group, manager, cu(revenue), contract.wage,
                                                                contract.training is not None)["payoff"]
                                   for revenue in initial_revenues]
@@ -611,6 +611,7 @@ class PeriodResults(Page):
             revenue = cu(base_revenue * skill_multiplier * contract.employee.work_effort)
             wage = contract.wage if contract else 0
             has_training = contract.training
+            effort_cost = player.session.config["effort_costs"][contract.employee.work_effort - 1]
         else:
             skill = 0
             new_skill = 0
@@ -619,10 +620,6 @@ class PeriodResults(Page):
             revenue = cu(0)
             wage = 0
             has_training = False
-
-        if player.field_maybe_none("work_effort"):
-            effort_cost = cu(player.session.config["effort_costs"][player.work_effort - 1])
-        else:
             effort_cost = 0
 
         productivity_reduction = round(revenue * training_productivity_multiplier) if has_training else 0
@@ -637,7 +634,6 @@ class PeriodResults(Page):
             "new_skill": new_skill,
             "revenue": revenue,
             "negative_productivity_reduction": -productivity_reduction,
-            "multiplied_revenue": revenue * player.session.config["training_productivity_multiplier"],
             "effort_cost": effort_cost,
             "negative_effort_cost": -effort_cost,
             "negative_direct_training_cost": -direct_training_cost,

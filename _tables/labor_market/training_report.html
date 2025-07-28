@@ -20,12 +20,12 @@
     <tr>
       <th scope="row" class="border-0 fw-normal">Starting Skill Level</th>
       <td class="border-0 text-end text-center">{{ skill }}</td>
-      <td class="border-0 text-end text-center">{{ skill_multiplier }}</td>
+      <td class="border-0 text-end text-center">{{ skill_multiplier | cu }}</td>
     </tr>
     <tr>
       <th scope="row" class="border-0 fw-normal">New Skill Level</th>
       <td class="border-0 text-end text-center">{{ new_skill }}</td>
-      <td class="border-0 text-end text-center">{{ new_skill_multiplier }}</td>
+      <td class="border-0 text-end text-center">{{ new_skill_multiplier | cu }}</td>
     </tr>
   </tbody>
 </table>

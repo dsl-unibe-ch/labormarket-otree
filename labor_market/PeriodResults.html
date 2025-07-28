@@ -36,44 +36,13 @@
     <h3>Period outcome</h3>
     {% if player.field_maybe_none("contract") %}
     <p>
-      You had a contract with <b>{{ player.contract.employee.label }}</b> which included
-      a <b>{{ player.contract.wage }} wage</b> and
-      {{ if player.contract.training }}
-        <b>training was offered</b>.
-      {{ else }}
-        <b>no training was offered</b>.
-      {{ endif }}
+      Your worker selected an effort level of {{ player.contract.employee.work_effort }}.
     </p>
     <p>
-      The Worker had a <b>Skill level of {{ player.contract.employee.skill }}</b>
-      and decided to exert <b>{{ player.contract.employee.work_effort }} Effort</b>.
+      The results of this period are shown in the space below:
     </p>
-    {{ if player.contract.training }}
-    <p>
-      This would have resulted in a <b>{{ revenue }} revenue</b>.
-      Because you offered training, the revenue was <b>reduced to {{ multiplied_revenue }}</b>.
-    </p>
-    {{ else }}
-    <p>
-      This resulted in a <b>{{ revenue }} revenue</b>.
-    </p>
-    {{ endif }}
-    <h4>Your payoff calculation</h4>
-    <p>
-      {{ session.config.manager_endowment | cu }} (endowment)
-      {{ if player.contract.training }}
-      + {{ multiplied_revenue }} (revenue)
-      - {{ session.config.training_cost | cu }} (training cost)
-      {{ else }}
-      + {{ revenue }} (revenue)
-      {{ endif }}
-      - {{ player.contract.wage }} (wage) = {{player.payoff}}.
-    </p>
-    <h4>Worker's payoff calculation</h4>
-    <p>
-      {{ session.config.employee_endowment | cu }} (endowment) +
-      {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.contract.employee.payoff }}.
-    </p>
+    {{ include "_tables/labor_market/manager_earnings_summary.html" }}
+    {{ include "_tables/labor_market/employee_earnings_summary.html" }}
     {% else %}
     <p>
       You have <strong>not</strong> formed a contract in this period.
