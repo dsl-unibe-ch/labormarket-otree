@@ -1,0 +1,31 @@
+<table class="table table-sm mx-auto align-middle">
+  <thead class="border">
+    <tr>
+      <th colspan="3" class="text-center border-0">
+        Period {{ subsession.round_number }}
+      </th>
+    </tr>
+    <tr>
+      <th colspan="3" class="text-center border-0">
+        Training Report
+      </th>
+    </tr>
+  </thead>
+  <tbody class="border">
+    <tr>
+      <th class="border-0"></th>
+      <th scope="col" class="border-0 fw-normal border-bottom text-center">Level</th>
+      <th scope="col" class="border-0 fw-normal border-bottom text-center">Productivity</th>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Starting Skill Level</th>
+      <td class="border-0 text-end text-center">{{ skill }}</td>
+      <td class="border-0 text-end text-center">{{ skill_multiplier }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">New Skill Level</th>
+      <td class="border-0 text-end text-center">{{ new_skill }}</td>
+      <td class="border-0 text-end text-center">{{ new_skill_multiplier }}</td>
+    </tr>
+  </tbody>
+</table>

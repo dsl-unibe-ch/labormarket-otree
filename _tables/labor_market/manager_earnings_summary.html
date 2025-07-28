@@ -1,0 +1,62 @@
+<table class="table table-sm mx-auto align-middle">
+  <thead class="border">
+    <tr>
+      <th colspan="2" class="text-center border-0">
+        Period {{ subsession.round_number }}
+      </th>
+    </tr>
+    <tr>
+      <th colspan="2" class="text-center border-0">
+        Employer Earnings Summary
+      </th>
+    </tr>
+  </thead>
+  <tbody class="border">
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Employer ID</th>
+      <td class="border-0 text-end">{{ player.contract.manager.label }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Employer Endowment</th>
+      <td class="border-0 text-end">{{ manager_endowment | cu }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Employer Revenue:</th>
+      <td class="border-0 text-end"></td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-3">Effort Level</th>
+      <td class="border-0 text-end">{{ player.contract.employee.work_effort }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-3">Productivity</th>
+      <td class="border-0 text-end">{{ multiplied_revenue }}</td>
+    </tr>
+    <tr class="border-1">
+      <th scope="row" class="border-0 fw-normal">Employer Revenue before Training Costs</th>
+      <td class="border-0 text-end">{{ revenue }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-3">Productivity Reduction</th>
+      <td class="border-0 text-end">{{ negative_productivity_reduction | cu }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-3">Direct Training Costs</th>
+      <td class="border-0 text-end">{{ negative_direct_training_cost | cu }}</td>
+    </tr>
+    <tr class="border-1">
+      <th scope="row" class="border-0 fw-normal">Employer Revenue after Training Costs</th>
+      <td class="border-0 text-end">{{ revenue_and_payoff.revenue }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-3">Salary Paid</th>
+      <td class="border-0 text-end">{{ negative_wage }}</td>
+    </tr>
+  </tbody>
+  <tfoot class="border fw-bold">
+    <tr>
+      <th scope="row">Employer Earnings</th>
+      <td class="text-end">{{ revenue_and_payoff.payoff }}</td>
+    </tr>
+  </tfoot>
+</table>

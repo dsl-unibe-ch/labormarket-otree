@@ -57,7 +57,7 @@ def calculate_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, 
             "message": (f"Payoff for Manager {player.id_in_group}: {endowment} + "
                           f"{revenue * training_productivity_multiplier} - {training_cost} - {wage}"),
             "payoff": endowment + revenue * training_productivity_multiplier - training_cost - wage,
-            "revenue": revenue * training_productivity_multiplier
+            "revenue": revenue * training_productivity_multiplier - training_cost
         }
     else:
         return {
@@ -68,14 +68,14 @@ def calculate_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, 
 
 # Objects
 
-def multiplier_to_table_item(mult_tuple: tuple[int, float]):
+def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""
     index, multiplier = mult_tuple
 
     return {
         "level": index + 1,
         "multiplier": multiplier,
-        "revenue": [round(1 * effort * multiplier) for effort in range(1, 11)] # TODO make 1 configurable through base_revenue
+        "revenue": [effort * multiplier for effort in range(1, 11)] # TODO make 1 configurable through base_revenue
     }
 
 class Subsession(BaseSubsession):
@@ -574,7 +574,7 @@ class WaitForEffort(WaitPage):
                     skill_multiplier = config["skill_multipliers"][contract.employee.skill - 1]
                     base_revenue = config["base_revenue"]
 
-                    initial_revenue = cu(round(base_revenue * skill_multiplier * effort))
+                    initial_revenue = cu(base_revenue * skill_multiplier * effort)
                     has_training = contract.training is not None
                     wage = contract.wage
                     revenue_and_payoff = calculate_revenue_and_payoff(group, player, initial_revenue, wage,
@@ -594,25 +594,58 @@ class PeriodResults(Page):
     # A lot of payoff is calculated again here for display
     @staticmethod
     def vars_for_template(player: Player):
+        group = player.group
+        config = group.session.config
+        manager_endowment = config["manager_endowment"]
+        employee_endowment = config["employee_endowment"]
+        skill_multipliers = config["skill_multipliers"]
+        training_productivity_multiplier = config["training_productivity_multiplier"]
+
         if player.field_maybe_none("contract"):
-            skill_multiplier = player.session.config["skill_multipliers"][player.contract.employee.skill - 1]
+            contract = player.contract
+            skill = contract.employee.skill
+            new_skill = min(skill + 1, len(skill_multipliers)) if contract.employee.skill_increase else skill
+            skill_multiplier = skill_multipliers[skill - 1]
+            new_skill_multiplier = skill_multipliers[new_skill - 1]
             base_revenue = player.session.config["base_revenue"]
-            revenue = cu(round(base_revenue * skill_multiplier * player.contract.employee.work_effort))
+            revenue = cu(base_revenue * skill_multiplier * contract.employee.work_effort)
+            wage = contract.wage if contract else 0
+            has_training = contract.training
         else:
+            skill = 0
+            new_skill = 0
             skill_multiplier = 0
+            new_skill_multiplier = 0
             revenue = cu(0)
+            wage = 0
+            has_training = False
 
         if player.field_maybe_none("work_effort"):
             effort_cost = cu(player.session.config["effort_costs"][player.work_effort - 1])
         else:
             effort_cost = 0
 
+        productivity_reduction = round(revenue * training_productivity_multiplier) if has_training else 0
+        direct_training_cost = config["training_cost"] if has_training else 0
+        revenue_and_payoff = calculate_revenue_and_payoff(group, player, revenue, wage, has_training)
+
         return {
             "offers": player.offer_history,
             "skill_multiplier": skill_multiplier,
+            "new_skill_multiplier": new_skill_multiplier,
+            "skill": skill,
+            "new_skill": new_skill,
             "revenue": revenue,
+            "negative_productivity_reduction": -productivity_reduction,
             "multiplied_revenue": revenue * player.session.config["training_productivity_multiplier"],
-            "effort_cost": effort_cost
+            "effort_cost": effort_cost,
+            "negative_effort_cost": -effort_cost,
+            "negative_direct_training_cost": -direct_training_cost,
+            "negative_wage": -player.contract.wage,
+            "revenue_and_payoff": revenue_and_payoff,
+            "has_training": has_training,
+            "manager_endowment": manager_endowment,
+            "employee_endowment": employee_endowment,
         }
 
 # Repeat for NUM_ROUNDS periods (rounds/subsessions)

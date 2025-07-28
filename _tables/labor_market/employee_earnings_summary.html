@@ -1,0 +1,38 @@
+<table class="table table-sm mx-auto align-middle">
+  <thead class="border">
+    <tr>
+      <th colspan="2" class="text-center border-0">
+        Period {{ subsession.round_number }}
+      </th>
+    </tr>
+    <tr>
+      <th colspan="2" class="text-center border-0">
+        Worker Earnings Summary
+      </th>
+    </tr>
+  </thead>
+  <tbody class="border">
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Worker ID</th>
+      <td class="border-0 text-end">{{ player.label }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Worker Endowment</th>
+      <td class="border-0 text-end">{{ employee_endowment | cu }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Worker Salary</th>
+      <td class="border-0 text-end">{{ player.contract.wage | cu }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal">Cost of Effort</th>
+      <td class="border-0 text-end">{{ negative_effort_cost }}</td>
+    </tr>
+  </tbody>
+  <tfoot class="border fw-bold">
+    <tr>
+      <th scope="row">Worker Earnings</th>
+      <td class="text-end">{{ player.payoff }}</td>
+    </tr>
+  </tfoot>
+</table>

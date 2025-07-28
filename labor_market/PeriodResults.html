@@ -1,4 +1,4 @@
-{% block title %}Outcomes (Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }}){% endblock %}
+{% block title %}Period {{ subsession.round_number }}/{{ C.NUM_ROUNDS }} Outcome{% endblock %}
 
 {% block content %}
 <div class="row gx-5 px-3">
@@ -6,32 +6,15 @@
   <div class="col-7">
     {{ if player.field_maybe_none("contract") }}
     <p>
-      You were hired by <b>{{player.contract.manager.label}}</b>, your <b>wage was {{player.contract.wage}}</b> and 
-      {{ if player.contract.training }}
-        <b>training was offered</b>, increasing your <b>Skill level to {{ player.skill }}</b>.
-      {{ else }}
-        <b>no training was offered</b>.
-      {{ endif }}
+      You selected an effort level of {{ player.work_effort }}.
     </p>
     <p>
-      You decided to exert {{ player.work_effort }} Effort, which cost you {{ effort_cost }}.
+      The results of this period are shown in the space below:
     </p>
-    <h4>Your payoff calculation</h4>
-    <p>
-      {{ session.config.employee_endowment | cu }} (endowment) +
-      {{ player.contract.wage }} (wage) - {{effort_cost}} (effort cost) = {{ player.payoff }}.
-    </p>
-    <h4>Manager's payoff calculation</h4>
-    <p>
-      {{ session.config.manager_endowment | cu }} (endowment)
-      {{ if player.contract.training }}
-      + {{ multiplied_revenue }} (revenue)
-      - {{ session.config.training_cost | cu }} (training cost)
-      {{ else }}
-      + {{ revenue }} (revenue)
-      {{ endif }}
-      - {{ player.contract.wage }} (wage) = {{player.contract.manager.payoff}}.
-    </p>
+    {{ include "_tables/labor_market/employee_earnings_summary.html" }}
+    {{ include "_tables/labor_market/manager_earnings_summary.html" }}
+    {{ include "_tables/labor_market/training_report.html" }}
+
     {{ else }}
     <p>
       You have <strong>not</strong> formed a contract in this period.
@@ -126,4 +109,5 @@
     background-color: hsl(from var(--bs-info) h s 90%);
   }
 </style>
+<link rel="stylesheet" type="text/css" href="{{ static 'labor_market/css/table.css' }}"/>
 {{ endblock }}
