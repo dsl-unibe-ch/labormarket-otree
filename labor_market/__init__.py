@@ -1,7 +1,7 @@
 """Main simulation"""
 from __future__ import annotations
 import random
-from typing import Self, List, Optional
+from typing import Self, List, Optional, Any
 
 from otree.api import *
 
@@ -47,7 +47,8 @@ def random_labels():
 
 # Helper methods
 
-def calculate_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, wage: int, has_training: bool):
+def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, wage: int, has_training: bool) \
+        -> dict[str, Any]:
     config = group.session.config
     endowment: cu = cu(config["manager_endowment"])
     if has_training:
@@ -65,6 +66,9 @@ def calculate_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, 
             "payoff": endowment + revenue - wage,
             "revenue": revenue
         }
+
+def calculate_employee_payoff(endowment: int, wage: int, effort_cost: int) -> int:
+    return endowment + wage - effort_cost
 
 # Objects
 
@@ -192,6 +196,36 @@ class Player(BasePlayer):
 
         raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
 
+    # @property
+    # def contract_with_earnings(self) -> Optional[Offer]:
+    #     """Return accepted Offer, or return None"""
+    #     if self.role == "Manager":
+    #         accepted_offers = Offer.filter(manager=self, accepted=True)
+    #     else:
+    #         accepted_offers = Offer.filter(employee=self, accepted=True)
+    #
+    #     if len(accepted_offers) == 1:
+    #         return accepted_offers[0]
+    #     if len(accepted_offers) == 0:
+    #         return None
+    #
+    #     raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
+
+    # @property
+    # def earnings_history(self) -> [dict[str, Any]]:
+    #     result = []
+    #     for player in self.in_all_rounds():
+    #         if self.role == "Manager":
+    #             offers = Offer.filter(manager=player, accepted=True)
+    #         else:
+    #             offers = Offer.filter(employee=player, accepted=True)
+    #
+    #         result += {
+    #             "offer": offers[0] if len(offers) > 0 else None
+    #         }
+    #
+    #     return result
+
     @property
     def offer_history(self) -> List[Offer]:
         """Return a history of all (non-open) offers for the participant across this+previous periods"""
@@ -270,6 +304,17 @@ class Offer(ExtraModel):
             return -(self.wage + cu(self.manager.session.config["training_cost"])) # pylint: disable=no-member
         else:
             return -self.wage
+
+    @property
+    def employee_earnings(self):
+        # TODO: add earnings calculation here
+        return self.wage + self.manager.session.config["training_cost"]
+
+
+    @property
+    def manager_earnings(self):
+        # TODO: add earnings calculation here
+        return self.wage + self.manager.session.config["training_cost"]
 
 # Pages
 
@@ -501,24 +546,25 @@ class ChooseEffort(Page):
 
     @staticmethod
     def vars_for_template(employee: Player):
-        config = employee.group.session.config
+        config = employee.session.config
         base_revenue = config["base_revenue"]
         employee_endowment = config["employee_endowment"]
         contract = employee.contract
         manager = contract.manager
-        skill_multiplier = employee.session.config["skill_multipliers"][employee.skill]
+        skill_multiplier = config["skill_multipliers"][employee.skill]
 
         initial_revenues = [cu(base_revenue * skill_multiplier * effort) for effort in range(1, 11)]
-        employer_payoff_values = [calculate_revenue_and_payoff(manager.group, manager, cu(revenue), contract.wage,
-                                                               contract.training is not None)["payoff"]
+        employer_payoff_values = [calculate_manager_revenue_and_payoff(manager.group, manager, cu(revenue), 
+                                                                        contract.wage, 
+                                                                        contract.training is not None)["payoff"]
                                   for revenue in initial_revenues]
-        employee_payoff_values = [employee_endowment + contract.wage - effort_cost
-                                  for effort_cost in employee.session.config["effort_costs"]]
+        employee_payoff_values = [calculate_employee_payoff(employee_endowment, contract.wage, effort_cost)
+                                  for effort_cost in config["effort_costs"]]
 
         return {
             "contract": contract,
             "offers": employee.offer_history,
-            "effort_costs": employee.session.config["effort_costs"],
+            "effort_costs": config["effort_costs"],
             "employee_payoff_values": employee_payoff_values,
             "employer_payoff_values": employer_payoff_values
         }
@@ -556,18 +602,19 @@ class WaitForEffort(WaitPage):
             contract = player.field_maybe_none("contract")
 
             if player.role == "Employee":
-                endowment = cu(config["employee_endowment"])
+                endowment = config["employee_endowment"]
+                endowment_cu = cu(endowment)
 
                 if contract:
-                    print(f"Payoff for Worker {player.id_in_group}: {endowment} + {contract.wage} - {-contract.effort_cost}")
-                    player.payoff = endowment + contract.wage + contract.effort_cost
+                    print(f"Payoff for Worker {player.id_in_group}: {endowment_cu} + {contract.wage} - {-contract.effort_cost}")
+                    player.payoff = cu(calculate_employee_payoff(endowment, contract.wage, contract.effort_cost))
                     if contract.training:
                         player.skill_increase = True
                 else:
-                    print(f"Payoff for Worker {player.id_in_group}: {endowment}")
-                    player.payoff = endowment
+                    print(f"Payoff for Worker {player.id_in_group}: {endowment_cu}")
+                    player.payoff = endowment_cu
             elif player.role == "Manager":
-                endowment = cu(config["manager_endowment"])
+                endowment_cu = cu(config["manager_endowment"])
 
                 if contract:
                     effort = contract.employee.work_effort
@@ -577,15 +624,15 @@ class WaitForEffort(WaitPage):
                     initial_revenue = cu(base_revenue * skill_multiplier * effort)
                     has_training = contract.training is not None
                     wage = contract.wage
-                    revenue_and_payoff = calculate_revenue_and_payoff(group, player, initial_revenue, wage,
+                    revenue_and_payoff = calculate_manager_revenue_and_payoff(group, player, initial_revenue, wage,
                                                                       has_training)
 
                     print(revenue_and_payoff["message"])
                     player.payoff = revenue_and_payoff["payoff"]
                     contract.revenue = revenue_and_payoff["revenue"]
                 else:
-                    print(f"Payoff for Manager {player.id_in_group}: {endowment}")
-                    player.payoff = endowment
+                    print(f"Payoff for Manager {player.id_in_group}: {endowment_cu}")
+                    player.payoff = endowment_cu
 
             player.payoff_calculated = True
 
@@ -625,7 +672,7 @@ class PeriodResults(Page):
 
         productivity_reduction = round(revenue * training_productivity_multiplier) if has_training else 0
         direct_training_cost = config["training_cost"] if has_training else 0
-        revenue_and_payoff = calculate_revenue_and_payoff(group, player, revenue, wage, has_training)
+        revenue_and_payoff = calculate_manager_revenue_and_payoff(group, player, revenue, wage, has_training)
 
         return {
             "offers": player.offer_history,

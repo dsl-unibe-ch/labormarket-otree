@@ -20,7 +20,9 @@
       <th scope="col" class="border">Training Offered</th>
       <th scope="col" class="border">Effort Level Chosen</th>
       <th scope="col" class="border">Your Earnings</th>
+
       <th scope="col" class="border-0"></th>
+
       <th scope="col" class="border">
         {{ if player.role == "Employee" }}
           Manager Earnings
@@ -45,14 +47,24 @@
       <td class="border-bottom">{{ if prev_player.contract.training }}Y{{ else }}N{{ endif }}</td>
       <td class="border-bottom">{{ prev_player.contract.effort }}</td>
       {{ else }}
-      <td class="border-bottom"></td>
-      <td class="border-bottom"></td>
-      <td class="border-bottom"></td>
-      <td class="border-bottom"></td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
       {{ endif }}
       <td class="border-bottom">{{ prev_player.payoff }}</td>
+
       <td class="border-start border-end border-0" style="--bs-table-accent-bg: transparent;"></td>
-      <td class="border-bottom">{{ prev_player.payoff }}</td>
+
+      {{ if prev_player.field_maybe_none("contract") }}
+      {{ if player.role == "Employee" }}
+      <td class="border-bottom">{{ prev_player.contract.manager.payoff }}</td>
+      {{ else }}
+      <td class="border-bottom">{{ prev_player.contract.employee.payoff }}</td>
+      {{ endif }}
+      {{ else }}
+      <td class="border-bottom">-</td>
+      {{ endif }}
     </tr>
     {{ endif }}
     {{ endfor }}
@@ -64,7 +76,9 @@
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
+
       <td class="border-start border-end border-0" style="--bs-table-accent-bg: transparent;"></td>
+
       <td class="border-bottom">-</td>
     </tr>
     {{ endfor }}
