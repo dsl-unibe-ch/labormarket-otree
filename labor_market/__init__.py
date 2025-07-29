@@ -595,7 +595,8 @@ class PeriodResults(Page):
     @staticmethod
     def vars_for_template(player: Player):
         group = player.group
-        config = group.session.config
+        session = group.session
+        config = session.config
         manager_endowment = config["manager_endowment"]
         employee_endowment = config["employee_endowment"]
         skill_multipliers = config["skill_multipliers"]
@@ -642,6 +643,7 @@ class PeriodResults(Page):
             "has_training": has_training,
             "manager_endowment": manager_endowment,
             "employee_endowment": employee_endowment,
+            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
         }
 
 # Repeat for NUM_ROUNDS periods (rounds/subsessions)

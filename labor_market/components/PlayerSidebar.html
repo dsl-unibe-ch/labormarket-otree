@@ -1,0 +1,115 @@
+<h3>Your role</h3>
+
+<p>You are a <b>{{ player.role }}</b> nicknamed <b>{{ player.label }}</b>.</p>
+<p>Here is a summary of your study earnings so far.</p>
+<table class="table table-sm table-striped text-center payoff-table">
+  <thead>
+    <tr class="border-0">
+      <th scope="col" colspan="6" class="border">Earnings Summary</th>
+      <th scope="col" colspan="2" class="border-0"></th>
+    </tr>
+    <tr class="border-0">
+      <th scope="col" class="border">Period</th>
+      <th scope="col" class="border">
+        {{ if player.role == "Employee" }}
+          Manager ID
+        {{ else }}
+          Worker ID
+        {{ endif }}
+      <th scope="col" class="border">Salary Offered</th>
+      <th scope="col" class="border">Training Offered</th>
+      <th scope="col" class="border">Effort Level Chosen</th>
+      <th scope="col" class="border">Your Earnings</th>
+      <th scope="col" class="border-0"></th>
+      <th scope="col" class="border">
+        {{ if player.role == "Employee" }}
+          Manager Earnings
+        {{ else }}
+          Worker Earnings
+        {{ endif }}
+      </th>
+    </tr>
+  </thead>
+  <tbody class="border-0">
+    {{ for prev_player in player.in_all_rounds() }}
+    {{ if prev_player.payoff_calculated }}
+    <tr class="border-0 border-start border-end{{ if forloop.counter == subsession.round_number }} row-selected{{ endif }}">
+      <td class="border-bottom">Period&nbsp;{{ forloop.counter }}</td>
+      {{ if prev_player.field_maybe_none("contract") }}
+      {{ if player.role == "Employee" }}
+      <td class="border-bottom">{{ prev_player.contract.manager.label }}</td>
+      {{ else }}
+      <td class="border-bottom">{{ prev_player.contract.employee.label }}</td>
+      {{ endif }}
+      <td class="border-bottom">{{ prev_player.contract.wage }}</td>
+      <td class="border-bottom">{{ if prev_player.contract.training }}Y{{ else }}N{{ endif }}</td>
+      <td class="border-bottom">{{ prev_player.contract.effort }}</td>
+      {{ else }}
+      <td class="border-bottom"></td>
+      <td class="border-bottom"></td>
+      <td class="border-bottom"></td>
+      <td class="border-bottom"></td>
+      {{ endif }}
+      <td class="border-bottom">{{ prev_player.payoff }}</td>
+      <td class="border-start border-end border-0" style="--bs-table-accent-bg: transparent;"></td>
+      <td class="border-bottom">{{ prev_player.payoff }}</td>
+    </tr>
+    {{ endif }}
+    {{ endfor }}
+    {{ for index in future_periods }}
+    <tr class="border-0 border-start border-end">
+      <td class="border-bottom">Period&nbsp;{{ index }}</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-bottom">-</td>
+      <td class="border-start border-end border-0" style="--bs-table-accent-bg: transparent;"></td>
+      <td class="border-bottom">-</td>
+    </tr>
+    {{ endfor }}
+  </tbody>
+  <tfoot class="border-0">
+    <tr class="border-0">
+      <th class="border-0" scope="row" colspan="4"></th>
+      <th class="text-start border-start border-bottom" scope="row">Total Earnings</th>
+      <td class="text-end border-end border-bottom">{{ player.participant.payoff }}</td>
+      <td class="border-0" colspan="2"></td>
+    </tr>
+  </tfoot>
+</table>
+
+<h3>Offer history</h3>
+    
+<table class="table table-sm table-bordered table-striped text-center offer-history-table">
+  <thead>
+    <tr>
+      <th style="width: 10%;">Period</th>
+      <th style="width: 10%;">Step</th>
+      <th style="width: 25%;">Worker</th>
+      <th style="width: 15%;">Wage</th>
+      <th style="width: 15%;">Training</th>
+      <th style="width: 15%;">Accepted</th>
+      <th style="width: 10%;">Effort</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for offer in offers %}
+    <tr data-id-in-group="{{ offer.employee.id_in_group }}">
+      <td>{{ offer.period }}/{{ C.NUM_ROUNDS }}</td>
+      <td>{{ offer.step }}/{{ C.HIRING_STEPS }}</td>
+      <td>{{ offer.employee.label }}</td>
+      <td>{{ offer.wage }}</td>
+      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
+      {% if offer.rejected %}
+      <td class="table-danger">No</td>
+      {% elif offer.accepted %}
+      <td class="table-success">Yes</td>
+      {% else %}
+      <td class="table-warning">Open</td>
+      {% endif %}
+      <td>{{ if offer.effort }}{{ offer.effort }}{{ elif offer.rejected }}N/A{{ endif }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
