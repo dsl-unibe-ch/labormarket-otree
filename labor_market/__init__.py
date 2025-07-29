@@ -361,7 +361,8 @@ class MakeOffer(Page):
         return {
             "employee_pool": employee_pool,
             "offers": player.offer_history,
-            "eligible_offers": len([choice for choice in employee_pool if choice["eligible"]])
+            "eligible_offers": len([choice for choice in employee_pool if choice["eligible"]]),
+            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
         }
 
     # Shown only the player is a Manager,
@@ -421,7 +422,8 @@ class GetOffers(Page):
         return {
             "open_offers": open_offers,
             "num_offers": len(open_offers),
-            "offers": player.offer_history
+            "offers": player.offer_history,
+            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
         }
 
     # Shown to Employees without a contract, but with open offers in this step
@@ -501,6 +503,7 @@ class MatchSummary(Page):
             "salary": salary,
             "training": "Y" if training else "N",
             "offers": player.offer_history,
+            "future_periods": range(player.round_number, C.NUM_ROUNDS + 1)
         }
 
 class WaitForAcceptance(WaitPage):
@@ -566,7 +569,8 @@ class ChooseEffort(Page):
             "offers": employee.offer_history,
             "effort_costs": config["effort_costs"],
             "employee_payoff_values": employee_payoff_values,
-            "employer_payoff_values": employer_payoff_values
+            "employer_payoff_values": employer_payoff_values,
+            "future_periods": range(employee.round_number, C.NUM_ROUNDS + 1)
         }
 
     @staticmethod
@@ -685,7 +689,7 @@ class PeriodResults(Page):
             "effort_cost": effort_cost,
             "negative_effort_cost": -effort_cost,
             "negative_direct_training_cost": -direct_training_cost,
-            "negative_wage": -player.contract.wage,
+            "negative_wage": -wage,
             "revenue_and_payoff": revenue_and_payoff,
             "has_training": has_training,
             "manager_endowment": manager_endowment,
