@@ -1,0 +1,30 @@
+{% extends "otree/Page.html" %}
+{% load otree static %}
+
+{{ block title }}PEQ{{ endblock }}
+
+{{ block styles }}
+  <link rel="stylesheet" type="text/css" href="{{ static 'global/css/quiz.css' }}"/>
+{{ endblock }}
+
+{{ block content }}
+{{ include '_modals/global/hint.html' }}
+
+<p>
+    <strong><em>To help us better understand your decisions, please respond to the following questions.</em></strong>
+</p>
+<p>
+    <strong><em>Recall that your identity will remain anonymous and your responses will be kept confidential.
+    </em></strong>
+</p>
+<p>
+    <strong>Important:</strong> For the following questions, please consider your OVERALL experience during today's
+    session (i.e., across ALL periods).
+</p>
+
+{{ include "_templates/outro_quiz/quiz_questions.html" }}
+{{ endblock }}
+
+{{ block scripts }}
+  <script src="{{ static 'outro_quiz/js/quiz.js' }}"></script>
+{{ endblock }}

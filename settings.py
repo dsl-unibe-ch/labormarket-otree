@@ -9,8 +9,14 @@ SESSION_CONFIGS = [
         max_rounds=10
     ),
     dict(
-        name="labor_market_with_quiz",
-        app_sequence=["intro_quiz", "labor_market"],
+        name="labor_market_with_quizzes",
+        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
+        num_demo_participants=6,
+        max_rounds=10
+    ),
+    dict(
+        name="outro_quiz",
+        app_sequence=["outro_quiz"],
         num_demo_participants=6,
         max_rounds=10
     ),

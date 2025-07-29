@@ -22,22 +22,20 @@ function clearRadioButtons() {
 
 function checkAnswers() {
   const checkedRadioButton = getCheckedRadioButton()
-  const correct = check(js_vars.answers[questionIdx - 1], checkedRadioButton);
+  const correct = check(checkedRadioButton);
+  if (correct) {
+    nextQuestion();
+  }
 }
 
-function check(correctId, checkedRadioButton) {
+function check(checkedRadioButton) {
   if (checkedRadioButton === null) {
     // No answer provided.
     showModal(NO_ANSWER, false);
     return false;
-  } else if (checked(`quiz${questionIdx}-${correctId}`)) {
-    // Correct answer provided.
-    showModal(js_vars.hints[questionIdx - 1][1], true);
-    return true;
   } else {
-    // Incorrect answer provided.
-    showModal(js_vars.hints[questionIdx - 1][0], false);
-    return false;
+    // Answer provided.
+    return true;
   }
 }
 
