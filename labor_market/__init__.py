@@ -196,36 +196,6 @@ class Player(BasePlayer):
 
         raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
 
-    # @property
-    # def contract_with_earnings(self) -> Optional[Offer]:
-    #     """Return accepted Offer, or return None"""
-    #     if self.role == "Manager":
-    #         accepted_offers = Offer.filter(manager=self, accepted=True)
-    #     else:
-    #         accepted_offers = Offer.filter(employee=self, accepted=True)
-    #
-    #     if len(accepted_offers) == 1:
-    #         return accepted_offers[0]
-    #     if len(accepted_offers) == 0:
-    #         return None
-    #
-    #     raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
-
-    # @property
-    # def earnings_history(self) -> [dict[str, Any]]:
-    #     result = []
-    #     for player in self.in_all_rounds():
-    #         if self.role == "Manager":
-    #             offers = Offer.filter(manager=player, accepted=True)
-    #         else:
-    #             offers = Offer.filter(employee=player, accepted=True)
-    #
-    #         result += {
-    #             "offer": offers[0] if len(offers) > 0 else None
-    #         }
-    #
-    #     return result
-
     @property
     def offer_history(self) -> List[Offer]:
         """Return a history of all (non-open) offers for the participant across this+previous periods"""
@@ -242,6 +212,17 @@ class Player(BasePlayer):
 
         # Reverse the list of offers: most recent first
         return list(reversed(offer_history))
+
+    @property
+    def payoff_history(self) -> List[int]:
+        """Return a history of payoffs for all periods."""
+        payoff_history = []
+
+        for player in self.in_all_rounds():
+            payoff_history.append(player.payoff)
+
+        return payoff_history
+
 
 def offer_wage_max(player: Player):
     return player.session.config["max_wage"]
@@ -362,7 +343,7 @@ class MakeOffer(Page):
             "employee_pool": employee_pool,
             "offers": player.offer_history,
             "eligible_offers": len([choice for choice in employee_pool if choice["eligible"]]),
-            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
+            "future_periods": range(player.round_number, C.NUM_ROUNDS + 1)
         }
 
     # Shown only the player is a Manager,
@@ -423,7 +404,7 @@ class GetOffers(Page):
             "open_offers": open_offers,
             "num_offers": len(open_offers),
             "offers": player.offer_history,
-            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
+            "future_periods": range(player.round_number, C.NUM_ROUNDS + 1)
         }
 
     # Shown to Employees without a contract, but with open offers in this step
@@ -617,7 +598,7 @@ class WaitForEffort(WaitPage):
                 else:
                     print(f"Payoff for Worker {player.id_in_group}: {endowment_cu}")
                     player.payoff = endowment_cu
-            elif player.role == "Manager":
+            else:
                 endowment_cu = cu(config["manager_endowment"])
 
                 if contract:
@@ -626,14 +607,14 @@ class WaitForEffort(WaitPage):
                     base_revenue = config["base_revenue"]
 
                     initial_revenue = cu(base_revenue * skill_multiplier * effort)
-                    has_training = contract.training is not None
+                    has_training = contract.training
                     wage = contract.wage
                     revenue_and_payoff = calculate_manager_revenue_and_payoff(group, player, initial_revenue, wage,
                                                                       has_training)
 
                     print(revenue_and_payoff["message"])
-                    player.payoff = revenue_and_payoff["payoff"]
                     contract.revenue = revenue_and_payoff["revenue"]
+                    player.payoff = revenue_and_payoff["payoff"]
                 else:
                     print(f"Payoff for Manager {player.id_in_group}: {endowment_cu}")
                     player.payoff = endowment_cu
@@ -642,6 +623,7 @@ class WaitForEffort(WaitPage):
 
 class PeriodResults(Page):
     """Period outcomes display"""
+
     # A lot of payoff is calculated again here for display
     @staticmethod
     def vars_for_template(player: Player):
@@ -696,6 +678,17 @@ class PeriodResults(Page):
             "employee_endowment": employee_endowment,
             "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
         }
+
+    @staticmethod
+    def before_next_page(player, timeout_happened):
+        if timeout_happened:
+            print(f"Timeout for Player {player.id_in_group}.")
+
+        if player.round_number == C.NUM_ROUNDS:
+            player.participant.vars["labor_dump"] = {
+                "payoff_history": player.payoff_history,
+            }
+
 
 # Repeat for NUM_ROUNDS periods (rounds/subsessions)
 # * WaitForAllPlayers to set skill levels based on previous period

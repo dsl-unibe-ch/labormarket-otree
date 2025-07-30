@@ -13,7 +13,7 @@
           <th style="width: 10%;">Choice</th>
           <th style="width: 50%;">Company</th>
           <th style="width: 20%;">Wage</th>
-          <th style="width: 20%;">Training</th>
+          <th style="width: 20%;">Training (Y/N)</th>
         </tr>
       </thead>
       <tbody>
@@ -25,7 +25,7 @@
           </td>
           <td>{{ offer.manager.label }}</td>
           <td>{{ offer.wage }}</td>
-          <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
+          <td>{{ if offer.training }}Y{{ else }}N{{ endif }}</td>
         </tr>
         {% endfor %}
       </tbody>

@@ -1,6 +1,9 @@
 <h3>Your role</h3>
 
-<p>You are a <b>{{ player.role }}</b> nicknamed <b>{{ player.label }}</b>.</p>
+<p>
+  You are {{ if player.role == "Employee" }} a <strong>Worker</strong>
+  {{ else }}an <strong>Employer</strong>{{ endif }} nicknamed <strong>{{ player.label }}</strong>.
+</p>
 <p>Here is a summary of your study earnings so far.</p>
 <table class="table table-sm table-striped text-center payoff-table">
   <thead>
@@ -12,7 +15,7 @@
       <th scope="col" class="border">Period</th>
       <th scope="col" class="border">
         {{ if player.role == "Employee" }}
-          Manager ID
+          Employer ID
         {{ else }}
           Worker ID
         {{ endif }}
@@ -25,7 +28,7 @@
 
       <th scope="col" class="border">
         {{ if player.role == "Employee" }}
-          Manager Earnings
+          Employer Earnings
         {{ else }}
           Worker Earnings
         {{ endif }}
@@ -102,7 +105,7 @@
       <th style="width: 10%;">Step</th>
       <th style="width: 25%;">Worker</th>
       <th style="width: 15%;">Wage</th>
-      <th style="width: 15%;">Training</th>
+      <th style="width: 15%;">Training (Y/N)</th>
       <th style="width: 15%;">Accepted</th>
       <th style="width: 10%;">Effort</th>
     </tr>
@@ -114,7 +117,7 @@
       <td>{{ offer.step }}/{{ C.HIRING_STEPS }}</td>
       <td>{{ offer.employee.label }}</td>
       <td>{{ offer.wage }}</td>
-      <td>{{ if offer.training }}Included{{ else }}Not included{{ endif }}</td>
+      <td>{{ if offer.training }}Y{{ else }}N{{ endif }}</td>
       {% if offer.rejected %}
       <td class="table-danger">No</td>
       {% elif offer.accepted %}

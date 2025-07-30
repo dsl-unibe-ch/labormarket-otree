@@ -112,7 +112,9 @@ class Conclusion(Page):
         session = player.session
         participation_fee = RealWorldCurrency(session.config["participation_fee"])
         real_world_currency_per_point = session.config["real_world_currency_per_point"]
-        real_payoff = player.participant.payoff.to_real_world_currency(session)
+
+        # Here we have to prevent theoretically possible negative values, otherwise the participants will owe money.
+        real_payoff = max(player.participant.payoff, cu(0)).to_real_world_currency(session)
         total_payment = real_payoff + participation_fee
 
         return dict(real_world_currency_per_point=real_world_currency_per_point, participation_fee=participation_fee,

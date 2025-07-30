@@ -15,12 +15,14 @@
     </tr>
   </thead>
   <tbody class="border-0">
-    {{ for prev_player in player.in_all_rounds() }}
+    {{ if player.participant.vars and player.participant.vars.labor_dump }}
+    {{ for payoff in player.participant.vars.labor_dump.payoff_history }}
     <tr class="border-0 border-start border-end">
       <td class="text-start border-0">Period&nbsp;{{ forloop.counter }}</td>
-      <td class="text-end border-0">{{ prev_player.payoff }}</td>
+      <td class="text-end border-0">{{ payoff }}</td>
     </tr>
     {{ endfor }}
+    {{ endif }}
   </tbody>
   <tfoot class="border">
     <tr class="border">
