@@ -1,5 +1,7 @@
 """Initial outro with rules and quiz"""
 from otree.api import *
+from otree.currency import RealWorldCurrency
+
 from outro_quiz.quiz import *
 
 # Constants
@@ -83,7 +85,7 @@ class Group(BaseGroup):
 # Pages
 
 class PEQ(Page):
-    """Quiz page to test comprehension"""
+    """Post-experiment questionnaire"""
 
     @staticmethod
     def vars_for_template(player: "Player"):
@@ -94,7 +96,6 @@ class PEQ(Page):
         return dict(questions=get_questions(player))
 
 class DemographicQuiz(Page):
-    """Quiz page to test comprehension"""
 
     @staticmethod
     def vars_for_template(player: "Player"):
@@ -104,4 +105,17 @@ class DemographicQuiz(Page):
     def js_vars(player: "Player"):
         return dict(questions=get_questions(player))
 
-page_sequence = [DemographicQuiz]
+class Conclusion(Page):
+
+    @staticmethod
+    def vars_for_template(player: "Player"):
+        session = player.session
+        participation_fee = RealWorldCurrency(session.config["participation_fee"])
+        real_world_currency_per_point = session.config["real_world_currency_per_point"]
+        real_payoff = player.participant.payoff.to_real_world_currency(session)
+        total_payment = real_payoff + participation_fee
+
+        return dict(real_world_currency_per_point=real_world_currency_per_point, participation_fee=participation_fee,
+                    real_payoff=real_payoff, total_payment=total_payment)
+
+page_sequence = [Conclusion]

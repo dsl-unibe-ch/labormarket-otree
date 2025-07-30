@@ -1,0 +1,48 @@
+{{ block title }}Conclusion & Payment Screen{{ endblock }}
+
+{{ block styles }}
+  <link rel="stylesheet" type="text/css" href="{{ static 'global/css/quiz.css' }}"/>
+{{ endblock }}
+
+{{ block content }}
+<p>
+  Thank you for your participation in this study. A summary of your study earnings and total payment is presented below:
+</p>
+<table class="table table-sm table-striped text-center payoff-table">
+  <thead>
+    <tr class="border-0">
+      <th scope="col" colspan="2" class="border">Earnings Summary</th>
+    </tr>
+  </thead>
+  <tbody class="border-0">
+    {{ for prev_player in player.in_all_rounds() }}
+    <tr class="border-0 border-start border-end">
+      <td class="text-start border-0">Period&nbsp;{{ forloop.counter }}</td>
+      <td class="text-end border-0">{{ prev_player.payoff }}</td>
+    </tr>
+    {{ endfor }}
+  </tbody>
+  <tfoot class="border">
+    <tr class="border">
+      <th class="text-start border-start border-bottom" scope="col">Total Points Earned</th>
+      <th class="text-end border-end border-bottom" scope="col">{{ player.participant.payoff }}</th>
+    </tr>
+    <tr>
+      <td class="text-start">Bonus in USD (1 point = ${{ real_world_currency_per_point }})</td>
+      <td class="text-end">{{ real_payoff }}</td>
+    </tr>
+    <tr>
+      <td class="text-start">Show up Fee</td>
+      <td class="text-end">{{ participation_fee }}</td>
+    </tr>
+    <tr class="border">
+      <th class="text-start">Total Study Payment</th>
+      <th class="text-end">{{ total_payment }}</th>
+    </tr>
+  </tfoot>
+</table>
+<p>
+  Your participant code is <strong>&quot;{{ player.participant.code }}&quot;</strong>.
+  Please write it down in case there is an issue processing your payment.
+</p>
+{{ endblock }}

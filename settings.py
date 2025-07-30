@@ -36,7 +36,7 @@ STARTING_SKILLS_BY_MARKET = dict(
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=1.00,
+    real_world_currency_per_point=0.025,
     participation_fee=5.00,
     market="heterogenous",
     skill_multipliers=[100, 140, 177, 211, 242, 270, 295, 317, 336, 352, 365, 375, 382, 386, 387],
