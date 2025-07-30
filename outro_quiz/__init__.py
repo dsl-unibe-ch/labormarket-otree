@@ -82,7 +82,7 @@ class Group(BaseGroup):
 
 # Pages
 
-class Quiz1(Page):
+class PEQ(Page):
     """Quiz page to test comprehension"""
 
     @staticmethod
@@ -93,4 +93,15 @@ class Quiz1(Page):
     def js_vars(player: "Player"):
         return dict(questions=get_questions(player))
 
-page_sequence = [Quiz1]
+class DemographicQuiz(Page):
+    """Quiz page to test comprehension"""
+
+    @staticmethod
+    def vars_for_template(player: "Player"):
+        return dict(questions=get_questions(player))
+
+    @staticmethod
+    def js_vars(player: "Player"):
+        return dict(questions=get_questions(player))
+
+page_sequence = [DemographicQuiz]
