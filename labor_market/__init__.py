@@ -497,9 +497,12 @@ class WaitForAcceptance(WaitPage):
                 "body_text": "You are a Manager. Please wait until all Workers decide on their offers..."
             }
         else:
+            offers_status = "You did not receive any offers at this hiring step."\
+                if len(Offer.filter(employee=player)) == 0 else "You rejected all offers at this hiring step."
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": "You are a Worker. You did not receive any offers this hiring step. Please wait until all Employees decide on their offers..."
+                "body_text": f"You are a Worker. {offers_status} "
+                             f"Please wait until all Employees decide on their offers..."
             }
 
     # Shown to:
