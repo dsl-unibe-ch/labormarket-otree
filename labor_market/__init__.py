@@ -1,7 +1,7 @@
 """Main simulation"""
 from __future__ import annotations
 import random
-from typing import Self, List, Optional, Any
+from typing import Self, List, Optional, Any, Iterator
 
 from otree.api import *
 
@@ -45,6 +45,45 @@ def random_labels():
     return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
            random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
 
+def custom_export(players) -> Iterator[List[str | int | float]]:
+    # Get the highest session ID from the current batch of players
+    latest_session_id = max(p.session.id for p in players)
+
+    # Header row
+    yield [
+        "round_number",
+        "participant_code",
+        "player_role",
+        "player_label",
+        "player_id_in_group",
+        "player_skill_level",
+        "offer_wage",
+        "offer_training",
+        "offer_employer",
+        "offer_worker",
+        "offer_accepted",
+        "offer_effort",
+    ]
+    for player in players:
+        if player.session.id == latest_session_id:
+            participant = player.participant
+
+            for offer in player.get_offer_history():
+                yield [
+                    player.round_number,
+                    participant.code,
+                    player.role,
+                    player.label,
+                    player.id_in_group,
+                    player.skill if player.role == "Employee" else "", # Only employees have skills
+                    offer.wage,
+                    str(offer.training),
+                    offer.manager.label,
+                    offer.employee.label,
+                    str(offer.accepted),
+                    offer.effort,
+                ]
+
 # Helper methods
 
 def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, wage: int, has_training: bool) \
@@ -67,11 +106,6 @@ def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, reven
             "revenue": revenue
         }
 
-def calculate_employee_payoff(endowment: int, wage: int, effort_cost: int) -> int:
-    return endowment + wage - effort_cost
-
-# Objects
-
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""
     index, multiplier = mult_tuple
@@ -81,6 +115,11 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
         "multiplier": multiplier,
         "revenue": [effort * multiplier for effort in range(1, 11)] # TODO make 1 configurable through base_revenue
     }
+
+# Objects
+
+def calculate_employee_payoff(endowment: int, wage: int, effort_cost: int) -> int:
+    return endowment + wage - effort_cost
 
 class Subsession(BaseSubsession):
     """Subsession object for simulation"""
@@ -195,6 +234,16 @@ class Player(BasePlayer):
             return None
 
         raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
+
+    def get_offer_history(self) -> Iterator[Offer]:
+        """Yield all (non-open) offers for the participant across this+previous periods"""
+        for player in self.in_all_rounds():
+            if self.role == "Manager":
+                for offer in Offer.filter(manager=player):
+                    yield offer
+            else:
+                for offer in Offer.filter(employee=player):
+                    yield offer
 
     @property
     def offer_history(self) -> List[Offer]:

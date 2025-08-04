@@ -1,10 +1,8 @@
-TRUE = "True"
-FALSE = "False"
 LIKERT_SCALE_5 = ["Strongly disagree", "Disagree", "Neither agree nor disagree", "Agree", "Strongly agree"]
 LIKERT_SCALE_3 = ["Much lower", "The same", "Much higher"]
 LIKERT_SCALE_3_ALT = ["Much worse than expected", "Exactly as expected", "Much better than expected"]
 
-QUIZ_1_MANAGER_QUESTIONS = [
+QUIZ_1_EMPLOYEE_QUESTIONS = [
     dict(index=1, text="I trusted the employer I formed a contract with.", choices=LIKERT_SCALE_5),
     dict(index=2, text="I wanted to treat the employer I formed a contract with fairly.", choices=LIKERT_SCALE_5),
     dict(index=3, text="I cared about the employer I formed a contract with.", choices=LIKERT_SCALE_5,
@@ -19,6 +17,8 @@ QUIZ_1_MANAGER_QUESTIONS = [
          choices=LIKERT_SCALE_5),
     dict(index=10, text="When I chose a contract including training, I felt obligated to return to that employer "
                         "in the following periods.", choices=LIKERT_SCALE_5),
+    dict(index=11, text="I valued being offered a high <strong>salary</strong> by the employer.",
+         choices=LIKERT_SCALE_5),
     dict(index=12, text="I valued being offered <strong>training</strong> by the employer.",
          choices=LIKERT_SCALE_5),
     dict(index=13, text="How would you compare the <strong>actual salary</strong> offers you received to the "
@@ -36,7 +36,7 @@ QUIZ_1_MANAGER_QUESTIONS = [
                         "offers to this worker.", choices=LIKERT_SCALE_5),
 ]
 
-QUIZ_1_EMPLOYEE_QUESTIONS = [
+QUIZ_1_MANAGER_QUESTIONS = [
         dict(index=1, text="I trusted the worker I formed a contract with.", choices=LIKERT_SCALE_5),
         dict(index=2, text="I wanted to treat the worker I formed a contract with fairly.", choices=LIKERT_SCALE_5),
         dict(index=3, text="I cared about the worker I formed a contract with.", choices=LIKERT_SCALE_5),
@@ -60,7 +60,7 @@ QUIZ_1_EMPLOYEE_QUESTIONS = [
         dict(index=15, text="<strong>For the periods in which the workers' contracts included training</strong>, "
                             "how would you compare the actual workers' effort levels to the effort levels "
                             "you expected the workers to provide?", choices=LIKERT_SCALE_3),
-        dict(index=16, text="<strong>For the periods in which the workers' contracts included training<strong>, "
+        dict(index=16, text="<strong>For the periods in which the workers' contracts included training</strong>, "
                             "how would you compare the actual workers' behavior in the next period to the behavior "
                             "you expected from them in the next period?", choices=LIKERT_SCALE_3_ALT),
         dict(index=17, text="A worker's' skill level should play a major role for the salary level an employer "

@@ -4,20 +4,13 @@ const MAX_ID = Object.keys(js_vars.questions).length;
 const NO_ANSWER = "Please answer the question";
 
 // Show the first question
-document.getElementById(`container-quiz${questionIdx}`).classList.remove("hidden");
+document.getElementById(`container-peq_quiz${questionIdx}`).classList.remove("hidden");
 
 // Attach click handler to Next button
 document.getElementById("next-button").addEventListener("click", checkAnswers);
 
 function getCheckedRadioButton() {
-  return document.querySelector(`input[name="quiz${questionIdx}"]:checked`);
-}
-
-function clearRadioButtons() {
-  const checkedRadioButton = getCheckedRadioButton();
-  if (checkedRadioButton !== null) {
-    checkedRadioButton.checked = false;
-  }
+  return document.querySelector(`input[name="peq_quiz${questionIdx}"]:checked`);
 }
 
 function checkAnswers() {
@@ -31,7 +24,7 @@ function checkAnswers() {
 function check(checkedRadioButton) {
   if (checkedRadioButton === null) {
     // No answer provided.
-    showModal(NO_ANSWER, false);
+    showModal(NO_ANSWER);
     return false;
   } else {
     // Answer provided.
@@ -44,21 +37,15 @@ function checked(id) {
   return el ? el.checked : false;
 }
 
-function showModal(message, correct) {
+function showModal(message) {
   const titleEl = document.getElementById("hint-modal-title");
   const msgEl = document.getElementById("hint-modal-message");
   const btnEl = document.getElementById("hint-modal-close-button");
   const modalEl = document.getElementById("hint-modal");
 
-  titleEl.innerHTML = correct ? "&#9989; Correct" : "&#10060; Incorrect";
+  titleEl.innerHTML = "&#10060; Incorrect";
   msgEl.innerHTML = message;
-  btnEl.textContent = correct ? "Next" : "Try again";
-
-  // Remove old listeners
-  modalEl.removeEventListener("hidden.bs.modal", nextQuestion);
-  modalEl.removeEventListener("hidden.bs.modal", clearRadioButtons);
-
-  modalEl.addEventListener("hidden.bs.modal", correct ? nextQuestion : clearRadioButtons);
+  btnEl.textContent = "Try again";
 
   let modal = bootstrap.Modal.getInstance(modalEl);
   if (!modal) {
@@ -73,7 +60,7 @@ function showModal(message, correct) {
 
 function nextQuestion() {
   // Hide current quiz
-  const currentContainer = document.getElementById(`container-quiz${questionIdx}`);
+  const currentContainer = document.getElementById(`container-peq_quiz${questionIdx}`);
   if (currentContainer) {
     currentContainer.classList.add("hidden");
   }
@@ -86,10 +73,10 @@ function nextQuestion() {
     document.getElementById("form").submit();
   } else {
     // Show next available quiz
-    let nextContainer = document.getElementById(`container-quiz${questionIdx}`);
+    let nextContainer = document.getElementById(`container-peq_quiz${questionIdx}`);
     while (!nextContainer && questionIdx < MAX_ID) {
       questionIdx += 1;
-      nextContainer = document.getElementById(`container-quiz${questionIdx}`);
+      nextContainer = document.getElementById(`container-peq_quiz${questionIdx}`);
     }
 
     if (nextContainer) {

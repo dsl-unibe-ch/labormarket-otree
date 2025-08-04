@@ -1,4 +1,6 @@
 """Initial outro with rules and quiz"""
+from typing import Iterator, List
+
 from otree.api import *
 from otree.currency import RealWorldCurrency
 
@@ -26,7 +28,7 @@ class C(BaseConstants):
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
 
-# Objects
+# Functions
 
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""
@@ -37,6 +39,71 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
         "multiplier": multiplier,
         "revenue": [effort * multiplier for effort in range(1, 11)]
     }
+
+def custom_export(players) -> Iterator[List[str | int | float]]:
+    yield [
+        "participant_code",
+        "peq1",
+        "peq2",
+        "peq3",
+        "peq4",
+        "peq5",
+        "peq6",
+        "peq7",
+        "peq8",
+        "peq9",
+        "peq10",
+        "peq11",
+        "peq12",
+        "peq13",
+        "peq14",
+        "peq15",
+        "peq16",
+        "peq17",
+        "gender",
+        "age",
+        "grade_status",
+        "major",
+        "gpa",
+        "econ_classes",
+        "risk_comfort",
+        "strategy_notes",
+    ]
+
+    latest_session_id = max(p.session.id for p in players)
+
+    for player in players:
+        if player.session.id == latest_session_id:
+            yield [
+                player.participant.code,
+                player.peq_quiz1,
+                player.peq_quiz2,
+                player.peq_quiz3,
+                player.peq_quiz4,
+                player.peq_quiz5,
+                player.peq_quiz6,
+                player.peq_quiz7,
+                player.peq_quiz8,
+                player.peq_quiz9,
+                player.peq_quiz10,
+                player.peq_quiz11,
+                player.peq_quiz12,
+                player.peq_quiz13,
+                player.peq_quiz14,
+                player.peq_quiz15,
+                player.peq_quiz16,
+                player.peq_quiz17,
+                player.demographic_quiz1,
+                player.demographic_quiz2,
+                player.demographic_quiz3,
+                player.demographic_quiz4,
+                player.demographic_quiz5,
+                player.demographic_quiz6,
+                player.demographic_quiz7,
+                player.demographic_quiz8,
+            ]
+
+# Objects
 
 class Subsession(BaseSubsession):
     """Subsession object for quiz"""
@@ -56,6 +123,33 @@ class Subsession(BaseSubsession):
 
 class Player(BasePlayer):
     """Player object for quiz"""
+
+    peq_quiz1 = models.StringField()
+    peq_quiz2 = models.StringField()
+    peq_quiz3 = models.StringField()
+    peq_quiz4 = models.StringField()
+    peq_quiz5 = models.StringField()
+    peq_quiz6 = models.StringField()
+    peq_quiz7 = models.StringField()
+    peq_quiz8 = models.StringField()
+    peq_quiz9 = models.StringField()
+    peq_quiz10 = models.StringField()
+    peq_quiz11 = models.StringField()
+    peq_quiz12 = models.StringField()
+    peq_quiz13 = models.StringField()
+    peq_quiz14 = models.StringField()
+    peq_quiz15 = models.StringField()
+    peq_quiz16 = models.StringField()
+    peq_quiz17 = models.StringField()
+
+    demographic_quiz1 = models.StringField()
+    demographic_quiz2 = models.IntegerField()
+    demographic_quiz3 = models.StringField()
+    demographic_quiz4 = models.StringField()
+    demographic_quiz5 = models.StringField()
+    demographic_quiz6 = models.IntegerField()
+    demographic_quiz7 = models.IntegerField()
+    demographic_quiz8 = models.LongStringField()
 
     @property
     def printable_role(self):
@@ -86,6 +180,8 @@ class Group(BaseGroup):
 
 class PEQ(Page):
     """Post-experiment questionnaire"""
+    form_model = "player"
+    form_fields = [f"peq_quiz{i}" for i in range(1, 18)]
 
     @staticmethod
     def vars_for_template(player: "Player"):
@@ -94,8 +190,11 @@ class PEQ(Page):
     @staticmethod
     def js_vars(player: "Player"):
         return dict(questions=get_questions(player))
+
 
 class DemographicQuiz(Page):
+    form_model = "player"
+    form_fields = [f"demographic_quiz{i}" for i in range(1, 9)]
 
     @staticmethod
     def vars_for_template(player: "Player"):
@@ -104,6 +203,7 @@ class DemographicQuiz(Page):
     @staticmethod
     def js_vars(player: "Player"):
         return dict(questions=get_questions(player))
+
 
 class Conclusion(Page):
 
@@ -120,4 +220,5 @@ class Conclusion(Page):
         return dict(real_world_currency_per_point=real_world_currency_per_point, participation_fee=participation_fee,
                     real_payoff=real_payoff, total_payment=total_payment)
 
-page_sequence = [Conclusion]
+
+page_sequence = [PEQ, DemographicQuiz, Conclusion]
