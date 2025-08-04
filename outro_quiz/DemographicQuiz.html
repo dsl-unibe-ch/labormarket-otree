@@ -1,5 +1,5 @@
-{% extends "otree/Page.html" %}
-{% load otree static %}
+{{ extends "otree/Page.html" }}
+{{ load otree static }}
 
 {{ block title }}Demographic Information{{ endblock }}
 
@@ -12,67 +12,38 @@
 
 <div class="mb-3 _formfield" id="container-demographic_quiz1">
   <div class="question">Please indicate your gender:</div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz1" id="demographic_quiz1-0" value="Female">
-      <label for="demographic_quiz1-0" class="label">Female</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz1" id="demographic_quiz1-1" value="Male">
-      <label for="demographic_quiz1-1" class="label">Male</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz1" id="demographic_quiz1-2" value="Non-binary">
-      <label for="demographic_quiz1-2" class="label">Non-binary</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz1" id="demographic_quiz1-3"
-             value="Prefer not to answer">
-      <label for="demographic_quiz1-3" class="label">Prefer not to answer</label>
-    </div>
+  {{ form.demographic_quiz1 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz1' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz2">
   <div class="question">What is your age (in years)?</div>
-  <input type="number" name="demographic_quiz2" id="demographic_quiz2" min="10" max="99"/>
+  {% form.demographic_quiz2 %}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz2' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz3">
   <div class="question">What is your current grade status?</div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz3" id="demographic_quiz3-0" value="Freshman">
-      <label for="demographic_quiz3-0" class="label">Freshman</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz3" id="demographic_quiz3-1" value="Sophomore">
-      <label for="demographic_quiz3-1" class="label">Sophomore</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz3" id="demographic_quiz3-2" value="Junior">
-      <label for="demographic_quiz3-2" class="label">Junior</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz3" id="demographic_quiz3-3" value="Senior">
-      <label for="demographic_quiz3-3" class="label">Senior</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="demographic_quiz3" id="demographic_quiz3-4" value="Graduate">
-      <label for="demographic_quiz3-3" class="label">Graduate</label>
-    </div>
+  {{ form.demographic_quiz3 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz3' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz4">
   <div class="question">What is your academic major? (answer "none" or "undecided" if applicable)</div>
-  <input type="text" name="demographic_quiz4" id="demographic_quiz4" maxlength="50"/>
+  {{ form.demographic_quiz4 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz4' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz5">
   <div class="question">What is your average GPA?</div>
-  <input type="text" name="demographic_quiz5" id="demographic_quiz5" maxlength="5"/>
+  {{ form.demographic_quiz5 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz5' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz6">
   <div class="question">How many college-level economics and business classes have you taken?</div>
-  <input type="number" name="demographic_quiz6" id="demographic_quiz6" min="0" max="20"/>
+  {{ form.demographic_quiz6 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz6' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz7">
@@ -80,7 +51,8 @@
       On a scale from 1 to 10, with 1 being &quot;completely risk averse&quot; and 10 being
       &quot;completely risk seeking,&quot; to what extent are you comfortable with risk?
   </div>
-  <input type="number" name="demographic_quiz7" id="demographic_quiz7" min="1" max="10"/>
+  {{ form.demographic_quiz7 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz7' }}</small>
 </div>
 
 <div class="mb-3 _formfield" id="container-demographic_quiz8">
@@ -88,13 +60,15 @@
       Please briefly describe your strategy, thoughts, or reasoning being the decisions you made
       during the study.
   </div>
-  <textarea name="demographic_quiz8" id="demographic_quiz8" rows="4" cols="50"></textarea>
+  {{ form.demographic_quiz8 }}
+  <small class="text-danger">{{ formfield_errors 'demographic_quiz8' }}</small>
 </div>
 
 <p>
-  <button class="otree-btn-next btn btn-primary" type="button" id="next-button">
-    Submit
-  </button>
+  {{ next_button }}
 </p>
+{{ endblock }}
 
+{{ block scripts }}
+  <script src="{{ static 'outro_quiz/js/demographic_quiz.js' }}"></script>
 {{ endblock }}

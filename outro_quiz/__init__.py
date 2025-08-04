@@ -142,14 +142,22 @@ class Player(BasePlayer):
     peq_quiz16 = models.StringField()
     peq_quiz17 = models.StringField()
 
-    demographic_quiz1 = models.StringField()
-    demographic_quiz2 = models.IntegerField()
-    demographic_quiz3 = models.StringField()
-    demographic_quiz4 = models.StringField()
-    demographic_quiz5 = models.StringField()
-    demographic_quiz6 = models.IntegerField()
-    demographic_quiz7 = models.IntegerField()
-    demographic_quiz8 = models.LongStringField()
+    demographic_quiz1 = models.StringField(
+        choices=["Female", "Male", "Non-binary", "Prefer not to answer"],
+        widget=widgets.RadioSelect,
+        blank=False,
+    )
+    demographic_quiz2 = models.IntegerField(min=10, max=99, blank=False)
+    demographic_quiz3 = models.StringField(
+        choices=["Freshman", "Sophomore", "Junior", "Senior", "Graduate"],
+        widget=widgets.RadioSelect,
+        blank=False,
+    )
+    demographic_quiz4 = models.StringField(max_length=50, blank=False)
+    demographic_quiz5 = models.StringField(max_length=5, blank=False)
+    demographic_quiz6 = models.IntegerField(min=0, max=20, blank=False)
+    demographic_quiz7 = models.IntegerField(min=1, max=10, blank=False)
+    demographic_quiz8 = models.LongStringField(blank=False)
 
     @property
     def printable_role(self):
