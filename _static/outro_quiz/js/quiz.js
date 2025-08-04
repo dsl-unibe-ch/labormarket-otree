@@ -1,6 +1,6 @@
 let questionIdx = 1;
 
-const MAX_ID = Object.keys(js_vars.questions).length;
+const MAX_ID = js_vars.questions_count;
 const NO_ANSWER = "Please answer the question";
 
 // Show the first question

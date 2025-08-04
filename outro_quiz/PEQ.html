@@ -22,7 +22,17 @@
     session (i.e., across ALL periods).
 </p>
 
-{{ include "_templates/outro_quiz/peq_questions.html" }}
+{{ for form_field in form }}
+<div class="mb-3 _formfield hidden" id="container-peq_quiz{{ forloop.counter }}">
+  {{ formfield form_field }}
+</div>
+{{ endfor }}
+
+<p>
+  <button class="otree-btn-next btn btn-primary" type="button" id="next-button">
+    Submit
+  </button>
+</p>
 {{ endblock }}
 
 {{ block scripts }}
