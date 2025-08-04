@@ -68,7 +68,7 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
         if player.session.id == latest_session_id:
             participant = player.participant
 
-            for offer in player.get_offer_history():
+            for offer in player.get_offers_last_round():
                 yield [
                     player.round_number,
                     participant.code,
@@ -77,10 +77,10 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
                     player.id_in_group,
                     player.skill if player.role == "Employee" else "", # Only employees have skills
                     offer.wage,
-                    str(offer.training),
+                    "Y" if offer.training else "N",
                     offer.manager.label,
                     offer.employee.label,
-                    str(offer.accepted),
+                    "Y" if offer.accepted else "N",
                     offer.effort,
                 ]
 
@@ -235,14 +235,14 @@ class Player(BasePlayer):
 
         raise RuntimeError(f"Player {self.id_in_group} does not have exactly one accepted offer")
 
-    def get_offer_history(self) -> Iterator[Offer]:
+    def get_offers_last_round(self) -> Iterator[Offer]:
         """Yield all (non-open) offers for the participant across this+previous periods"""
-        for player in self.in_all_rounds():
+        for i, player in enumerate(self.in_all_rounds()):
             if self.role == "Manager":
-                for offer in Offer.filter(manager=player):
+                for offer in Offer.filter(manager=player, period=self.round_number):
                     yield offer
             else:
-                for offer in Offer.filter(employee=player):
+                for offer in Offer.filter(employee=player, period=self.round_number):
                     yield offer
 
     @property
