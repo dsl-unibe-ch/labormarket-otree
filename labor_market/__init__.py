@@ -501,9 +501,10 @@ class MatchSummary(Page):
             else:
                 # No match.
                 rejected_offers = Offer.filter(manager=player, rejected=True)
-                body_text = (("You chose not to make an offer to any employees. For the following work period, "
-                              f"you will only receive your initial endowment of ${cu(config["manager_endowment"])}."
-                              if len(rejected_offers) == 0 else "Your contract offer was not accepted.")
+                body_text = (("Your final choice was not to make an offer to any employee. For the following "
+                              "work period, you will only receive your initial endowment of "
+                              f"${cu(config["manager_endowment"])}." if player.offer_none
+                              else "Your contract offer was not accepted.")
                              + " You will now return the wait for effort page and then to the labor market.")
                 partner_title = None
                 salary = None
