@@ -1,4 +1,7 @@
 """Initial intro with rules and quiz"""
+import random
+from typing import List
+
 from otree.api import *
 from intro_quiz.quiz import *
 
@@ -16,6 +19,8 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
     NAME_IN_URL = "intro_quiz"
     PLAYERS_PER_GROUP = None
+    NUM_MANAGERS = 3
+    NUM_EMPLOYEES = 3
 
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
@@ -23,8 +28,6 @@ class C(BaseConstants):
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
-
-# Objects
 
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""
@@ -35,6 +38,26 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
         "multiplier": multiplier,
         "revenue": [effort * multiplier for effort in range(1, 11)]
     }
+
+# Name generators
+
+class CompanyLabels(ExtraModel):
+    """Random labels for Manager companies"""
+    name = models.StringField()
+
+class EmployeeLabels(ExtraModel):
+    """Random labels for Employees"""
+    name = models.StringField()
+
+def random_labels():
+    """Returns a random sample of company/employee labels"""
+    company_labels = read_csv("labor_market/names/companies.csv", CompanyLabels)
+    employee_labels = read_csv("labor_market/names/employees.csv", EmployeeLabels)
+
+    return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
+           random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
+
+# Objects
 
 class Subsession(BaseSubsession):
     """Subsession object for quiz"""
@@ -51,9 +74,31 @@ class Subsession(BaseSubsession):
     def effort_table(self):
         return self.session.config["effort_costs"]
 
+@staticmethod
+def creating_session(subsession: Subsession):
+    """Set per-session participant data"""
+
+    # If session config dictates, reshuffle participants randomly
+    if subsession.session.config["randomize_roles"]:
+        subsession.group_randomly()
+    for group in subsession.get_groups():
+        # Set initial skills according to session config
+        for index, player in enumerate(group.employees):
+            player.skill = subsession.session.config["starting_skills"][index]
+
+    group_matrix = subsession.get_group_matrix()
+    print(f"Group matrix: {group_matrix}")
+    subsession.session.vars["frozen_matrix"] = group_matrix
+
 
 class Player(BasePlayer):
     """Player object for quiz"""
+
+    # Visible "name" for the player (company name or employee nickname)
+    label = models.StringField()
+
+    # Skill level
+    skill = models.IntegerField(initial=1)
 
     @property
     def printable_role(self):
@@ -82,12 +127,12 @@ class Group(BaseGroup):
     """Group object for quiz"""
 
     @property
-    def managers(self):
+    def managers(self) -> List[Player]:
         """Return all Manager players from the current group"""
         return [player for player in self.get_players() if player.role == "Manager"]
 
     @property
-    def employees(self):
+    def employees(self) -> List[Player]:
         """Return all Employee players from the current group"""
         return [player for player in self.get_players() if player.role == "Employee"]
 
@@ -106,7 +151,10 @@ class Consent(Page):
         session = player.session
 
         return dict(
-            participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session)
+            participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session),
+            session_config=session.config,
+            session_vars=session.vars,
+            session_dir=dir(session)
         )
 
 
@@ -302,32 +350,15 @@ class Feedback(Page):
         """Hide Feedback once we ran out of questions."""
         return player.participant.q_idx < len(C.QUIZ_1_QUESTIONS)
 
-
-
-# TODO: The skills and roles should be transferred to the next app
-def creating_session(subsession: Subsession):
-    """Set per-session participant data"""
-    # Initialise the pointer for each participant.
-    for p in subsession.get_players():
-        p.participant.q_idx = 0
-
-    # In the first Period, set labels and reshuffle participants
-    if subsession.round_number == 1:
-        # If session config dictates, reshuffle participants randomly
-        if subsession.session.config["randomize_roles"]:
-            subsession.group_randomly()
-        for group in subsession.get_groups():
-            # Set initial skills according to session config
-            for index, player in enumerate(group.employees):
-                player.skill = subsession.session.config["starting_skills"][index]
-
-
-
 page_sequence = [
-    Consent, Instructions1, Instructions2, Instructions3,
-    Quiz1,
-    Instructions4, Instructions5, Instructions6,
-    Quiz2,
-    Instructions7, Instructions8, Instructions9, Instructions10,
-    Quiz3
+    Consent,
+    Instructions1,
+    # Instructions2, Instructions3,
+    # Quiz1,
+    # Instructions4,
+    Instructions5,
+    # Instructions6,
+    # Quiz2,
+    # Instructions7, Instructions8, Instructions9, Instructions10,
+    # Quiz3
 ]

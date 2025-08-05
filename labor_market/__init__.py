@@ -24,7 +24,7 @@ class C(BaseConstants):
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
 
-    # Used in page sequence
+    # Used in the page sequence
     HIRING_STEPS = NUM_EMPLOYEES # Max number of repeated attempts at hiring (should equal number of employees)
 
 # Name generators
@@ -39,8 +39,8 @@ class EmployeeLabels(ExtraModel):
 
 def random_labels():
     """Returns a random sample of company/employee labels"""
-    company_labels = read_csv('labor_market/names/companies.csv', CompanyLabels)
-    employee_labels = read_csv('labor_market/names/employees.csv', EmployeeLabels)
+    company_labels = read_csv("labor_market/names/companies.csv", CompanyLabels)
+    employee_labels = read_csv("labor_market/names/employees.csv", EmployeeLabels)
 
     return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
            random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
@@ -142,17 +142,28 @@ class Subsession(BaseSubsession):
 @staticmethod
 def creating_session(subsession: Subsession):
     """Set per-session participant data"""
+
     # In the first Period, set labels and reshuffle participants
     if subsession.round_number == 1:
-        # If session config dictates, reshuffle participants randomly
-        if subsession.session.config["randomize_roles"]:
-            subsession.group_randomly()
+        if "frozen_matrix" in subsession.session.vars:
+            # If we had the players set from the previous app, use it
+            subsession.set_group_matrix(subsession.session.vars["frozen_matrix"])
+        else:
+            # If session config dictates, reshuffle participants randomly
+            if subsession.session.config["randomize_roles"]:
+                subsession.group_randomly()
+            for group in subsession.get_groups():
+                # Set initial skills according to session config
+                for index, player in enumerate(group.employees):
+                    player.skill = subsession.session.config["starting_skills"][index]
+
         for group in subsession.get_groups():
             # Set random labels (company names for Managers, nicknames for Employees)
             labels = random_labels()
             for player in group.get_players():
                 player.label = labels[player.id_in_group - 1]
-            # Set initial skills according to session config
+            # Set initial skills according to session config. This should be the same regardless of whether
+            # this is the first app or not.
             for index, player in enumerate(group.employees):
                 player.skill = subsession.session.config["starting_skills"][index]
     else:
