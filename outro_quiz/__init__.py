@@ -76,34 +76,64 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
 
     for player in players:
         if player.session.id == latest_session_id:
-            yield [
-                player.participant.code,
-                player.peq_quiz1,
-                player.peq_quiz2,
-                player.peq_quiz3,
-                player.peq_quiz4,
-                player.peq_quiz5,
-                player.peq_quiz6,
-                player.peq_quiz7,
-                player.peq_quiz8,
-                player.peq_quiz9,
-                player.peq_quiz10,
-                player.peq_quiz11,
-                player.peq_quiz12,
-                player.peq_quiz13,
-                player.peq_quiz14,
-                player.peq_quiz15,
-                player.peq_quiz16,
-                player.peq_quiz17,
-                player.demographic_quiz1,
-                player.demographic_quiz2,
-                player.demographic_quiz3,
-                player.demographic_quiz4,
-                player.demographic_quiz5,
-                player.demographic_quiz6,
-                player.demographic_quiz7,
-                player.demographic_quiz8,
-            ]
+            if player.role == "Employee":
+                yield [
+                    player.participant.code,
+                    player.e_peq_quiz1,
+                    player.e_peq_quiz2,
+                    player.e_peq_quiz3,
+                    player.e_peq_quiz4,
+                    player.e_peq_quiz5,
+                    player.e_peq_quiz6,
+                    player.e_peq_quiz7,
+                    player.e_peq_quiz8,
+                    player.e_peq_quiz9,
+                    player.e_peq_quiz10,
+                    player.e_peq_quiz11,
+                    player.e_peq_quiz12,
+                    player.e_peq_quiz13,
+                    player.e_peq_quiz14,
+                    player.e_peq_quiz15,
+                    player.e_peq_quiz16,
+                    player.e_peq_quiz17,
+                    player.demographic_quiz1,
+                    player.demographic_quiz2,
+                    player.demographic_quiz3,
+                    player.demographic_quiz4,
+                    player.demographic_quiz5,
+                    player.demographic_quiz6,
+                    player.demographic_quiz7,
+                    player.demographic_quiz8,
+                ]
+            else:
+                yield [
+                    player.participant.code,
+                    player.m_peq_quiz1,
+                    player.m_peq_quiz2,
+                    player.m_peq_quiz3,
+                    player.m_peq_quiz4,
+                    player.m_peq_quiz5,
+                    player.m_peq_quiz6,
+                    player.m_peq_quiz7,
+                    player.m_peq_quiz8,
+                    player.m_peq_quiz9,
+                    player.m_peq_quiz10,
+                    player.m_peq_quiz11,
+                    player.m_peq_quiz12,
+                    player.m_peq_quiz13,
+                    player.m_peq_quiz14,
+                    player.m_peq_quiz15,
+                    player.m_peq_quiz16,
+                    player.m_peq_quiz17,
+                    player.demographic_quiz1,
+                    player.demographic_quiz2,
+                    player.demographic_quiz3,
+                    player.demographic_quiz4,
+                    player.demographic_quiz5,
+                    player.demographic_quiz6,
+                    player.demographic_quiz7,
+                    player.demographic_quiz8,
+                ]
 
 # Objects
 
@@ -123,172 +153,196 @@ class Subsession(BaseSubsession):
         return self.session.config["effort_costs"]
 
 
+@staticmethod
+def creating_session(subsession: Subsession):
+    """Set per-session participant data"""
+
+    # In the first Period, set labels and reshuffle participants
+    if subsession.round_number == 1:
+        if "frozen_matrix" in subsession.session.vars:
+            # If we had the players set from the previous app, use it
+            subsession.set_group_matrix(subsession.session.vars["frozen_matrix"])
+        else:
+            # If session config dictates, reshuffle participants randomly
+            if subsession.session.config["randomize_roles"]:
+                subsession.group_randomly()
+
+        for group in subsession.get_groups():
+            # Set initial skills according to session config. This should be the same regardless of whether
+            # this is the first app or not.
+            for index, player in enumerate(group.employees):
+                player.skill = subsession.session.config["starting_skills"][index]
+    else:
+        # In subsequent Periods, retain the same group/role and labels
+        subsession.group_like_round(1)
+        for player in subsession.get_players():
+            player.label = player.in_round(1).label
+
+
 class Player(BasePlayer):
     """Player object for quiz"""
 
-    if BasePlayer.role == "Employee":
-        peq_quiz1 = models.StringField(label="1. I trusted the employer I formed a contract with.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz2 = models.StringField(label="2. I wanted to treat the employer I formed a contract with fairly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz3 = models.StringField(label="3. I cared about the employer I formed a contract with.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz4 = models.StringField(label="4. I felt the employer I formed a contract with trusted me.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz5 = models.StringField(label="5. I felt the employer I formed a contract with treated me fairly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz6 = models.StringField(label="6. I felt the employer I formed a contract with cared about me.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz7 = models.StringField(label="7. I felt the employer I formed a contract with treated me kindly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz8 = models.StringField(label="8. I wanted to repay the kindness of the employer I formed a contract "
-                                             "with.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz9 = models.StringField(label="9. Employers who offered training to workers trusted the workers to come "
-                                             "back in future periods.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz10 = models.StringField(label="10. When I chose a contract including training, I felt obligated "
-                                              "to return to that employer in the following periods.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz11 = models.StringField(label="11. I valued being offered a high <strong>salary</strong> "
-                                              "by the employer.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz12 = models.StringField(label="12. I valued being offered <strong>training</strong> by the employer.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz13 = models.StringField(label="13. How would you compare the <strong>actual salary</strong> offers "
-                                              "you received to the <strong>salary</strong> offers you "
-                                              "<strong>expected</strong> to receive?",
-                                       choices=C.LIKERT_SCALE_3,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz14 = models.StringField(label="14. How would you compare the <strong>actual</strong> frequency "
-                                              "with which you were offered <strong>training</strong> to the "
-                                              "frequency with which you <strong>expected</strong> to be offered "
-                                              "<strong>training</strong>?",
-                                       choices=C.LIKERT_SCALE_3,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz15 = models.StringField(label="15. When a manager offered me training in a period, the manager "
-                                              "expected me to <strong>provide high effort in this period</strong>.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz16 = models.StringField(label="16. When a manager offered me training in a period, the manager "
-                                              "expected me to <strong>contract with him or her again in the next "
-                                              "period</strong>.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz17 = models.StringField(label="17. A worker's skill level should play a major role for the amount "
-                                              "of salary an employer offers to this worker.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-    else:
-        peq_quiz1 = models.StringField(label="1. I trusted the worker I formed a contract with.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz2 = models.StringField(label="2. I wanted to treat the worker I formed a contract with fairly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz3 = models.StringField(label="3. I cared about the worker I formed a contract with.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz4 = models.StringField(label="4. I felt the worker I formed a contract with trusted me.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz5 = models.StringField(label="5. I felt the worker I formed a contract with treated me fairly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz6 = models.StringField(label="6. I felt the worker I formed a contract with cared about me.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz7 = models.StringField(label="7. I felt the worker I formed a contract with treated me kindly.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz8 = models.StringField(label="8. When I offered training to workers, I trusted the workers to come back "
-                                             "in future periods.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz9 = models.StringField(label="9. Workers valued being offered a high <strong>salary</strong>.",
-                                       choices=C.LIKERT_SCALE_5,
-                                       widget=widgets.RadioSelectHorizontal,
-                                       blank=False)
-        peq_quiz10 = models.StringField(label="10. Workers valued being offered <strong>training</strong>.",
-                                        choices=C.LIKERT_SCALE_5,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz11 = models.StringField(label="11. When a worker chose a contract including training, he/she felt "
-                                              "obligated to return to that employer in the next period.",
-                                        choices=C.LIKERT_SCALE_5,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz12 = models.StringField(label="12. How would you compare the <strong>actual</strong> workers' "
-                                              "<strong>effort levels</strong> to the <strong>effort levels</strong> "
-                                              "you <strong>expected</strong> the workers to provide?",
-                                        choices=C.LIKERT_SCALE_3,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz13 = models.StringField(label="13. When I offered training to a worker in a period, I expected this "
-                                              "worker to <strong>provide high effort in this period</strong>.",
-                                        choices=C.LIKERT_SCALE_5,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz14 = models.StringField(label="14. When I offered training to a worker in a period, I expected this "
-                                              "worker to <strong>contract with me again in the next period</strong>.",
-                                        choices=C.LIKERT_SCALE_5,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz15 = models.StringField(label="15. <strong>For the periods in which the workers' contracts included "
-                                              "training</strong>, how would you compare the actual workers' effort "
-                                              "levels to the effort levels you expected the workers to provide?",
-                                        choices=C.LIKERT_SCALE_3,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz16 = models.StringField(label="16. <strong>For the periods in which the workers' contracts included "
-                                              "training</strong>, how would you compare the actual workers' behavior "
-                                              "in the next period to the behavior you expected from them in the next "
-                                              "period?",
-                                        choices=C.LIKERT_SCALE_3_ALT,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
-        peq_quiz17 = models.StringField(label="17. A worker's' skill level should play a major role for the "
-                                              "salary level an employer offers to this worker?",
-                                        choices=C.LIKERT_SCALE_5,
-                                        widget=widgets.RadioSelectHorizontal,
-                                        blank=False)
+    e_peq_quiz1 = models.StringField(label="1. I trusted the employer I formed a contract with.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz2 = models.StringField(label="2. I wanted to treat the employer I formed a contract with fairly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz3 = models.StringField(label="3. I cared about the employer I formed a contract with.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz4 = models.StringField(label="4. I felt the employer I formed a contract with trusted me.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz5 = models.StringField(label="5. I felt the employer I formed a contract with treated me fairly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz6 = models.StringField(label="6. I felt the employer I formed a contract with cared about me.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz7 = models.StringField(label="7. I felt the employer I formed a contract with treated me kindly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz8 = models.StringField(label="8. I wanted to repay the kindness of the employer I formed a contract "
+                                         "with.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz9 = models.StringField(label="9. Employers who offered training to workers trusted the workers to come "
+                                         "back in future periods.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz10 = models.StringField(label="10. When I chose a contract including training, I felt obligated "
+                                          "to return to that employer in the following periods.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz11 = models.StringField(label="11. I valued being offered a high <strong>salary</strong> "
+                                          "by the employer.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz12 = models.StringField(label="12. I valued being offered <strong>training</strong> by the employer.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz13 = models.StringField(label="13. How would you compare the <strong>actual salary</strong> offers "
+                                          "you received to the <strong>salary</strong> offers you "
+                                          "<strong>expected</strong> to receive?",
+                                   choices=C.LIKERT_SCALE_3,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz14 = models.StringField(label="14. How would you compare the <strong>actual</strong> frequency "
+                                          "with which you were offered <strong>training</strong> to the "
+                                          "frequency with which you <strong>expected</strong> to be offered "
+                                          "<strong>training</strong>?",
+                                   choices=C.LIKERT_SCALE_3,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz15 = models.StringField(label="15. When a manager offered me training in a period, the manager "
+                                          "expected me to <strong>provide high effort in this period</strong>.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz16 = models.StringField(label="16. When a manager offered me training in a period, the manager "
+                                          "expected me to <strong>contract with him or her again in the next "
+                                          "period</strong>.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    e_peq_quiz17 = models.StringField(label="17. A worker's skill level should play a major role for the amount "
+                                          "of salary an employer offers to this worker.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz1 = models.StringField(label="1. I trusted the worker I formed a contract with.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz2 = models.StringField(label="2. I wanted to treat the worker I formed a contract with fairly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz3 = models.StringField(label="3. I cared about the worker I formed a contract with.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz4 = models.StringField(label="4. I felt the worker I formed a contract with trusted me.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz5 = models.StringField(label="5. I felt the worker I formed a contract with treated me fairly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz6 = models.StringField(label="6. I felt the worker I formed a contract with cared about me.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz7 = models.StringField(label="7. I felt the worker I formed a contract with treated me kindly.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz8 = models.StringField(label="8. When I offered training to workers, I trusted the workers to come back "
+                                         "in future periods.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz9 = models.StringField(label="9. Workers valued being offered a high <strong>salary</strong>.",
+                                   choices=C.LIKERT_SCALE_5,
+                                   widget=widgets.RadioSelectHorizontal,
+                                   blank=False)
+    m_peq_quiz10 = models.StringField(label="10. Workers valued being offered <strong>training</strong>.",
+                                    choices=C.LIKERT_SCALE_5,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz11 = models.StringField(label="11. When a worker chose a contract including training, he/she felt "
+                                          "obligated to return to that employer in the next period.",
+                                    choices=C.LIKERT_SCALE_5,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz12 = models.StringField(label="12. How would you compare the <strong>actual</strong> workers' "
+                                          "<strong>effort levels</strong> to the <strong>effort levels</strong> "
+                                          "you <strong>expected</strong> the workers to provide?",
+                                    choices=C.LIKERT_SCALE_3,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz13 = models.StringField(label="13. When I offered training to a worker in a period, I expected this "
+                                          "worker to <strong>provide high effort in this period</strong>.",
+                                    choices=C.LIKERT_SCALE_5,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz14 = models.StringField(label="14. When I offered training to a worker in a period, I expected this "
+                                          "worker to <strong>contract with me again in the next period</strong>.",
+                                    choices=C.LIKERT_SCALE_5,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz15 = models.StringField(label="15. <strong>For the periods in which the workers' contracts included "
+                                          "training</strong>, how would you compare the actual workers' effort "
+                                          "levels to the effort levels you expected the workers to provide?",
+                                    choices=C.LIKERT_SCALE_3,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz16 = models.StringField(label="16. <strong>For the periods in which the workers' contracts included "
+                                          "training</strong>, how would you compare the actual workers' behavior "
+                                          "in the next period to the behavior you expected from them in the next "
+                                          "period?",
+                                    choices=C.LIKERT_SCALE_3_ALT,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
+    m_peq_quiz17 = models.StringField(label="17. A worker's' skill level should play a major role for the "
+                                          "salary level an employer offers to this worker?",
+                                    choices=C.LIKERT_SCALE_5,
+                                    widget=widgets.RadioSelectHorizontal,
+                                    blank=False)
 
     demographic_quiz1 = models.StringField(
         choices=["Female", "Male", "Non-binary", "Prefer not to answer"],
@@ -341,11 +395,15 @@ class Group(BaseGroup):
 class PEQ(Page):
     """Post-experiment questionnaire"""
     form_model = "player"
-    form_fields = [f"peq_quiz{i}" for i in range(1, 18)]
 
     @staticmethod
     def js_vars(player: "Player"):
         return dict(questions_count=17)
+
+    @staticmethod
+    def get_form_fields(player):
+        print(f"get_form_fields calles for player {player}. player.role={player.role}")
+        return [f"{player.role[0].lower()}_peq_quiz{i}" for i in range(1, 18)]
 
 
 class DemographicQuiz(Page):

@@ -10,7 +10,7 @@ document.getElementById(`container-peq_quiz${questionIdx}`).classList.remove("hi
 document.getElementById("next-button").addEventListener("click", checkAnswers);
 
 function getCheckedRadioButton() {
-  return document.querySelector(`input[name="peq_quiz${questionIdx}"]:checked`);
+  return document.querySelector(`input[name$="peq_quiz${questionIdx}"]:checked`);
 }
 
 function checkAnswers() {

@@ -10,7 +10,7 @@ from otree.api import *
 class C(BaseConstants):
     """Constants for the labor_market app"""
     NAME_IN_URL = "labor_market"
-    NUM_ROUNDS = 5 # Number of periods of simulation
+    NUM_ROUNDS = 2 # Number of periods of simulation
 
     PLAYERS_PER_GROUP = 6
     NUM_MANAGERS = 3
@@ -152,10 +152,10 @@ def creating_session(subsession: Subsession):
             # If session config dictates, reshuffle participants randomly
             if subsession.session.config["randomize_roles"]:
                 subsession.group_randomly()
-            for group in subsession.get_groups():
-                # Set initial skills according to session config
-                for index, player in enumerate(group.employees):
-                    player.skill = subsession.session.config["starting_skills"][index]
+
+            group_matrix = subsession.get_group_matrix()
+            print(f"Group matrix: {group_matrix}")
+            subsession.session.vars["frozen_matrix"] = group_matrix
 
         for group in subsession.get_groups():
             # Set random labels (company names for Managers, nicknames for Employees)

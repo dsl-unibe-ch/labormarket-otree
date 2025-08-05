@@ -152,9 +152,6 @@ class Consent(Page):
 
         return dict(
             participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session),
-            session_config=session.config,
-            session_vars=session.vars,
-            session_dir=dir(session)
         )
 
 
@@ -225,7 +222,6 @@ class Instructions5(Page):
             market_description=Instructions5.MARKET_DESCRIPTION[market],
             market_productivity=market_productivity[market],
             group_id=player.group_id,
-            group=dir(player.group),
             worker_info=f"Your skill level in the first period is {player.skill}."
                     if player.role == "Employee" else None
         )
