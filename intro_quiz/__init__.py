@@ -3,6 +3,8 @@ import random
 from typing import List
 
 from otree.api import *
+from otree.currency import RealWorldCurrency
+
 from intro_quiz.quiz import *
 
 # Constants
@@ -151,7 +153,7 @@ class Consent(Page):
         session = player.session
 
         return dict(
-            participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session),
+            participation_fee = RealWorldCurrency(session.config["participation_fee"])
         )
 
 
@@ -164,7 +166,7 @@ class Instructions1(Page):
         session = player.session
 
         return dict(
-            participation_fee=cu(session.config["participation_fee"]).to_real_world_currency(session)
+            participation_fee=RealWorldCurrency(session.config["participation_fee"])
         )
 
 
@@ -248,7 +250,7 @@ class Instructions8(Page):
 
         return dict(
             manager_endowment=session.config["manager_endowment"],
-            participation_fee = cu(session.config["participation_fee"]).to_real_world_currency(session)
+            participation_fee = RealWorldCurrency(session.config["participation_fee"])
         )
 
 class Instructions9(Page):
