@@ -21,15 +21,19 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
     NAME_IN_URL = "intro_quiz"
     PLAYERS_PER_GROUP = None
-    NUM_MANAGERS = 3
-    NUM_EMPLOYEES = 3
 
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
+    MANAGER4_ROLE = "Manager"
+    MANAGER5_ROLE = "Manager"
+    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
+    EMPLOYEE4_ROLE = "Employee"
+    EMPLOYEE5_ROLE = "Employee"
+    EMPLOYEE6_ROLE = "Employee"
 
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""
@@ -40,24 +44,6 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
         "multiplier": multiplier,
         "revenue": [effort * multiplier for effort in range(1, 11)]
     }
-
-# Name generators
-
-class CompanyLabels(ExtraModel):
-    """Random labels for Manager companies"""
-    name = models.StringField()
-
-class EmployeeLabels(ExtraModel):
-    """Random labels for Employees"""
-    name = models.StringField()
-
-def random_labels():
-    """Returns a random sample of company/employee labels"""
-    company_labels = read_csv("labor_market/names/companies.csv", CompanyLabels)
-    employee_labels = read_csv("labor_market/names/employees.csv", EmployeeLabels)
-
-    return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
-           random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
 
 # Objects
 
@@ -118,8 +104,6 @@ class Player(BasePlayer):
             heterogenous="In the first period, three workers start with a skill level of 1 "
                          "and three workers start with a skill level of 5."
         )[market]
-
-    skill = models.IntegerField(initial=1)
 
     response = models.IntegerField()
     is_correct = models.BooleanField()
@@ -350,13 +334,10 @@ class Feedback(Page):
 
 page_sequence = [
     Consent,
-    Instructions1,
-    # Instructions2, Instructions3,
-    # Quiz1,
-    # Instructions4,
-    Instructions5,
-    # Instructions6,
-    # Quiz2,
-    # Instructions7, Instructions8, Instructions9, Instructions10,
-    # Quiz3
+    Instructions1, Instructions2, Instructions3,
+    Quiz1,
+    Instructions4, Instructions5, Instructions6,
+    Quiz2,
+    Instructions7, Instructions8, Instructions9, Instructions10,
+    Quiz3
 ]

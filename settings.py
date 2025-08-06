@@ -5,25 +5,25 @@ SESSION_CONFIGS = [
     dict(
         name="labor_market",
         app_sequence=["labor_market"],
-        num_demo_participants=6,
+        num_demo_participants=12,
         max_rounds=10
     ),
     dict(
         name="labor_market_with_outro",
         app_sequence=["labor_market", "outro_quiz"],
-        num_demo_participants=6,
+        num_demo_participants=12,
         max_rounds=10
     ),
     dict(
         name="labor_market_with_quizzes",
         app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
-        num_demo_participants=6,
+        num_demo_participants=12,
         max_rounds=10
     ),
     dict(
         name="outro_quiz",
         app_sequence=["outro_quiz"],
-        num_demo_participants=6,
+        num_demo_participants=12,
         max_rounds=1
     ),
 ]
@@ -31,9 +31,9 @@ SESSION_CONFIGS = [
 
 # Starting skills based on the market
 STARTING_SKILLS_BY_MARKET = dict(
-    homoogenous_low=[1, 1, 1],
-    homoogenous_high=[5, 5, 5],
-    heterogenous=[5, 5, 1]
+    homoogenous_low=[1, 1, 1, 1, 1, 1],
+    homoogenous_high=[5, 5, 5, 5, 5, 5],
+    heterogenous=[5, 5, 5, 1, 1, 1]
 )
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs

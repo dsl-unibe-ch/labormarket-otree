@@ -22,9 +22,15 @@ class C(BaseConstants):
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
+    MANAGER4_ROLE = "Manager"
+    MANAGER5_ROLE = "Manager"
+    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
+    EMPLOYEE4_ROLE = "Employee"
+    EMPLOYEE5_ROLE = "Employee"
+    EMPLOYEE6_ROLE = "Employee"
 
     LIKERT_SCALE_5 = ["Strongly disagree", "Disagree", "Neither agree nor disagree", "Agree", "Strongly agree"]
     LIKERT_SCALE_3 = ["Much lower", "The same", "Much higher"]
@@ -402,7 +408,6 @@ class PEQ(Page):
 
     @staticmethod
     def get_form_fields(player):
-        print(f"get_form_fields calles for player {player}. player.role={player.role}")
         return [f"{player.role[0].lower()}_peq_quiz{i}" for i in range(1, 18)]
 
 
