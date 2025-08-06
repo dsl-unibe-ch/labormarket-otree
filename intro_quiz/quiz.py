@@ -1,6 +1,6 @@
 TRUE = "True"
 FALSE = "False"
-TRUE_FALSE = [FALSE, TRUE]
+TRUE_FALSE = [TRUE, FALSE]
 
 QUIZ_1_QUESTIONS = [
     dict(index=1, text="This study consists of 10 periods.", choices=TRUE_FALSE, table=None),
@@ -88,9 +88,9 @@ QUIZ_3_QUESTIONS = [
              choices=[900, 800, 400], table="_tables/intro_quiz/effort.html"),
 ]
 
-QUIZ_1_ANSWERS = [1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1]
-QUIZ_2_ANSWERS = [1, 1, 0, 1, 1, 0, 1, 1]
-QUIZ_3_ANSWERS = [0, 2, 1, 1, 0, 2, 1, 1]
+QUIZ_1_ANSWERS = [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+QUIZ_2_ANSWERS = [0, 0, 1, 0, 0, 1, 0, 0]
+QUIZ_3_ANSWERS = [0, 2, 0, 0, 0, 2, 0, 1]
 
 QUIZ_1_HINTS = [
     [
