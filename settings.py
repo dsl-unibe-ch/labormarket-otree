@@ -3,29 +3,17 @@ from os import environ
 
 SESSION_CONFIGS = [
     dict(
-        name="labor_market",
-        app_sequence=["labor_market"],
-        num_demo_participants=12,
-        max_rounds=10
-    ),
-    dict(
-        name="labor_market_with_outro",
-        app_sequence=["labor_market", "outro_quiz"],
-        num_demo_participants=12,
-        max_rounds=10
-    ),
-    dict(
         name="labor_market_with_quizzes",
         app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
         num_demo_participants=12,
         max_rounds=10
     ),
     dict(
-        name="outro_quiz",
-        app_sequence=["outro_quiz"],
+        name="labor_market",
+        app_sequence=["labor_market"],
         num_demo_participants=12,
-        max_rounds=1
-    ),
+        max_rounds=10
+    )
 ]
 
 
