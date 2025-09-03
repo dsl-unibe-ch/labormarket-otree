@@ -89,11 +89,6 @@ class Player(BasePlayer):
     skill = models.IntegerField(initial=1)
 
     @property
-    def printable_role(self):
-        role_to_string = {"Manager": "Employer", "Employee": "Worker"}
-        return role_to_string[self.role]
-
-    @property
     def q_2_7_text(self):
         session = self.session
         market = session.config["market"]

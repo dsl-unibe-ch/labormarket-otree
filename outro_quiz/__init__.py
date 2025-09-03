@@ -371,11 +371,6 @@ class Player(BasePlayer):
     def peq_quiz(self, index1):
         getattr(self, f"peq_quiz{index1}")
 
-    @property
-    def printable_role(self):
-        role_to_string = {"Manager": "Employer", "Employee": "Worker"}
-        return role_to_string[self.role]
-
     skill = models.IntegerField(initial=1)
 
     response = models.IntegerField()
