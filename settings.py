@@ -40,7 +40,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     base_revenue=1,
     training_productivity_multiplier=0.5,
     training_cost=50,
-    max_wage=3000,
+    max_wage=1500,
     doc="",
     randomize_roles=False
 )

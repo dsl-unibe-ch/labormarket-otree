@@ -151,7 +151,14 @@ class Instructions1(Page):
 
 class Instructions2(Page):
     """Intro page with instructions"""
+    @staticmethod
+    def vars_for_template(player: Player):
+        """Providing variables for template"""
+        session = player.session
 
+        return dict (
+            max_wage=session.config["max_wage"]
+        )
 
 class Instructions3(Page):
     """Intro page with instructions"""
