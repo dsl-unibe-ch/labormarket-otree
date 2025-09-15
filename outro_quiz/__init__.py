@@ -36,6 +36,8 @@ class C(BaseConstants):
     LIKERT_SCALE_LOWER_HIGHER = { -3: "Much lower", -2: "", -1: "", 0: "The same", 1: "", 2: "", 3: "Much higher" }
     LIKERT_SCALE_WORSE_BETTER = { -3: "Much worse than expected", -2: "", -1: "", 0: "Exactly as expected",
                                   1: "", 2: "", 3: "Much better than expected" }
+    LIKERT_SCALE_RISK = { 1: "Completely risk averse", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "",
+                         10: "Completely risk seeking" }
 
 # Functions
 
@@ -365,7 +367,8 @@ class Player(BasePlayer):
     demographic_quiz4 = models.StringField(max_length=50, blank=False)
     demographic_quiz5 = models.StringField(max_length=5, blank=False)
     demographic_quiz6 = models.IntegerField(min=0, max=20, blank=False)
-    demographic_quiz7 = models.IntegerField(min=1, max=10, blank=False)
+    demographic_quiz7 = models.IntegerField(choices=list(C.LIKERT_SCALE_RISK.items()),
+                                            widget=widgets.RadioSelectHorizontal, blank=False)
     demographic_quiz8 = models.LongStringField(blank=False)
 
     @property
