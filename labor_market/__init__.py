@@ -125,7 +125,7 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
 # Objects
 
 def calculate_employee_payoff(endowment: int, wage: int, effort_cost: int) -> int:
-    return endowment + wage - effort_cost
+    return endowment + wage + effort_cost
 
 class Subsession(BaseSubsession):
     """Subsession object for simulation"""
@@ -613,7 +613,7 @@ class ChooseEffort(Page):
                                                                         contract.training)
                              for revenue in initial_revenues]
         employer_payoff_values = [revenue_and_payoff_item["payoff"] for revenue_and_payoff_item in revenue_and_payoff]
-        employee_payoff_values = [calculate_employee_payoff(employee_endowment, contract.wage, effort_cost)
+        employee_payoff_values = [calculate_employee_payoff(employee_endowment, contract.wage, -effort_cost)
                                   for effort_cost in config["effort_costs"]]
 
         return {
