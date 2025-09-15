@@ -8,17 +8,25 @@
 <table class="table table-sm table-striped text-center payoff-table">
   <thead>
     <tr class="border-0">
-      <th scope="col" colspan="6" class="border">Earnings Summary</th>
+      <th scope="col" colspan="{{ if player.role == 'Employee' }}6{{ else }}7{{ endif }}" class="border">
+          Earnings Summary
+      </th>
       <th scope="col" colspan="2" class="border-0"></th>
     </tr>
     <tr class="border-0">
       <th scope="col" class="border">Period</th>
+      {{ if player.role == "Employee" }}
       <th scope="col" class="border">
-        {{ if player.role == "Employee" }}
-          Employer ID
-        {{ else }}
-          Worker ID
-        {{ endif }}
+        Employer ID
+      </th>
+      {{ else }}
+      <th scope="col" class="border">
+        Worker ID
+      </th>
+      <th scope="col" class="border">
+        Worker Skill
+      </th>
+      {{ endif }}
       <th scope="col" class="border">Salary Offered</th>
       <th scope="col" class="border">Training Offered</th>
       <th scope="col" class="border">Effort Level Chosen</th>
@@ -45,12 +53,16 @@
       <td class="border-bottom">{{ prev_player.contract.manager.label }}</td>
       {{ else }}
       <td class="border-bottom">{{ prev_player.contract.employee.label }}</td>
+      <td class="border-bottom">{{ prev_player.contract.employee.skill }}</td>
       {{ endif }}
       <td class="border-bottom">{{ prev_player.contract.wage }}</td>
       <td class="border-bottom">{{ if prev_player.contract.training }}Y{{ else }}N{{ endif }}</td>
       <td class="border-bottom">{{ prev_player.contract.effort }}</td>
       {{ else }}
       <td class="border-bottom">-</td>
+      {{ if player.role != "Employee" }}
+      <td class="border-bottom">-</td>
+      {{ endif }}
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
@@ -75,6 +87,9 @@
     <tr class="border-0 border-start border-end">
       <td class="border-bottom">Period&nbsp;{{ index }}</td>
       <td class="border-bottom">-</td>
+      {{ if player.role != "Employee" }}
+      <td class="border-bottom">-</td>
+      {{ endif }}
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
       <td class="border-bottom">-</td>
@@ -88,7 +103,7 @@
   </tbody>
   <tfoot class="border-0">
     <tr class="border-0">
-      <th class="border-0" scope="row" colspan="4"></th>
+      <th class="border-0" scope="row" colspan="{{ if player.role == 'Employee' }}4{{ else }}5{{ endif }}"></th>
       <th class="text-start border-start border-bottom" scope="row">Total Earnings</th>
       <td class="text-end border-end border-bottom">{{ player.participant.payoff }}</td>
       <td class="border-0" colspan="2"></td>
@@ -104,6 +119,7 @@
       <th style="width: 10%;">Period</th>
       <th style="width: 10%;">Step</th>
       <th style="width: 25%;">Worker</th>
+      <th style="width: 25%;">Worker Skill</th>
       <th style="width: 15%;">Salary</th>
       <th style="width: 15%;">Training (Y/N)</th>
       <th style="width: 15%;">Accepted</th>
@@ -116,6 +132,7 @@
       <td>{{ offer.period }}/{{ C.NUM_ROUNDS }}</td>
       <td>{{ offer.step }}/{{ C.HIRING_STEPS }}</td>
       <td>{{ offer.employee.label }}</td>
+      <td>{{ offer.employee.skill }}</td>
       <td>{{ offer.wage }}</td>
       <td>{{ if offer.training }}Y{{ else }}N{{ endif }}</td>
       {% if offer.rejected %}
