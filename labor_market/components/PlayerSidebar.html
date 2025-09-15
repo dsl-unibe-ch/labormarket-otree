@@ -118,12 +118,22 @@
     <tr>
       <th style="width: 10%;">Period</th>
       <th style="width: 10%;">Step</th>
-      <th style="width: 25%;">Worker</th>
-      <th style="width: 25%;">Worker Skill</th>
-      <th style="width: 15%;">Salary</th>
-      <th style="width: 15%;">Training (Y/N)</th>
-      <th style="width: 15%;">Accepted</th>
-      <th style="width: 10%;">Effort</th>
+      {{ if player.role == "Employee" }}
+      <th>
+        Employer ID
+      </th>
+      {{ else }}
+      <th>
+        Worker ID
+      </th>
+      <th>
+        Worker Skill
+      </th>
+      {{ endif }}
+      <th>Salary</th>
+      <th>Training (Y/N)</th>
+      <th>Accepted</th>
+      <th>Effort</th>
     </tr>
   </thead>
   <tbody>
@@ -131,8 +141,14 @@
     <tr data-id-in-group="{{ offer.employee.id_in_group }}">
       <td>{{ offer.period }}/{{ C.NUM_ROUNDS }}</td>
       <td>{{ offer.step }}/{{ C.HIRING_STEPS }}</td>
+
+      {{ if player.role == "Employee" }}
+      <td>{{ offer.manager.label }}</td>
+      {{ else }}
       <td>{{ offer.employee.label }}</td>
       <td>{{ offer.employee.skill }}</td>
+      {{ endif }}
+
       <td>{{ offer.wage }}</td>
       <td>{{ if offer.training }}Y{{ else }}N{{ endif }}</td>
       {% if offer.rejected %}
