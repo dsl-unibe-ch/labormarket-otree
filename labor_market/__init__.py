@@ -388,7 +388,7 @@ class WaitForAllPlayers(WaitPage):
                 prev_player = player.in_round(group.round_number - 1)
                 player.skill = prev_player.skill
                 if prev_player.skill_increase:
-                    player.skill = min(player.skill + 1, len(group.session.config['skill_multipliers']))
+                    player.skill = min(player.skill + 1, len(group.session.config["skill_multipliers"]))
 
 class MakeOffer(Page):
     """Hiring phase page. Shown to Managers without an accepted offer who still can hire."""
@@ -605,13 +605,14 @@ class ChooseEffort(Page):
         employee_endowment = config["employee_endowment"]
         contract = employee.contract
         manager = contract.manager
-        skill_multiplier = config["skill_multipliers"][employee.skill]
+        skill_multiplier = config["skill_multipliers"][employee.skill - 1]
 
         initial_revenues = [cu(base_revenue * skill_multiplier * effort) for effort in range(1, 11)]
-        employer_payoff_values = [calculate_manager_revenue_and_payoff(manager.group, manager, cu(revenue), 
-                                                                        contract.wage, 
-                                                                        contract.training is not None)["payoff"]
-                                  for revenue in initial_revenues]
+        revenue_and_payoff = [calculate_manager_revenue_and_payoff(manager.group, manager, cu(revenue),
+                                                                        contract.wage,
+                                                                        contract.training)
+                             for revenue in initial_revenues]
+        employer_payoff_values = [revenue_and_payoff_item["payoff"] for revenue_and_payoff_item in revenue_and_payoff]
         employee_payoff_values = [calculate_employee_payoff(employee_endowment, contract.wage, effort_cost)
                                   for effort_cost in config["effort_costs"]]
 
