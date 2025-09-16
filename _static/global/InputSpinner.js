@@ -182,8 +182,15 @@ export class InputSpinner {
                     }
                 }
             }).on("keyup", function (event) {
-                // up/down arrow released
                 if (self.props.keyboardStepping && (event.which === 38 || event.which === 40)) {
+                    const el = self.$input[0];
+                    el.setCustomValidity("")
+
+                    if (el.validationMessage === "") {
+                        el.blur();
+                        requestAnimationFrame(() => el.focus());
+                    }
+
                     event.preventDefault()
                     resetTimer()
                 }
@@ -217,13 +224,12 @@ export class InputSpinner {
                 updateInput = true
             }
             if (isNaN(newValue) || newValue === "" || newValue > self.max || newValue < self.min) {
-                if (isNaN(newValue) && self.$input[0].value !== "") {
+                if (self.$input[0].value !== "") {
                     self.$input[0].setCustomValidity("Invalid value")
-                    self.$input[0].reportValidity()
                 } else {
                     self.$input[0].setCustomValidity("")
-                    self.$input[0].reportValidity()
                 }
+                self.$input[0].reportValidity()
 
                 self.$original[0].value = ""
                 if (updateInput) {
@@ -299,7 +305,7 @@ export class InputSpinner {
             // copy properties from original to the new input
             if (self.$original.prop("required")) {
                 self.$input.prop("required", self.$original.prop("required"))
-                self.$original.removeAttr('required')
+                self.$original.removeAttr("required")
             }
             self.$input.prop("placeholder", self.$original.prop("placeholder"))
             self.$input.attr("inputmode", self.$original.attr("inputmode") || "decimal")
