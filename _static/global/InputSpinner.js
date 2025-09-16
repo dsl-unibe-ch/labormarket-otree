@@ -217,12 +217,21 @@ export class InputSpinner {
                 updateInput = true
             }
             if (isNaN(newValue) || newValue === "" || newValue > self.max || newValue < self.min) {
+                if (isNaN(newValue) && self.$input[0].value !== "") {
+                    self.$input[0].setCustomValidity("Invalid value")
+                    self.$input[0].reportValidity()
+                } else {
+                    self.$input[0].setCustomValidity("")
+                    self.$input[0].reportValidity()
+                }
+
                 self.$original[0].value = ""
                 if (updateInput) {
                     self.$input[0].value = ""
                 }
                 self.value = NaN
             } else {
+                self.$input[0].setCustomValidity("")
                 newValue = parseFloat(newValue)
                 self.$original[0].value = newValue
                 if (updateInput) {
