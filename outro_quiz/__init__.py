@@ -431,7 +431,8 @@ class Conclusion(Page):
         real_payoff = max(player.participant.payoff, cu(0)).to_real_world_currency(session)
         total_payment = real_payoff + participation_fee
 
-        return dict(real_world_currency_per_point=real_world_currency_per_point, participation_fee=participation_fee,
+        return dict(real_world_currency_per_hundred_points=real_world_currency_per_point * 100,
+                    participation_fee=participation_fee,
                     real_payoff=real_payoff, total_payment=total_payment)
 
 
