@@ -154,7 +154,7 @@ export class InputSpinner {
 
             this.$original.after(this.$inputGroup)
 
-            setValue(this.value)
+            setValue(this.value, false)
 
             this.$input.on("paste input change focusout", function (event) {
                 let newValue = self.$input[0].value
@@ -194,7 +194,11 @@ export class InputSpinner {
                     event.preventDefault()
                     resetTimer()
                 }
-            })
+            }).on("focusout", function (event) {
+              self.$input[0].setCustomValidity("");
+              // This may re-focus the control if invalid (Chrome behavior)
+              self.$input[0].reportValidity();
+            });
 
             // decrement button
             onPointerDown(self.$buttonDecrement[0], function () {
@@ -229,7 +233,10 @@ export class InputSpinner {
                 } else {
                     self.$input[0].setCustomValidity("")
                 }
-                self.$input[0].reportValidity()
+
+                if (updateInput || self.$input[0].value !== "") {
+                    self.$input[0].reportValidity()
+                }
 
                 self.$original[0].value = ""
                 if (updateInput) {
