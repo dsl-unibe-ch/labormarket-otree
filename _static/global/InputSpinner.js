@@ -347,7 +347,7 @@ export class InputSpinner {
                 self.$inputGroup.removeAttr("hidden")
             }
             if (self.$original.attr("id")) {
-                self.$input.attr("id", self.$original.attr("id") + ":input_spinner") // give the spinner a unique id...
+                self.$input.attr("id", self.$original.attr("id") + "_input_spinner") // give the spinner a unique id...
                 if (self.$label[0]) {
                     self.$label.attr("for", self.$input.attr("id")) // ...to rewire the label
                 }

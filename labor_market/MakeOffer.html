@@ -90,14 +90,16 @@
         </div>
       </div>
       <div class="col-auto mt-4">
-        <button class="btn btn-primary btn-lg" id="send_offer">Make Offer</button>
+        <button class="btn btn-primary btn-lg" id="send_offer" name="action">Make Offer</button>
       </div>
 
       <p>
         If you do not want to make a contract offer in this period, you may click the button below:
       </p>
       <div class="col-auto mt-4">
-        <button class="btn btn-secondary btn-lg" id="no_offers">Do Not Make Any Offers</button>
+        <button class="btn btn-secondary btn-lg" id="no_offers" name="action">
+            Do Not Make Any Offers
+        </button>
       </div>
     </div>
   </div>
@@ -105,6 +107,8 @@
     {{ include 'labor_market/components/PlayerSidebar.html' }}
   </div>
 </div>
+
+<input type="hidden" name="action" id="id_action"/>
 
 {% endblock %}
 
@@ -152,7 +156,7 @@
     document.querySelector("input[name='offer_training'][value='False']").checked = true;
     // Required by InputSpinner
     document.querySelector("input[name='offer_wage']").setValue(1);
-    document.querySelector("#id_offer_wage:input_spinner").setValue(1);
+    document.querySelector("#id_offer_wage_input_spinner").value = 1;
   });
 
 </script>
