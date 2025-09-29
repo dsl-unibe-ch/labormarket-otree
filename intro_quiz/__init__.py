@@ -210,7 +210,7 @@ class Instructions5(Page):
             market_description=Instructions5.MARKET_DESCRIPTION[market],
             market_productivity=market_productivity[market],
             group_id=player.group_id,
-            worker_info=f"Your skill level in the first period is {player.skill}."
+            worker_info=f"Your skill level in the first period is <strong>{player.skill}</strong>."
                     if player.role == "Employee" else None
         )
 

@@ -348,7 +348,7 @@ class Player(BasePlayer):
                                     widget=widgets.RadioSelectHorizontal,
                                     blank=False)
     m_peq_quiz17 = models.IntegerField(label="17. A worker's skill level should play a major role for the "
-                                          "salary level an employer offers to this worker?",
+                                          "salary level an employer offers to this worker.",
                                     choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                     widget=widgets.RadioSelectHorizontal,
                                     blank=False)
@@ -358,7 +358,7 @@ class Player(BasePlayer):
         widget=widgets.RadioSelect,
         blank=False,
     )
-    demographic_quiz2 = models.IntegerField(min=10, max=99, blank=False)
+    demographic_quiz2 = models.IntegerField(min=18, max=99, blank=False)
     demographic_quiz3 = models.StringField(
         choices=["Freshman", "Sophomore", "Junior", "Senior", "Graduate"],
         widget=widgets.RadioSelect,
