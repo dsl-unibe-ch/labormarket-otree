@@ -561,7 +561,7 @@ class WaitForAcceptance(WaitPage):
         if player.role == "Manager":
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": "You are a Manager. Please wait until all Workers decide on their offers..."
+                "body_text": "You are a Manager. Please wait until all workers decide on their offers..."
             }
         else:
             offers_status = "You did not receive any offers at this hiring step."\
@@ -569,7 +569,7 @@ class WaitForAcceptance(WaitPage):
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
                 "body_text": f"You are a Worker. {offers_status} "
-                             f"Please wait until all Employees decide on their offers..."
+                             f"Please wait until all workers decide on their offers..."
             }
 
     # Shown to:
