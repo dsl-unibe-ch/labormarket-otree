@@ -25,15 +25,9 @@ class C(BaseConstants):
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
-    MANAGER4_ROLE = "Manager"
-    MANAGER5_ROLE = "Manager"
-    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
-    EMPLOYEE4_ROLE = "Employee"
-    EMPLOYEE5_ROLE = "Employee"
-    EMPLOYEE6_ROLE = "Employee"
 
 def multiplier_to_table_item(mult_tuple: tuple[int, int]):
     """Prepare multiplier table for template"""

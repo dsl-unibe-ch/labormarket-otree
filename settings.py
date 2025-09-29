@@ -5,14 +5,14 @@ SESSION_CONFIGS = [
     dict(
         name="labor_market_with_quizzes",
         app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
-        num_demo_participants=12,
-        max_rounds=10
+        num_demo_participants=6,
+        max_rounds=5
     ),
     dict(
         name="labor_market",
         app_sequence=["labor_market"],
-        num_demo_participants=12,
-        max_rounds=10
+        num_demo_participants=6,
+        max_rounds=5
     )
 ]
 

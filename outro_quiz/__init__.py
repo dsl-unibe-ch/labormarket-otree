@@ -22,15 +22,9 @@ class C(BaseConstants):
     MANAGER1_ROLE = "Manager"
     MANAGER2_ROLE = "Manager"
     MANAGER3_ROLE = "Manager"
-    MANAGER4_ROLE = "Manager"
-    MANAGER5_ROLE = "Manager"
-    MANAGER6_ROLE = "Manager"
     EMPLOYEE1_ROLE = "Employee"
     EMPLOYEE2_ROLE = "Employee"
     EMPLOYEE3_ROLE = "Employee"
-    EMPLOYEE4_ROLE = "Employee"
-    EMPLOYEE5_ROLE = "Employee"
-    EMPLOYEE6_ROLE = "Employee"
 
     LIKERT_SCALE_DISAGREE_AGREE = { 1: "Strongly disagree", 2: "", 3: "", 4:"", 5: "", 6: "", 7: "Strongly agree" }
     LIKERT_SCALE_LOWER_HIGHER = { -3: "Much lower", -2: "", -1: "", 0: "The same", 1: "", 2: "", 3: "Much higher" }
