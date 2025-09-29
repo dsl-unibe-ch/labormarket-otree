@@ -522,7 +522,7 @@ class MatchSummary(Page):
                               "work period, you will only receive your initial endowment of "
                               f"{cu(config["manager_endowment"])}." if player.offer_none
                               else "Your contract offer was not accepted.")
-                             + " You will now return the wait for effort page and then to the labor market.")
+                             + " You will now return to the wait for effort page and then to the labor market.")
                 partner_title = None
                 salary = None
                 training = None
@@ -538,9 +538,11 @@ class MatchSummary(Page):
             else:
                 # No match.
                 rejected_offers = Offer.filter(employee=player, rejected=True)
-                body_text = (("You did not contract with an employer." if len(rejected_offers) != 0
-                    else "No employer made you an offer.")
-                             + " You will now return the wait for effort page and then to the labor market.")
+                body_text = ("You did not contract with an employer. "
+                             "You will now return to the wait for effort page and then to the labor market."
+                             if len(rejected_offers) != 0 else
+                             "No employer made you an offer. You will now wait for others to finish the work phase "
+                             "and then return to the labor market.")
                 partner_title = None
                 salary = None
                 training = None
@@ -564,13 +566,17 @@ class WaitForAcceptance(WaitPage):
                 "body_text": "You are a Manager. Please wait until all workers decide on their offers..."
             }
         else:
-            offers_status = "You did not receive any offers at this hiring step."\
-                if len(Offer.filter(employee=player)) == 0 else "You rejected all offers at this hiring step."
-            return {
-                "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": f"You are a Worker. {offers_status} "
-                             f"Please wait until all workers decide on their offers..."
-            }
+            if len(Offer.filter(employee=player)) == 0:
+                pass
+            else:
+                pass
+            # offers_status = "You did not receive any offers at this hiring step."\
+            #     if len(Offer.filter(employee=player)) == 0 else "You rejected all offers at this hiring step."
+            # return {
+            #     "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
+            #     "body_text": f"You are a Worker. {offers_status} "
+            #                  f"Please wait until all workers decide on their offers..."
+            # }
 
     # Shown to:
     # 1) Managers without a match (yet) that didn't choose "no offers",
