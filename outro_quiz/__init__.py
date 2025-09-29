@@ -365,7 +365,7 @@ class Player(BasePlayer):
         blank=False,
     )
     demographic_quiz4 = models.StringField(max_length=50, blank=False)
-    demographic_quiz5 = models.StringField(max_length=5, blank=False)
+    demographic_quiz5 = models.FloatField(min=0, max=5, blank=False)
     demographic_quiz6 = models.IntegerField(min=0, max=20, blank=False)
     demographic_quiz7 = models.IntegerField(choices=list(C.LIKERT_SCALE_RISK.items()),
                                             widget=widgets.RadioSelectHorizontal, blank=False)
