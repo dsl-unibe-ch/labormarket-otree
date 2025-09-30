@@ -748,6 +748,7 @@ class PeriodResults(Page):
             "effort_cost": effort_cost,
             "negative_effort_cost": -effort_cost,
             "negative_direct_training_cost": -direct_training_cost,
+            "negative_overall_training_cost": -direct_training_cost - productivity_reduction,
             "negative_wage": -wage,
             "revenue_and_payoff": revenue_and_payoff,
             "has_training": has_training,

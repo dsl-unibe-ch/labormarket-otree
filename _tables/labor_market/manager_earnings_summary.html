@@ -12,45 +12,53 @@
     </tr>
   </thead>
   <tbody class="border">
-    <tr>
-      <th scope="row" class="border-0 fw-normal">Employer ID</th>
-      <td class="border-0 text-end">{{ player.contract.manager.label }}</td>
+    <tr class="border-1">
+      <th scope="row" class="border-0">Employer ID</th>
+      <td class="border-0 text-end fw-bold">{{ player.contract.manager.label }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal">Employer Endowment</th>
-      <td class="border-0 text-end">{{ manager_endowment | cu }}</td>
+      <th scope="row" class="border-0">Employer Endowment</th>
+      <td class="border-0 text-end fw-bold">{{ manager_endowment | cu }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal">Employer Revenue:</th>
-      <td class="border-0 text-end"></td>
+      <th scope="row" class="border-0">Employer Revenue:</th>
+      <td class="border-0"></td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal ps-3">Effort Level</th>
+      <th scope="row" class="border-0 fw-normal ps-3">Revenue from worker productivity</th>
+      <td class="border-0"></td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-4">Worker Effort</th>
       <td class="border-0 text-end">{{ player.contract.employee.work_effort }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal ps-3">Productivity</th>
-      <td class="border-0 text-end">{{ skill_multiplier | cu }}</td>
-    </tr>
-    <tr class="border-1">
-      <th scope="row" class="border-0 fw-normal">Employer Revenue before Training Costs</th>
-      <td class="border-0 text-end">{{ revenue }}</td>
+      <th scope="row" class="border-0 fw-normal ps-4">&#xD7 Worker Productivity</th>
+      <td class="border-0 text-end text-decoration-underline">{{ skill_multiplier | cu }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal ps-3">Productivity Reduction</th>
-      <td class="border-0 text-end">{{ negative_productivity_reduction | cu }}</td>
+      <th scope="row" class="border-0"></th>
+      <td class="border-0 text-end fw-bold">{{ revenue | cu }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal ps-3">Direct Training Costs</th>
+      <th scope="row" class="border-0 fw-normal ps-3">Training Costs</th>
+      <td class="border-0"></td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-4">Direct Training Cost</th>
       <td class="border-0 text-end">{{ negative_direct_training_cost | cu }}</td>
     </tr>
-    <tr class="border-1">
-      <th scope="row" class="border-0 fw-normal">Employer Revenue after Training Costs</th>
-      <td class="border-0 text-end">{{ revenue_and_payoff.revenue }}</td>
+    <tr>
+      <th scope="row" class="border-0 fw-normal ps-4">Productivity Reduction (50%)</th>
+      <td class="border-0 text-end text-decoration-underline">{{ negative_productivity_reduction | cu }}</td>
     </tr>
     <tr>
-      <th scope="row" class="border-0 fw-normal ps-3">Salary Paid</th>
-      <td class="border-0 text-end">{{ negative_wage }}</td>
+      <th scope="row" class="border-0 fw-normal"></th>
+      <td class="border-0 text-end fw-bold">{{ negative_overall_training_cost | cu }}</td>
+    </tr>
+    <tr>
+      <th scope="row" class="border-0">Salary paid to worker</th>
+      <td class="border-0 text-end fw-bold">{{ negative_wage }}</td>
     </tr>
   </tbody>
   <tfoot class="border fw-bold">
