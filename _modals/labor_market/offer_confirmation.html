@@ -5,7 +5,7 @@
         <h5 class="modal-title">Offer Confirmation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div id="offer-modal-body" class="modal-body">
         <p>
           You have selected to make Worker <span id="offer-confirmation-modal-worker-name"></span>
           the following offer:
@@ -16,14 +16,21 @@
         </ul>
         <p>
           Click the button below to confirm this offer.
-          If you wish to change your offer, click the button to return to the decision screen.
+          If you wish to change your offer, click the Close button to return to the decision screen.
+        </p>
+      </div>
+      <div id="no-offer-modal-body" class="modal-body">
+        <p>
+          You have selected not to make any offer.
+        </p>
+        <p>
+          Click the button below to confirm this choice.
+          If you wish to change your choice, click the Close button to return to the decision screen.
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button id="offer-confirmation-modal-confirm-button" type="button" class="btn btn-primary">
-          Confirm Offer
-        </button>
+        <button id="offer-confirmation-modal-confirm-button" type="button" class="btn btn-primary"></button>
       </div>
     </div>
   </div>

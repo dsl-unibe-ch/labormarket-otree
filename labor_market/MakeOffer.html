@@ -146,13 +146,12 @@
     // Unset "no offers" choice before trying to submit the offer, in case it was preselected somehow
     nullChoice.checked = false;
   });
-  document.querySelector("#no_offers").addEventListener("click", function() {
+  document.querySelector("#no_offers").addEventListener("click", function(event) {
+    // Clearing the form if any values are set.
+    event.target.form.reset();
+
     // Set the "no offers" choice, and preset other values to pass validation
     nullChoice.checked = true;
-    document.querySelector("input[name='offer_training'][value='False']").checked = true;
-    // Required by InputSpinner
-    document.querySelector("input[name='offer_wage']").setValue(1);
-    document.querySelector("#id_offer_wage:input_spinner").setValue(1);
   });
 
 </script>

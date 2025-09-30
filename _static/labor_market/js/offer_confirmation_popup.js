@@ -3,6 +3,15 @@ function offerConfirmationModalOnConfirm(event) {
     const modal = bootstrap.Modal.getInstance(modalEl)
     modal.hide()
 
+    const nullChoice = document.querySelector("input[name='offer_employee'][value='0']");
+
+    if (nullChoice.checked) {
+        document.querySelector("input[name='offer_training'][value='False']").checked = true;
+        // Required by InputSpinner
+        document.querySelector("input[name='offer_wage']").setValue(1);
+        document.getElementById("id_offer_wage:input_spinner").value = 1;
+    }
+
     event.target.form.submit();
 }
 
@@ -12,11 +21,26 @@ function showOfferConfirmationModal(worker, salary, training) {
     const trainingEl = document.getElementById("offer-confirmation-modal-training");
     const modalEl = document.getElementById("offer-confirmation-modal");
 
+    const offerModalBodyEl = document.getElementById("offer-modal-body");
+    const noOfferModalBodyEl = document.getElementById("no-offer-modal-body");
+    const confirmButtonEl = document.getElementById("offer-confirmation-modal-confirm-button");
+
     workerEl.innerHTML = worker;
     salaryEl.innerHTML = salary;
     trainingEl.innerHTML = training ? "Yes" : "No";
 
-    const confirmButtonEl = document.getElementById("offer-confirmation-modal-confirm-button");
+    if (worker === null && salary === null && training === null) {
+        // No offer case
+        offerModalBodyEl.style.display = "none";
+        noOfferModalBodyEl.style.display = "block";
+        confirmButtonEl.innerHTML = "Confirm No Offer";
+    } else {
+        // Offer selected case
+        offerModalBodyEl.style.display = "block";
+        noOfferModalBodyEl.style.display = "none";
+        confirmButtonEl.innerHTML = "Confirm Offer";
+    }
+
     confirmButtonEl.removeEventListener("click", offerConfirmationModalOnConfirm);
     confirmButtonEl.addEventListener("click", offerConfirmationModalOnConfirm);
 
@@ -55,6 +79,15 @@ function onSendOfferClick(event) {
     }
 }
 
+function onNoOffersClick(event) {
+    event.preventDefault();
+    showOfferConfirmationModal(null, null, null);
+}
+
 const sendOfferInput = document.getElementById("send_offer");
 sendOfferInput.removeEventListener("click", onSendOfferClick);
 sendOfferInput.addEventListener("click", onSendOfferClick);
+
+const noOffersInput = document.getElementById("no_offers");
+noOffersInput.removeEventListener("click", onNoOffersClick);
+noOffersInput.addEventListener("click", onNoOffersClick);
