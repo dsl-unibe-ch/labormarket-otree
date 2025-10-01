@@ -66,3 +66,12 @@ ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
 DEMO_PAGE_INTRO_HTML = """ """
 
 SECRET_KEY = '7341359800173'
+
+ROOMS = [
+    dict(
+        name="excenlab",
+        display_name="excenlab.txt",
+        participant_label_file="_rooms/excenlab.txt",
+    ),
+    dict(name="live_demo", display_name="Room for live demo (no participant labels)"),
+]
