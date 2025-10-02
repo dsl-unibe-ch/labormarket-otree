@@ -4,6 +4,8 @@ from typing import Iterator, List
 from otree.api import *
 from otree.currency import RealWorldCurrency
 
+from . import nodes_extra
+
 # Constants
 
 class C(BaseConstants):
@@ -191,7 +193,7 @@ def creating_session(subsession: Subsession):
 class Player(BasePlayer):
     """Player object for quiz"""
 
-    e_peq_quiz1 = models.IntegerField(label="1. I trusted the employer I formed a contract with.",
+    e_peq_quiz1 = models.IntegerField(label="1. <strong>I trusted the employer I formed a contract with.</strong>",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
@@ -272,7 +274,7 @@ class Player(BasePlayer):
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
-    m_peq_quiz1 = models.IntegerField(label="1. I trusted the worker I formed a contract with.",
+    m_peq_quiz1 = models.IntegerField(label="<strong>1. I trusted the worker I formed a contract with.</strong>",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
