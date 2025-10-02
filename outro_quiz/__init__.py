@@ -369,7 +369,10 @@ class Player(BasePlayer):
     demographic_quiz4 = models.StringField(max_length=50, blank=False)
     demographic_quiz5 = models.FloatField(min=0, max=5, blank=False)
     demographic_quiz6 = models.IntegerField(min=0, max=20, blank=False)
-    demographic_quiz7 = models.IntegerField(choices=list(C.LIKERT_SCALE_RISK.items()),
+    demographic_quiz7 = models.IntegerField(label="On a scale from 1 to 10, with 1 being "
+                                                  "&quot;completely risk averse&quot; and 10 being &quot;completely "
+                                                  "risk seeking,&quot; to what extent are you comfortable with risk?",
+                                            choices=list(C.LIKERT_SCALE_RISK.items()),
                                             widget=widgets.RadioSelectHorizontal, blank=False)
     demographic_quiz8 = models.LongStringField(blank=False)
 
