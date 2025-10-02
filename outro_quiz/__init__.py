@@ -56,6 +56,9 @@ def multiplier_to_table_item(mult_tuple: tuple[int, int]):
 def custom_export(players) -> Iterator[List[str | int | float]]:
     yield [
         "participant_code",
+        "player_role",
+        "player_label",
+        "player_id_in_group",
         "peq1",
         "peq2",
         "peq3",
@@ -90,6 +93,9 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
             if player.role == "Employee":
                 yield [
                     player.participant.code,
+                    player.role,
+                    getattr(player, "label", ""),
+                    player.id_in_group,
                     player.e_peq_quiz1,
                     player.e_peq_quiz2,
                     player.e_peq_quiz3,
@@ -119,6 +125,9 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
             else:
                 yield [
                     player.participant.code,
+                    player.role,
+                    getattr(player, "label", ""),
+                    player.id_in_group,
                     player.m_peq_quiz1,
                     player.m_peq_quiz2,
                     player.m_peq_quiz3,
