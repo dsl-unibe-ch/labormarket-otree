@@ -1,7 +1,9 @@
 """Main simulation"""
 from __future__ import annotations
 import random
-from typing import Self, List, Optional, Any, Iterator
+from functools import partial
+from itertools import chain
+from typing import Self, List, Optional, Any, Iterator, Dict
 
 from otree.api import *
 
@@ -51,7 +53,7 @@ def random_labels():
     return random.sample([label["name"] for label in company_labels], k=C.NUM_MANAGERS) + \
            random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
 
-def custom_export(players) -> Iterator[List[str | int | float]]:
+def custom_export(players) -> Iterator[List[str]]:
     # Get the highest session ID from the current batch of players
     latest_session_id = max(p.session.id for p in players)
 
@@ -60,11 +62,12 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
                "labor_market.player.id_in_group",
                "labor_market.player.role",
                "labor_market.player.label",
-           ]
-           + [header
-               for round_number in range(1, 11)
-                   for header in ([f"labor_market.player.employee_skill.{round_number}"] +
-                             [f"{name}.{round_number}.{step}"
+           ] +
+           [
+               header
+               for period in range(1, 11)
+                   for header in ([f"labor_market.player.employee_skill.{period}"] +
+                             [f"{name}.{period}.{step}"
                               for step in range(1, 7)
                               for name in ["labor_market.player.offer_decision",
                                            "labor_market.player.offer_employee",
@@ -73,42 +76,95 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
                                            "labor_market.player.employee_offer_count",
                                            "labor_market.player.offer_accept"]
                               ] +
-                             [f"labor_market.player.work_effort.{round_number}",
-                              f"labor_market.player.employee_earnings.{round_number}",
-                              f"labor_market.player.manager_earnings.{round_number}",
-                              f"labor_market.player.worker_costofeffort.{round_number}",
-                              f"labor_market.player.worker_productivity.{round_number}"])
+                             [f"labor_market.player.work_effort.{period}",
+                              f"labor_market.player.employee_earnings.{period}",
+                              f"labor_market.player.manager_earnings.{period}",
+                              f"labor_market.player.worker_costofeffort.{period}",
+                              f"labor_market.player.worker_productivity.{period}"])
               ]
            )
-    # for player in players:
-    #     if player.session.id == latest_session_id:
-    #         participant = player.participant
-    #
-    #         # Iterate over all periods - 1-10 - and steps in each period - 1-6
-    #         # Offer.filter(employee=player, step=)
-    #
-    #         for offer in player.get_offers_last_round():
-    #             yield [
-    #                 player.id_in_group,
-    #                 player.role,
-    #                 player.label,
-    #                 player.skill if player.role == "Employee" else "", # Only employees have skills
-    #                 offer.wage,
-    #                 "Y" if offer.training else "N",
-    #                 offer.manager.label,
-    #                 offer.employee.label,
-    #                 "Y" if offer.accepted else "N",
-    #                 offer.effort,
-    #             ]
+    for player in players:
+        if player.session.id == latest_session_id and player.round_number == 1:
+            # Player data row
+            yield [player.id_in_group, player.role, player.label] + [
+                item
+                for period in range(1, 11)
+                for item in get_hiring_data_for_period(player, period) +
+                    get_work_data_for_period(player, period)
+            ]
 
 # Helper methods
 
-def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu, wage: int, has_training: bool) \
-        -> dict[str, Any]:
+def get_work_data_for_period(player: Player, period: int) -> List[str]:
+    config = player.session.config
+    contracts: List[Offer] = Offer.filter(employee=player, period=period, accepted=True)
+
+    if len(contracts) > 0:
+        contract: Offer = contracts[0]
+        return [
+            str(contract.effort),
+            str(contract.employee_earnings),
+            str(contract.manager_earnings),
+            str(config["effort_costs"][contract.effort - 1]),
+            str(config["skill_multipliers"][contract.employee.skill - 1])
+        ]
+    else:
+        return [""] * 5
+
+def get_hiring_data_for_period(player: Player, period: int) -> List[str]:
+    f = partial(get_hiring_data_for_period_and_step, player, period)
+    return list(chain.from_iterable(map(f, range(1, 7))))
+
+def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) -> List[str]:
+    offers: List[Offer] = Offer.filter(employee=player, period=period, step=step)
+
+    offer_count = len(offers)
+    if offer_count > 0:
+        # If at least one offer exists
+
+        if player.role == "Manager":
+            # Managers can have only one offer
+            offer: Offer = offers[0]
+            player_from_offer: Player = get_player_from_offer(offer)
+            manager_offer_none: bool = player_from_offer.offer_none == True
+
+            if not manager_offer_none:
+                manager_result = [
+                    str(bool_to_int(manager_offer_none)),
+                    str(offer.employee.id_in_group),
+                    str(offer.wage),
+                    str(bool_to_int(offer.training))
+                ]
+            else:
+                manager_result = ["0"] * 4
+            employee_result = [""]
+        else:
+            manager_result = [""] * 4
+            employee_result = [str(offer_count)]
+
+        # Add the information if an offer has been accepted
+        return manager_result + employee_result + [str(bool_to_int(any(offer.accepted for offer in offers)))]
+    else:
+        # If there is no offer in this period and step.
+        # The locations of zeroes and empty values are different to managers and employees
+        if player.role == "Manager":
+            return [""] + ["0"] * 3 + ["", "0"]
+        else:
+            return [""] * 4 + ["0", "0"]
+
+
+def get_player_from_offer(offer: Offer, player_role: str) -> Player:
+    return offer.employee if player_role == "Employee" else offer.manager
+
+def bool_to_int(b: bool) -> int:
+    return 1 if b else 0
+
+def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu | int, wage: int,
+                                         has_training: bool) -> dict[str, cu | int]:
     config = group.session.config
-    endowment: cu = cu(config["manager_endowment"])
+    endowment: int = config["manager_endowment"]
     if has_training:
-        training_cost = cu(config["training_cost"])
+        training_cost = config["training_cost"]
         training_productivity_multiplier = config["training_productivity_multiplier"]
         return {
             "message": (f"Payoff for Manager {player.id_in_group}: {endowment} + "
@@ -364,15 +420,21 @@ class Offer(ExtraModel):
             return -self.wage
 
     @property
-    def employee_earnings(self):
-        # TODO: add earnings calculation here
-        return self.wage + self.manager.session.config["training_cost"]
-
+    def employee_earnings(self) -> int:
+        config = self.group.session.config
+        return calculate_employee_payoff(config["employee_endowment"], int(self.wage),
+                                         -config["effort_costs"][self.effort - 1])
 
     @property
-    def manager_earnings(self):
-        # TODO: add earnings calculation here
-        return self.wage + self.manager.session.config["training_cost"]
+    def manager_earnings(self) -> int:
+        config = self.group.session.config
+        effort = self.effort
+        skill_multiplier = config["skill_multipliers"][self.employee.skill - 1]
+        base_revenue = config["base_revenue"]
+        initial_revenue = base_revenue * skill_multiplier * effort
+
+        return calculate_manager_revenue_and_payoff(self.group, self.manager, initial_revenue, int(self.wage),
+                                                    self.training)["payoff"]
 
 # Pages
 
@@ -528,7 +590,6 @@ class MatchSummary(Page):
                 training = contract.training
             else:
                 # No match.
-                rejected_offers = Offer.filter(manager=player, rejected=True)
                 body_text = (("Your final choice was not to make an offer to any employee. For the following "
                               "work period, you will only receive your initial endowment of "
                               f"{cu(config["manager_endowment"])}." if player.offer_none
