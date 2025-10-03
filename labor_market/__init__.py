@@ -89,11 +89,30 @@ def custom_export(players) -> Iterator[List[str]]:
             yield [player.id_in_group, player.role, player.label] + [
                 item
                 for period in range(1, 11)
-                for item in get_hiring_data_for_period(player, period) +
+                for item in [get_player_skill_for_period(player, period)] + get_hiring_data_for_period(player, period) +
                     get_work_data_for_period(player, period)
             ]
 
 # Helper methods
+
+def get_player_skill_for_period(player: Player, period: int) -> str:
+    if player.role == "Employee":
+        current_period = period
+        offers: List[Offer] = []
+
+        # Find the latest offer before the specified period and use the skill from there
+        while len(offers) == 0 and current_period > 0:
+            offers = Offer.filter(employee=player, period=current_period)
+            current_period -= 1
+
+        if len(offers) > 0:
+            # If the offer found, use the skill from there
+            return str(offers[0].employee.skill)
+        else:
+            # If the offer not found, find the initial Player's skill
+            return str(player.skill)
+    else:
+        return ""
 
 def get_work_data_for_period(player: Player, period: int) -> List[str]:
     config = player.session.config
