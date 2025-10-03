@@ -132,10 +132,16 @@ def get_work_data_for_period(player: Player, period: int) -> List[str]:
 
 def get_hiring_data_for_period(player: Player, period: int) -> List[str]:
     f = partial(get_hiring_data_for_period_and_step, player, period)
-    return list(chain.from_iterable(map(f, range(1, 7))))
+    return list(chain.from_iterable(map(f, range(1, C.HIRING_STEPS + 1))))
+
+def manager_offered_none_on_step(manager: Player, period: int, step: int) -> bool:
+    # Offered none if no offers are in current step, but they were in the previous step (if it exists)
+    return (len(Offer.filter(manager=manager, period=period, step=step)) == 0 and
+            (step == 1 or len(Offer.filter(manager=manager, period=period, step=step - 1))) > 0)
 
 def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) -> List[str]:
-    offers: List[Offer] = Offer.filter(employee=player, period=period, step=step)
+    offers: List[Offer] = Offer.filter(manager=player, period=period, step=step) if player.role == "Manager" else (
+        Offer.filter(employee=player, period=period, step=step))
 
     offer_count = len(offers)
     if offer_count > 0:
@@ -144,18 +150,14 @@ def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) 
         if player.role == "Manager":
             # Managers can have only one offer
             offer: Offer = offers[0]
-            player_from_offer: Player = get_player_from_offer(offer)
-            manager_offer_none: bool = player_from_offer.offer_none == True
 
-            if not manager_offer_none:
-                manager_result = [
-                    str(bool_to_int(manager_offer_none)),
-                    str(offer.employee.id_in_group),
-                    str(offer.wage),
-                    str(bool_to_int(offer.training))
-                ]
-            else:
-                manager_result = ["0"] * 4
+            # if not manager_offer_none:
+            manager_result = [
+                "1",
+                str(offer.employee.id_in_group),
+                str(int(offer.wage)),
+                str(bool_to_int(offer.training))
+            ]
             employee_result = [""]
         else:
             manager_result = [""] * 4
@@ -167,7 +169,7 @@ def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) 
         # If there is no offer in this period and step.
         # The locations of zeroes and empty values are different to managers and employees
         if player.role == "Manager":
-            return [""] + ["0"] * 3 + ["", "0"]
+            return ["0" if manager_offered_none_on_step(player, period, step) else ""] + ["0"] * 3 + ["", "0"]
         else:
             return [""] * 4 + ["0", "0"]
 
