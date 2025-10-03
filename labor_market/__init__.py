@@ -83,19 +83,28 @@ def custom_export(players) -> Iterator[List[str]]:
                               f"labor_market.player.worker_productivity.{period}"])
               ]
            )
-    for player in players:
-        if player.session.id == latest_session_id and player.round_number == 1:
-            # Player data row
-            yield [player.id_in_group, player.role, player.label] + [
-                item
-                for period in range(1, C.NUM_ROUNDS + 1)
-                for item in [get_player_skill_for_period(player, period)] + get_hiring_data_for_period(player, period) +
-                    get_work_data_for_period(player, period)
-            ]
+    last_session_players = [player for player in players if player.session.id == latest_session_id]
+    last_session_players_first_period = [player for player in last_session_players if player.round_number == 1]
+
+    for player in last_session_players_first_period:
+        result = []
+        for period in range(1, C.NUM_ROUNDS + 1):
+            for player_in_period in last_session_players:
+                if player_in_period.round_number == period and player_in_period.id_in_group == player.id_in_group:
+                    if period == 1:
+                        result += [player_in_period.id_in_group, player_in_period.role, player_in_period.label]
+
+                    result += [
+                        item
+                        for item in [get_player_skill(player_in_period)] + get_hiring_data(player_in_period) +
+                                    get_work_data(player_in_period)
+                    ]
+        yield result
 
 # Helper methods
 
-def get_player_skill_for_period(player: Player, period: int) -> str:
+def get_player_skill(player: Player) -> str:
+    period = player.round_number
     if player.role == "Employee":
         current_period = period
         offers: List[Offer] = []
@@ -114,7 +123,8 @@ def get_player_skill_for_period(player: Player, period: int) -> str:
     else:
         return ""
 
-def get_work_data_for_period(player: Player, period: int) -> List[str]:
+def get_work_data(player: Player) -> List[str]:
+    period = player.round_number
     config = player.session.config
     contracts: List[Offer] = Offer.filter(manager=player, period=period, accepted=True) if player.role == "Manager" \
         else Offer.filter(employee=player, period=period, accepted=True)
@@ -131,7 +141,8 @@ def get_work_data_for_period(player: Player, period: int) -> List[str]:
     else:
         return [""] * 5
 
-def get_hiring_data_for_period(player: Player, period: int) -> List[str]:
+def get_hiring_data(player: Player) -> List[str]:
+    period = player.round_number
     f = partial(get_hiring_data_for_period_and_step, player, period)
     return list(chain.from_iterable(map(f, range(1, C.HIRING_STEPS + 1))))
 
