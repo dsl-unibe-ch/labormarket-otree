@@ -88,7 +88,7 @@ def custom_export(players) -> Iterator[List[str]]:
             # Player data row
             yield [player.id_in_group, player.role, player.label] + [
                 item
-                for period in range(1, 11)
+                for period in range(1, C.NUM_ROUNDS + 1)
                 for item in [get_player_skill_for_period(player, period)] + get_hiring_data_for_period(player, period) +
                     get_work_data_for_period(player, period)
             ]
@@ -116,7 +116,8 @@ def get_player_skill_for_period(player: Player, period: int) -> str:
 
 def get_work_data_for_period(player: Player, period: int) -> List[str]:
     config = player.session.config
-    contracts: List[Offer] = Offer.filter(employee=player, period=period, accepted=True)
+    contracts: List[Offer] = Offer.filter(manager=player, period=period, accepted=True) if player.role == "Manager" \
+        else Offer.filter(employee=player, period=period, accepted=True)
 
     if len(contracts) > 0:
         contract: Offer = contracts[0]
