@@ -135,9 +135,13 @@ def get_hiring_data_for_period(player: Player, period: int) -> List[str]:
     return list(chain.from_iterable(map(f, range(1, C.HIRING_STEPS + 1))))
 
 def manager_offered_none_on_step(manager: Player, period: int, step: int) -> bool:
-    # Offered none if no offers are in current step, but they were in the previous step (if it exists)
+    # Offered none if no offers are in current step, but they were in the previous step (if it exists).
+    # There should not be an accepted contract in the previous step.
     return (len(Offer.filter(manager=manager, period=period, step=step)) == 0 and
-            (step == 1 or len(Offer.filter(manager=manager, period=period, step=step - 1))) > 0)
+            (step == 1 or
+             len(Offer.filter(manager=manager, period=period, step=step - 1)) > 0 and
+             len(Offer.filter(manager=manager, period=period, step=step - 1, accepted=True)) == 0)
+            )
 
 def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) -> List[str]:
     offers: List[Offer] = Offer.filter(manager=player, period=period, step=step) if player.role == "Manager" else (
