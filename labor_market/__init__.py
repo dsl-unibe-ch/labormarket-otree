@@ -56,39 +56,50 @@ def custom_export(players) -> Iterator[List[str | int | float]]:
     latest_session_id = max(p.session.id for p in players)
 
     # Header row
-    yield [
-        "round_number",
-        "participant_code",
-        "player_role",
-        "player_label",
-        "player_id_in_group",
-        "player_skill_level",
-        "offer_wage",
-        "offer_training",
-        "offer_employer",
-        "offer_worker",
-        "offer_accepted",
-        "offer_effort",
-    ]
-    for player in players:
-        if player.session.id == latest_session_id:
-            participant = player.participant
-
-            for offer in player.get_offers_last_round():
-                yield [
-                    player.round_number,
-                    participant.code,
-                    player.role,
-                    player.label,
-                    player.id_in_group,
-                    player.skill if player.role == "Employee" else "", # Only employees have skills
-                    offer.wage,
-                    "Y" if offer.training else "N",
-                    offer.manager.label,
-                    offer.employee.label,
-                    "Y" if offer.accepted else "N",
-                    offer.effort,
-                ]
+    yield ([
+               "labor_market.player.id_in_group",
+               "labor_market.player.role",
+               "labor_market.player.label",
+           ]
+           + [header
+               for round_number in range(1, 11)
+                   for header in ([f"labor_market.player.employee_skill.{round_number}"] +
+                             [f"{name}.{round_number}.{step}"
+                              for step in range(1, 7)
+                              for name in ["labor_market.player.offer_decision",
+                                           "labor_market.player.offer_employee",
+                                           "labor_market.player.offer_wage",
+                                           "labor_market.player.offer_training",
+                                           "labor_market.player.employee_offer_count",
+                                           "labor_market.player.offer_accept"]
+                              ] +
+                             [f"labor_market.player.work_effort.{round_number}",
+                              f"labor_market.player.employee_earnings.{round_number}",
+                              f"labor_market.player.manager_earnings.{round_number}",
+                              f"labor_market.player.worker_costofeffort.{round_number}",
+                              f"labor_market.player.worker_productivity.{round_number}"])
+              ]
+           )
+    # for player in players:
+    #     if player.session.id == latest_session_id:
+    #         participant = player.participant
+    #
+    #         # Iterate over all periods - 1-10 - and steps in each period - 1-6
+    #         # Offer.filter(employee=player, step=)
+    #
+    #         for offer in player.get_offers_last_round():
+    #             yield [
+    #                 player.id_in_group,
+    #                 player.role,
+    #                 player.label,
+    #                 player.skill if player.role == "Employee" else "", # Only employees have skills
+    #                 offer.wage,
+    #                 "Y" if offer.training else "N",
+    #                 offer.manager.label,
+    #                 offer.employee.label,
+    #                 "Y" if offer.accepted else "N",
+    #                 offer.effort,
+    #             ]
 
 # Helper methods
 
