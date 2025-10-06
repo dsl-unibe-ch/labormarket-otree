@@ -59,9 +59,11 @@ def custom_export(players) -> Iterator[List[str]]:
 
     # Header row
     yield ([
+               "labor_market.session_code",
                "labor_market.player.id_in_group",
                "labor_market.player.role",
                "labor_market.player.label",
+               "labor_market.player.participant_code",
            ] +
            [
                header
@@ -92,7 +94,9 @@ def custom_export(players) -> Iterator[List[str]]:
             for player_in_period in last_session_players:
                 if player_in_period.round_number == period and player_in_period.id_in_group == player.id_in_group:
                     if period == 1:
-                        result += [player_in_period.id_in_group, player_in_period.role, player_in_period.label]
+                        # General information about the player etc.
+                        result += [player_in_period.session.code, player_in_period.id_in_group, player_in_period.role,
+                                   player_in_period.label, player_in_period.participant.code]
 
                     result += [
                         item
