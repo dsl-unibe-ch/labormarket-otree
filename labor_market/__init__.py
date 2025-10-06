@@ -67,10 +67,10 @@ def custom_export(players) -> Iterator[List[str]]:
            ] +
            [
                header
-               for period in range(1, 11)
+               for period in range(1, C.NUM_ROUNDS + 1)
                    for header in ([f"labor_market.player.employee_skill.{period}"] +
                              [f"{name}.{period}.{step}"
-                              for step in range(1, 7)
+                              for step in range(1, C.NUM_EMPLOYEES + 1)
                               for name in ["labor_market.player.offer_decision",
                                            "labor_market.player.offer_employee",
                                            "labor_market.player.offer_wage",
