@@ -675,17 +675,13 @@ class WaitForAcceptance(WaitPage):
                 "body_text": "You are a Manager. Please wait until all workers decide on their offers..."
             }
         else:
-            if len(Offer.filter(employee=player)) == 0:
-                pass
-            else:
-                pass
-            # offers_status = "You did not receive any offers at this hiring step."\
-            #     if len(Offer.filter(employee=player)) == 0 else "You rejected all offers at this hiring step."
-            # return {
-            #     "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-            #     "body_text": f"You are a Worker. {offers_status} "
-            #                  f"Please wait until all workers decide on their offers..."
-            # }
+            offers_status = "You did not receive any offers at this hiring step."\
+                if len(Offer.filter(employee=player)) == 0 else "You rejected all offers at this hiring step."
+            return {
+                "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
+                "body_text": f"You are a Worker. {offers_status} "
+                             f"Please wait until all workers decide on their offers..."
+            }
 
     # Shown to:
     # 1) Managers without a match (yet) that didn't choose "no offers",
