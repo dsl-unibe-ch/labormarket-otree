@@ -94,9 +94,9 @@ class Player(BasePlayer):
         market = session.config["market"]
 
         return dict(
-            homoogenous_low="In the first period, all workers start with a skill level of 1.",
-            homoogenous_high="In the first period, all workers start with a skill level of 5.",
-            heterogenous="In the first period, three workers start with a skill level of 1 "
+            homogeneous_low="In the first period, all workers start with a skill level of 1.",
+            homogeneous_high="In the first period, all workers start with a skill level of 5.",
+            heterogeneous="In the first period, three workers start with a skill level of 1 "
                          "and three workers start with a skill level of 5."
         )[market]
 
@@ -187,9 +187,9 @@ class Instructions5(Page):
     """Intro page with instructions"""
 
     MARKET_DESCRIPTION = dict(
-        homoogenous_low="all workers start with a skill level of 1",
-        homoogenous_high="all workers start with a skill level of 5",
-        heterogenous="three workers start with a skill level of 1 and three workers start with a skill level of 5"
+        homogeneous_low="all workers start with a skill level of 1",
+        homogeneous_high="all workers start with a skill level of 5",
+        heterogeneous="three workers start with a skill level of 1 and three workers start with a skill level of 5"
     )
 
     @staticmethod
@@ -200,9 +200,9 @@ class Instructions5(Page):
         skill_multipliers = session.config["skill_multipliers"]
 
         market_productivity = dict(
-            homoogenous_low=f"all workers have a productivity of {skill_multipliers[0]}",
-            homoogenous_high=f"all workers have a productivity of {skill_multipliers[4]}",
-            heterogenous=f"three workers have a productivity of {skill_multipliers[0]} "
+            homogeneous_low=f"all workers have a productivity of {skill_multipliers[0]}",
+            homogeneous_high=f"all workers have a productivity of {skill_multipliers[4]}",
+            heterogeneous=f"three workers have a productivity of {skill_multipliers[0]} "
                          f"and three workers have a productivity of {skill_multipliers[4]}"
         )
 

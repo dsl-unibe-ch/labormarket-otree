@@ -78,7 +78,7 @@ class LikertFieldNode(Node):
             '''
 <div class="{{classes}}">
   <div class="question">{{label}}</div>
-  <table style="table-layout: fixed; min-width: 20rem; width: min-content;">
+  <table style="table-layout: fixed; min-width: 55rem; width: min-content;">
     <tr>{{ inputs_row }}</tr>
     <tr>{{ labels_row }}</tr>
   </table>

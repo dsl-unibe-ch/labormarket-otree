@@ -1,28 +1,64 @@
 """Settings file for labor market oTree experiment"""
 from os import environ
 
-SESSION_CONFIGS = [
-    dict(
-        name="labor_market_with_quizzes",
-        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
-        num_demo_participants=12,
-        max_rounds=10
-    ),
-    dict(
-        name="labor_market",
-        app_sequence=["labor_market"],
-        num_demo_participants=12,
-        max_rounds=10
-    )
-]
-
-
 # Starting skills based on the market
 STARTING_SKILLS_BY_MARKET = dict(
-    homoogenous_low=[1, 1, 1, 1, 1, 1],
-    homoogenous_high=[5, 5, 5, 5, 5, 5],
-    heterogenous=[5, 5, 5, 1, 1, 1]
+    homogeneous_low=[1, 1, 1, 1, 1, 1],
+    homogeneous_high=[5, 5, 5, 5, 5, 5],
+    heterogeneous=[5, 5, 5, 1, 1, 1]
 )
+
+SESSION_CONFIGS = [
+    dict(
+        name="experiment_heterogeneous",
+        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=10,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
+    dict(
+        name="experiment_homogeneous_low",
+        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=10,
+        market="homogeneous_low",
+        starting_skills=STARTING_SKILLS_BY_MARKET["homogeneous_low"]
+    ),
+    dict(
+        name="experiment_homogeneous_high",
+        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=10,
+        market="homogeneous_high",
+        starting_skills=STARTING_SKILLS_BY_MARKET["homogeneous_high"]
+    ),
+    dict(
+        name="test_all",
+        app_sequence=["intro_quiz", "labor_market", "outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=3,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
+    dict(
+        name="test_labor_market",
+        app_sequence=["labor_market", "outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=3,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
+    dict(
+        name="test_outro_quiz",
+        app_sequence=["outro_quiz"],
+        num_demo_participants=12,
+        max_rounds=3,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
+]
+
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
 # in SESSION_CONFIGS, except those that explicitly override it.
@@ -32,7 +68,7 @@ STARTING_SKILLS_BY_MARKET = dict(
 SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=0.0025,
     participation_fee=5.00,
-    market="heterogenous",
+    market="heterogeneous",
     skill_multipliers=[100, 140, 177, 211, 242, 270, 295, 317, 336, 352, 365, 375, 382, 386, 387],
     effort_costs=[0, 20, 40, 60, 100, 140, 180, 240, 300, 360],
     employee_endowment=400,
@@ -44,9 +80,6 @@ SESSION_CONFIG_DEFAULTS = dict(
     doc="",
     randomize_roles=False
 )
-
-# Setting the starting_skills value depending on the market.
-SESSION_CONFIG_DEFAULTS.update(starting_skills=STARTING_SKILLS_BY_MARKET[SESSION_CONFIG_DEFAULTS["market"]])
 
 SESSION_FIELDS = ["skill_table"]
 PARTICIPANT_FIELDS = ["dropout", "q_idx"]
