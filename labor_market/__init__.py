@@ -83,8 +83,7 @@ def custom_export(players) -> Iterator[List[str]]:
                               f"labor_market.player.manager_earnings.{period}",
                               f"labor_market.player.worker_costofeffort.{period}",
                               f"labor_market.player.worker_productivity.{period}"])
-              ]
-           )
+          ])
     last_session_players = [player for player in players if player.session.id == latest_session_id]
     last_session_players_first_period = [player for player in last_session_players if player.round_number == 1]
 
