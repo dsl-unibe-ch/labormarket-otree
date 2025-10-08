@@ -42,7 +42,7 @@ SESSION_CONFIGS = [
         starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
     ),
     dict(
-        name="test_labor_market",
+        name="test_simulation",
         app_sequence=["labor_market", "outro_quiz"],
         num_demo_participants=12,
         max_rounds=3,
@@ -50,7 +50,7 @@ SESSION_CONFIGS = [
         starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
     ),
     dict(
-        name="test_outro_quiz",
+        name="test_outro",
         app_sequence=["outro_quiz"],
         num_demo_participants=12,
         max_rounds=3,
@@ -77,7 +77,13 @@ SESSION_CONFIG_DEFAULTS = dict(
     training_productivity_multiplier=0.5,
     training_cost=50,
     max_wage=1500,
-    doc="",
+    doc="""
+        Edit the 'market' parameter to specify what initial skill the workers will have.
+        The possible values and their corresponding skill levels are the following.<br/> 
+        homogeneous_low: [1, 1, 1, 1, 1, 1]<br/>
+        homogeneous_high: [5, 5, 5, 5, 5, 5]<br/>
+        heterogeneous: [5, 5, 5, 1, 1, 1]
+        """,
     randomize_roles=False
 )
 
