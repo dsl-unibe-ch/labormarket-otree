@@ -1,11 +1,14 @@
 """Main simulation"""
 from __future__ import annotations
+
 import random
+from collections import defaultdict
 from functools import partial
 from itertools import chain
-from typing import Self, List, Optional, Any, Iterator, Dict
+from typing import Self, List, Optional, Any, Iterator
 
 from otree.api import *
+
 
 # Constants
 
@@ -54,12 +57,9 @@ def random_labels():
            random.sample([label["name"] for label in employee_labels], k=C.NUM_EMPLOYEES)
 
 def custom_export(players) -> Iterator[List[str]]:
-    # Get the highest session ID from the current batch of players
-    latest_session_id = max(p.session.id for p in players)
-
     # Header row
     yield ([
-               "labor_market.session_code",
+               "labor_market.session_id",
                "labor_market.player.id_in_group",
                "labor_market.player.role",
                "labor_market.player.label",
@@ -84,13 +84,24 @@ def custom_export(players) -> Iterator[List[str]]:
                               f"labor_market.player.worker_costofeffort.{period}",
                               f"labor_market.player.worker_productivity.{period}"])
           ])
-    last_session_players = [player for player in players if player.session.id == latest_session_id]
-    last_session_players_first_period = [player for player in last_session_players if player.round_number == 1]
+    grouped_players = defaultdict(list)
 
-    for player in last_session_players_first_period:
+    for player in players:
+        grouped_players[player.session.id].append(player)
+
+    sorted_grouped_players = [grouped_players[session_id] for session_id in sorted(grouped_players)]
+
+    for session_players in sorted_grouped_players:
+        yield from export_for_session_players(session_players)
+
+
+def export_for_session_players(session_players: list[Any]):
+    session_players_first_period = [player for player in session_players if player.round_number == 1]
+
+    for player in session_players_first_period:
         result = []
         for period in range(1, C.NUM_ROUNDS + 1):
-            for player_in_period in last_session_players:
+            for player_in_period in session_players:
                 if player_in_period.round_number == period and player_in_period.id_in_group == player.id_in_group:
                     if period == 1:
                         # General information about the player etc.
@@ -103,6 +114,7 @@ def custom_export(players) -> Iterator[List[str]]:
                                     get_work_data(player_in_period)
                     ]
         yield result
+
 
 # Helper methods
 
