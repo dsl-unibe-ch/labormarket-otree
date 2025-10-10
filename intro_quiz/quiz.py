@@ -67,7 +67,7 @@ QUIZ_3_QUESTIONS = [
                            "by his/her skill level) and the effort level the worker chooses in this period.",
              choices=TRUE_FALSE, table=None),
         dict(index=5, text="Assume an employer offers a contract that includes a <strong>salary of 500</strong> points "
-                           "and <strong>does not include training<strong>. "
+                           "and <strong>does not include training</strong>. "
                            "The worker who accepts the contract has a <strong>skill level of 5</strong> and chooses "
                            "an <strong>effort level of 5</strong>. Including the employer's initial endowment of "
                            "800 points, what are the employer's earnings in this period?",
@@ -117,11 +117,11 @@ QUIZ_1_HINTS = [
     [
         "Your response is incorrect. "
         "If a worker rejects an offer received from an employer in the hiring phase of a period, "
-        "the worker will <strong>not<strong> be able to receive another offer from the same employer in that period. "
+        "the worker will <strong>not</strong> be able to receive another offer from the same employer in that period. "
         "Please try again.",
         "Your response is correct. "
         "If a worker rejects an offer received from an employer in the hiring phase of a period, "
-        "the worker will <strong>not<strong> be able to receive another offer from the same employer in that period."
+        "the worker will <strong>not</strong> be able to receive another offer from the same employer in that period."
     ],
     [
         "Your response is incorrect. Employer offers include a salary and whether training is provided during the "
