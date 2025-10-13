@@ -846,10 +846,10 @@ class PeriodResults(Page):
             has_training = contract.training
             effort_cost = player.session.config["effort_costs"][contract.employee.work_effort - 1]
         else:
-            skill = 0
-            new_skill = 0
-            skill_multiplier = 0
-            new_skill_multiplier = 0
+            skill = 0 if player.role == "Manager" else player.skill
+            new_skill = skill
+            skill_multiplier = 0 if player.role == "Manager" else skill_multipliers[skill - 1]
+            new_skill_multiplier = skill_multiplier
             revenue = cu(0)
             wage = 0
             has_training = False

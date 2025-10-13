@@ -13,8 +13,6 @@
     </p>
     {{ include "_tables/labor_market/employee_earnings_summary.html" }}
     {{ include "_tables/labor_market/manager_earnings_summary.html" }}
-    {{ include "_tables/labor_market/training_report.html" }}
-
     {{ else }}
     <p>
       You have <strong>not</strong> formed a contract in this period.
@@ -26,6 +24,7 @@
       Your payoff is the basic endowment of {{ session.config.employee_endowment | cu }}.
     </p>
     {{ endif }}
+    {{ include "_tables/labor_market/training_report.html" }}
     {{ next_button }}
   </div>
   <div class="col-5">
