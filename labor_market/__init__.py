@@ -78,12 +78,15 @@ def custom_export(players) -> Iterator[List[str]]:
                                            "labor_market.player.employee_offer_count",
                                            "labor_market.player.offer_accept"]
                               ] +
-                             [f"labor_market.player.work_effort.{period}",
+                             [f"labor_market.player.counterparty.{period}",
+                              f"labor_market.player.contract_wage.{period}",
+                              f"labor_market.player.contract_training.{period}",
+                              f"labor_market.player.work_effort.{period}",
                               f"labor_market.player.employee_earnings.{period}",
                               f"labor_market.player.manager_earnings.{period}",
                               f"labor_market.player.worker_costofeffort.{period}",
                               f"labor_market.player.worker_productivity.{period}"])
-          ])
+          ] + ["labor_market.player.participant_payoff"])
     grouped_players = defaultdict(list)
 
     for player in players:
@@ -113,7 +116,7 @@ def export_for_session_players(session_players: list[Any]):
                         for item in [get_player_skill(player_in_period)] + get_hiring_data(player_in_period) +
                                     get_work_data(player_in_period)
                     ]
-        yield result
+        yield result + [player.participant.payoff]
 
 
 # Helper methods
@@ -147,6 +150,9 @@ def get_work_data(player: Player) -> List[str]:
     if len(contracts) > 0:
         contract: Offer = contracts[0]
         return [
+            str(contract.manager.id_in_group if player.role == "Employee" else contract.employee.id_in_group), # Counterparty
+            str(int(contract.wage)),
+            str(bool_to_int(contract.training)),
             str(contract.effort),
             str(contract.employee_earnings),
             str(contract.manager_earnings),
@@ -154,7 +160,7 @@ def get_work_data(player: Player) -> List[str]:
             str(config["skill_multipliers"][contract.employee.skill - 1])
         ]
     else:
-        return [""] * 5
+        return [""] * 8
 
 def get_hiring_data(player: Player) -> List[str]:
     period = player.round_number
