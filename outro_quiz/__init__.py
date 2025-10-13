@@ -199,7 +199,7 @@ def creating_session(subsession: Subsession):
 class Player(BasePlayer):
     """Player object for quiz"""
 
-    e_peq_quiz1 = models.IntegerField(label="1. <strong>I trusted the employer I formed a contract with.</strong>",
+    e_peq_quiz1 = models.IntegerField(label="1. I trusted the employer I formed a contract with.",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
@@ -264,12 +264,12 @@ class Player(BasePlayer):
                                    choices=list(C.LIKERT_SCALE_LOWER_HIGHER.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
-    e_peq_quiz15 = models.IntegerField(label="15. When a manager offered me training in a period, the manager "
+    e_peq_quiz15 = models.IntegerField(label="15. When an employer offered me training in a period, the employer "
                                           "expected me to <strong>provide high effort in this period</strong>.",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
-    e_peq_quiz16 = models.IntegerField(label="16. When a manager offered me training in a period, the manager "
+    e_peq_quiz16 = models.IntegerField(label="16. When an employer offered me training in a period, the employer "
                                           "expected me to <strong>contract with him or her again in the next "
                                           "period</strong>.",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
@@ -280,7 +280,7 @@ class Player(BasePlayer):
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)
-    m_peq_quiz1 = models.IntegerField(label="<strong>1. I trusted the worker I formed a contract with.</strong>",
+    m_peq_quiz1 = models.IntegerField(label="1. I trusted the worker I formed a contract with.",
                                    choices=list(C.LIKERT_SCALE_DISAGREE_AGREE.items()),
                                    widget=widgets.RadioSelectHorizontal,
                                    blank=False)

@@ -73,8 +73,8 @@ QUIZ_3_QUESTIONS = [
                            "800 points, what are the employer's earnings in this period?",
              choices=[1510, 1210, 855, 710], table="_tables/global/revenue.html"),
         dict(index=6, text="Assume an employer offers a contract that <strong>includes a salary of 500 points</strong> "
-                           "and training. The worker who accepts the contract has a <strong>skill level of 5</strong> "
-                           "and chooses an <strong>effort level of 5</strong>. "
+                           "and <strong>training</strong>. The worker who accepts the contract has a <strong>skill "
+                           "level of 5</strong> and chooses an <strong>effort level of 5</strong>. "
                            "Including the employer's initial endowment of 800 points, "
                            "what are the employer's earnings in this period?",
              choices=[1510, 1210, 855, 710], table="_tables/global/revenue.html"),

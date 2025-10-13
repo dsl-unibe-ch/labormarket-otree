@@ -219,7 +219,7 @@ def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, reven
         training_cost = config["training_cost"]
         training_productivity_multiplier = config["training_productivity_multiplier"]
         return {
-            "message": (f"Payoff for Manager {player.id_in_group}: {endowment} + "
+            "message": (f"Payoff for Employer {player.id_in_group}: {endowment} + "
                           f"{revenue * training_productivity_multiplier} - {training_cost} - {wage}"),
             "payoff": endowment + revenue * training_productivity_multiplier - training_cost - wage,
             "revenue": revenue * training_productivity_multiplier - training_cost
@@ -552,7 +552,7 @@ class MakeOffer(Page):
     @staticmethod
     def before_next_page(manager: Player, timeout_happened: bool):
         if timeout_happened:
-            print(f"Timeout for Manager {manager.id_in_group}, not putting forward any offers")
+            print(f"Timeout for Employer {manager.id_in_group}, not putting forward any offers")
         else:
             if manager.offer_employee > 0:
                 employee = manager.group.get_player_by_id(manager.offer_employee)
@@ -574,7 +574,7 @@ class WaitForOffers(WaitPage):
     def vars_for_template(player: Player):
         return {
             "title_text": f"Waiting for offers { stage_counter(player, with_step=True) }",
-            "body_text": "You are a Worker. Please wait until all managers have made their offers..."
+            "body_text": "You are a Worker. Please wait until all employers have made their offers..."
         }
 
     # Shown to Employees without a contract
@@ -608,7 +608,7 @@ class GetOffers(Page):
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
         if timeout_happened:
-            print(f"Timeout for Employee {employee.id_in_group}, not accepting any offers")
+            print(f"Timeout for Worker {employee.id_in_group}, not accepting any offers")
         elif employee.player_matched > 0:
             manager = employee.group.get_player_by_id(employee.player_matched)
             manager.player_matched = employee.id_in_group
@@ -642,11 +642,13 @@ class MatchSummary(Page):
                 training = contract.training
             else:
                 # No match.
-                body_text = (("Your final choice was not to make an offer to any employee. For the following "
+                body_text = ("Your final choice was not to make an offer to any worker. For the following "
                               "work period, you will only receive your initial endowment of "
-                              f"{cu(config["manager_endowment"])}." if player.offer_none
-                              else "Your contract offer was not accepted.")
-                             + " You will now return to the wait for effort page and then to the labor market.")
+                              f"{cu(config["manager_endowment"])}. You will now wait for others to finish "
+                              "the work phase and then return to the labor market for the next period."
+                              if player.offer_none else
+                              "Your contract offer was not accepted. You will now return to the waiting page "
+                              "and then to the labor market.")
                 partner_title = None
                 salary = None
                 training = None
@@ -663,7 +665,7 @@ class MatchSummary(Page):
                 # No match.
                 rejected_offers = Offer.filter(employee=player, rejected=True)
                 body_text = ("You did not contract with an employer. "
-                             "You will now return to the wait for effort page and then to the labor market."
+                             "You will now return to the waiting page and then to the labor market."
                              if len(rejected_offers) != 0 else
                              "No employer made you an offer. You will now wait for others to finish the work phase "
                              "and then return to the labor market.")
@@ -687,7 +689,7 @@ class WaitForAcceptance(WaitPage):
         if player.role == "Manager":
             return {
                 "title_text": f"Waiting for offer acceptance { stage_counter(player, with_step=True) }",
-                "body_text": "You are a Manager. Please wait until all workers decide on their offers..."
+                "body_text": "You are an Employer. Please wait until all workers decide on their offers..."
             }
         else:
             offers_status = "You did not receive any offers at this hiring step."\
