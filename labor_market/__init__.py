@@ -135,16 +135,30 @@ def get_work_data(player: Player) -> List[str]:
 
     if len(contracts) > 0:
         contract: Offer = contracts[0]
-        return [
-            str(contract.manager.id_in_group if player.role == "Employee" else contract.employee.id_in_group), # Counterparty
-            str(int(contract.wage)),
-            str(bool_to_int(contract.training)),
-            str(contract.effort),
-            str(contract.employee_earnings),
-            str(contract.manager_earnings),
-            str(config["effort_costs"][contract.effort - 1]),
-            str(config["skill_multipliers"][contract.employee.skill - 1])
-        ]
+
+        if contract.effort:
+            return [
+                str(contract.manager.id_in_group if player.role == "Employee" else contract.employee.id_in_group), # Counterparty
+                str(int(contract.wage)),
+                str(bool_to_int(contract.training)),
+                str(contract.effort),
+                str(contract.employee_earnings),
+                str(contract.manager_earnings),
+                str(config["effort_costs"][contract.effort - 1]),
+                str(config["skill_multipliers"][contract.employee.skill - 1])
+            ]
+        else:
+            # This should only happen if the session was incomplete
+            return [
+                str(contract.manager.id_in_group if player.role == "Employee" else contract.employee.id_in_group), # Counterparty
+                str(int(contract.wage)),
+                str(bool_to_int(contract.training)),
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A"
+            ]
     else:
         return [""] * 8
 
