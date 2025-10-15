@@ -122,22 +122,8 @@ def export_for_session_players(session_players: list[Any]):
 # Helper methods
 
 def get_player_skill(player: Player) -> str:
-    period = player.round_number
     if player.role == "Employee":
-        current_period = period
-        offers: List[Offer] = []
-
-        # Find the latest offer before the specified period and use the skill from there
-        while len(offers) == 0 and current_period > 0:
-            offers = Offer.filter(employee=player, period=current_period)
-            current_period -= 1
-
-        if len(offers) > 0:
-            # If the offer found, use the skill from there
-            return str(offers[0].employee.skill)
-        else:
-            # If the offer not found, find the initial Player's skill
-            return str(player.skill)
+        return str(player.skill)
     else:
         return ""
 
