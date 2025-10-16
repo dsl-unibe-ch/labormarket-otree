@@ -99,24 +99,35 @@ def custom_export(players) -> Iterator[List[str]]:
 
 
 def export_for_session_players(session_players: list[Any]):
-    session_players_first_period = [player for player in session_players if player.round_number == 1]
+    session_players_last_period = [player for player in session_players if player.round_number == C.NUM_ROUNDS]
 
-    for player in session_players_first_period:
-        result = []
-        for period in range(1, C.NUM_ROUNDS + 1):
-            for player_in_period in session_players:
-                if player_in_period.round_number == period and player_in_period.id_in_group == player.id_in_group:
-                    if period == 1:
-                        # General information about the player etc.
-                        result += [player_in_period.session.code, player_in_period.id_in_group, player_in_period.role,
-                                   player_in_period.label, player_in_period.participant.code]
+    for final_player in session_players_last_period:
+        result = [
+            final_player.session.code,
+            final_player.id_in_group,
+            final_player.role,
+            final_player.label,
+            final_player.participant.code
+        ]
 
-                    result += [
-                        item
-                        for item in [get_player_skill(player_in_period)] + get_hiring_data(player_in_period) +
-                                    get_work_data(player_in_period)
-                    ]
-        yield result + [player.participant.payoff]
+        players_in_all_periods = final_player.in_all_rounds()
+
+        # Get all offers from the database once, to avoid too many queries
+        player_offers: List[Offer] = []
+        for player_in_period in players_in_all_periods:
+            player_offers += Offer.filter(manager=player_in_period) if player_in_period.role == "Manager" \
+                else Offer.filter(employee=player_in_period)
+
+        for player_in_period in players_in_all_periods:
+            result += [
+                item
+                for item in [get_player_skill(player_in_period)] + get_hiring_data(player_in_period, player_offers) +
+                            get_work_data(player_in_period, player_offers)
+            ]
+        
+        result += [final_player.participant.payoff]
+
+        yield result
 
 
 # Helper methods
@@ -127,11 +138,9 @@ def get_player_skill(player: Player) -> str:
     else:
         return ""
 
-def get_work_data(player: Player) -> List[str]:
-    period = player.round_number
+def get_work_data(player: Player, player_offers: List[Offer]) -> List[str]:
     config = player.session.config
-    contracts: List[Offer] = Offer.filter(manager=player, period=period, accepted=True) if player.role == "Manager" \
-        else Offer.filter(employee=player, period=period, accepted=True)
+    contracts: List[Offer] = [offer for offer in player_offers if offer.accepted and offer.period == player.round_number]
 
     if len(contracts) > 0:
         contract: Offer = contracts[0]
@@ -162,23 +171,19 @@ def get_work_data(player: Player) -> List[str]:
     else:
         return [""] * 8
 
-def get_hiring_data(player: Player) -> List[str]:
-    period = player.round_number
-    f = partial(get_hiring_data_for_period_and_step, player, period)
+def get_hiring_data(player: Player, player_offers: List[Offer]) -> List[str]:
+    f = partial(get_hiring_data_for_step, player, player_offers)
     return list(chain.from_iterable(map(f, range(1, C.HIRING_STEPS + 1))))
 
-def manager_offered_none_on_step(manager: Player, period: int, step: int) -> bool:
+def manager_offered_none_on_step(manager: Player, player_offers: List[Offer], step: int) -> bool:
     # Offered none if no offers are in current step, but they were in the previous step (if it exists).
     # There should not be an accepted contract in the previous step.
-    return (len(Offer.filter(manager=manager, period=period, step=step)) == 0 and
-            (step == 1 or
-             len(Offer.filter(manager=manager, period=period, step=step - 1)) > 0 and
-             len(Offer.filter(manager=manager, period=period, step=step - 1, accepted=True)) == 0)
-            )
+    if any(offer.accepted for offer in player_offers if offer.manager == manager and offer.period == manager.round_number):
+        return False
+    return len([offer for offer in player_offers if offer.manager == manager and offer.period == manager.round_number and offer.step == step]) == 0
 
-def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) -> List[str]:
-    offers: List[Offer] = Offer.filter(manager=player, period=period, step=step) if player.role == "Manager" else (
-        Offer.filter(employee=player, period=period, step=step))
+def get_hiring_data_for_step(player: Player, player_offers: List[Offer], step: int) -> List[str]:
+    offers: List[Offer] = [offer for offer in player_offers if offer.period == player.round_number and offer.step == step]
 
     offer_count = len(offers)
     if offer_count > 0:
@@ -206,7 +211,7 @@ def get_hiring_data_for_period_and_step(player: Player, period: int, step: int) 
         # If there is no offer in this period and step.
         # The locations of zeroes and empty values are different to managers and employees
         if player.role == "Manager":
-            return ["0" if manager_offered_none_on_step(player, period, step) else ""] + ["0"] * 3 + ["", "0"]
+            return ["0" if manager_offered_none_on_step(player, player_offers, step) else ""] + ["0"] * 3 + ["", "0"]
         else:
             return [""] * 4 + ["0", "0"]
 
