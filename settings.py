@@ -109,7 +109,12 @@ SECRET_KEY = '7341359800173'
 ROOMS = [
     dict(
         name="excenlab",
-        display_name="excenlab.txt",
+        display_name="Excenlab Room A",
+        participant_label_file="_rooms/excenlab.txt",
+    ),
+    dict(
+        name="excenlab_b",
+        display_name="Excenlab Room B",
         participant_label_file="_rooms/excenlab.txt",
     ),
     dict(name="live_demo", display_name="Room for live demo (no participant labels)"),
