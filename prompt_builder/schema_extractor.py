@@ -34,8 +34,9 @@ def extract_schema_to_markdown(db_path='db.sqlite3', output_file='database_schem
             
             # For each table, write detailed schema
             for table_tuple in tables:
-                table_name = table_tuple[0]
-                f.write(f"## {table_name}\n\n")
+                table_name = table_tuple[0]  # Keep original name for SQL queries
+                display_name = table_name.replace('_', ' ')  # Display name with spaces
+                f.write(f"## {display_name}\n\n")
                 
                 # Get column information
                 db_cursor.execute(f"PRAGMA table_info({table_name});")

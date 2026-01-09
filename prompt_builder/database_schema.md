@@ -1,7 +1,7 @@
 # Database Schema
 
 **Database:** `db.sqlite3`  
-**Generated:** 2026-01-09 17:30:57  
+**Generated:** 2026-01-09 18:33:36  
 **Total Tables:** 22
 
 ## Table of Contents
@@ -31,7 +31,7 @@
 
 ---
 
-## intro_quiz_group
+## intro quiz group
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -60,7 +60,7 @@ CREATE TABLE intro_quiz_group (
 
 ---
 
-## intro_quiz_player
+## intro quiz player
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -108,7 +108,7 @@ CREATE TABLE intro_quiz_player (
 
 ---
 
-## intro_quiz_subsession
+## intro quiz subsession
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -132,7 +132,7 @@ CREATE TABLE intro_quiz_subsession (
 
 ---
 
-## labor_market_companylabels
+## labor market companylabels
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -153,7 +153,7 @@ CREATE TABLE labor_market_companylabels (
 
 ---
 
-## labor_market_employeelabels
+## labor market employeelabels
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -174,7 +174,7 @@ CREATE TABLE labor_market_employeelabels (
 
 ---
 
-## labor_market_group
+## labor market group
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -203,7 +203,7 @@ CREATE TABLE labor_market_group (
 
 ---
 
-## labor_market_offer
+## labor market offer
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -250,7 +250,7 @@ CREATE TABLE labor_market_offer (
 
 ---
 
-## labor_market_player
+## labor market player
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -315,7 +315,7 @@ CREATE TABLE labor_market_player (
 
 ---
 
-## labor_market_subsession
+## labor market subsession
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -339,7 +339,7 @@ CREATE TABLE labor_market_subsession (
 
 ---
 
-## otree_chatmessage
+## otree chatmessage
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -369,7 +369,7 @@ CREATE TABLE otree_chatmessage (
 
 ---
 
-## otree_completedgbatwaitpage
+## otree completedgbatwaitpage
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -395,7 +395,7 @@ CREATE TABLE otree_completedgbatwaitpage (
 
 ---
 
-## otree_completedgroupwaitpage
+## otree completedgroupwaitpage
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -421,7 +421,7 @@ CREATE TABLE otree_completedgroupwaitpage (
 
 ---
 
-## otree_completedsubsessionwaitpage
+## otree completedsubsessionwaitpage
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -445,7 +445,7 @@ CREATE TABLE otree_completedsubsessionwaitpage (
 
 ---
 
-## otree_pagetimebatch
+## otree pagetimebatch
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -466,7 +466,7 @@ CREATE TABLE otree_pagetimebatch (
 
 ---
 
-## otree_participant
+## otree participant
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -551,7 +551,7 @@ CREATE TABLE otree_participant (
 
 ---
 
-## otree_participantvarsfromrest
+## otree participantvarsfromrest
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -576,7 +576,7 @@ CREATE TABLE otree_participantvarsfromrest (
 
 ---
 
-## otree_roomtosession
+## otree roomtosession
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -601,7 +601,7 @@ CREATE TABLE otree_roomtosession (
 
 ---
 
-## otree_session
+## otree session
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -660,7 +660,7 @@ CREATE TABLE otree_session (
 
 ---
 
-## otree_taskqueuemessage
+## otree taskqueuemessage
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -685,7 +685,7 @@ CREATE TABLE otree_taskqueuemessage (
 
 ---
 
-## outro_quiz_group
+## outro quiz group
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -714,7 +714,7 @@ CREATE TABLE outro_quiz_group (
 
 ---
 
-## outro_quiz_player
+## outro quiz player
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
@@ -844,7 +844,7 @@ CREATE TABLE outro_quiz_player (
 
 ---
 
-## outro_quiz_subsession
+## outro quiz subsession
 
 | Column Name | Type | Nullable | Default | Primary Key |
 |-------------|------|----------|---------|-------------|
