@@ -65,6 +65,22 @@ SESSION_CONFIGS = [
     market="heterogeneous",
     starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
 ),
+    dict(
+        name="test_intro_wrong",
+        app_sequence=["intro_quiz"],
+        num_demo_participants=12,
+        max_rounds=1,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
+    dict(
+        name="test_intro_random",
+        app_sequence=["intro_quiz"],
+        num_demo_participants=12,
+        max_rounds=1,
+        market="heterogeneous",
+        starting_skills=STARTING_SKILLS_BY_MARKET["heterogeneous"]
+    ),
 ]
 
 
