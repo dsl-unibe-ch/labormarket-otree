@@ -40,7 +40,7 @@ class PlayerBot(Bot):
         
         # Demographic Quiz - 8 questions
         demographic_fields = {
-            "demographic_quiz1": "Male",
+            "demographic_quiz1": "Female",
             "demographic_quiz2": 25,
             "demographic_quiz3": "Junior",
             "demographic_quiz4": "Computer Science",
