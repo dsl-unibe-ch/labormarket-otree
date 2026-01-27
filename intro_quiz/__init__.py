@@ -103,6 +103,44 @@ class Player(BasePlayer):
     response = models.IntegerField()
     is_correct = models.BooleanField()
 
+    # Quiz 1 responses (11 questions, True/False)
+    q1_1 = models.IntegerField(blank=True)
+    q1_2 = models.IntegerField(blank=True)
+    q1_3 = models.IntegerField(blank=True)
+    q1_4 = models.IntegerField(blank=True)
+    q1_5 = models.IntegerField(blank=True)
+    q1_6 = models.IntegerField(blank=True)
+    q1_7 = models.IntegerField(blank=True)
+    q1_8 = models.IntegerField(blank=True)
+    q1_9 = models.IntegerField(blank=True)
+    q1_10 = models.IntegerField(blank=True)
+    q1_11 = models.IntegerField(blank=True)
+    
+    # Quiz 2 responses (8 questions max, True/False)
+    q2_1 = models.IntegerField(blank=True)
+    q2_2 = models.IntegerField(blank=True)
+    q2_3 = models.IntegerField(blank=True)
+    q2_4 = models.IntegerField(blank=True)
+    q2_5 = models.IntegerField(blank=True)
+    q2_6 = models.IntegerField(blank=True)
+    q2_7 = models.IntegerField(blank=True)
+    q2_8 = models.IntegerField(blank=True)
+    
+    # Quiz 3 responses (8 questions, multiple choice)
+    q3_1 = models.IntegerField(blank=True)
+    q3_2 = models.IntegerField(blank=True)
+    q3_3 = models.IntegerField(blank=True)
+    q3_4 = models.IntegerField(blank=True)
+    q3_5 = models.IntegerField(blank=True)
+    q3_6 = models.IntegerField(blank=True)
+    q3_7 = models.IntegerField(blank=True)
+    q3_8 = models.IntegerField(blank=True)
+    
+    # Track quiz completion (optional, useful for validation)
+    quiz1_complete = models.BooleanField(initial=False)
+    quiz2_complete = models.BooleanField(initial=False)
+    quiz3_complete = models.BooleanField(initial=False)
+
 
 class Group(BaseGroup):
     """Group object for quiz"""
@@ -257,38 +295,134 @@ class Instructions10(Page):
         )
 
 class Quiz1(Page):
-    """Quiz page to test comprehension"""
-
+    """Quiz page to test comprehension - supports both JS and form submission"""
+    
+    form_model = 'player'
+    form_fields = ['q1_1', 'q1_2', 'q1_3', 'q1_4', 'q1_5', 'q1_6', 
+                   'q1_7', 'q1_8', 'q1_9', 'q1_10', 'q1_11']
+    
     @staticmethod
     def vars_for_template(player: "Player"):
         return dict(questions=get_questions(0, player))
-
+    
     @staticmethod
     def js_vars(player: "Player"):
-        return dict(questions=get_questions(0, player), answers=get_answers(0), hints=get_hints(0, player))
+        """For JavaScript-based quiz (human participants)"""
+        return dict(
+            questions=get_questions(0, player), 
+            answers=get_answers(0), 
+            hints=get_hints(0, player)
+        )
+    
+    @staticmethod
+    def error_message(player: Player, values):
+        """Validate answers for bot/form submission"""
+        correct_answers = get_answers(0)
+        errors = {}
+        
+        # Only validate if at least one field is filled (indicates form submission)
+        if any(values.get(f'q1_{i}') is not None for i in range(1, 12)):
+            for i in range(11):
+                field = f'q1_{i+1}'
+                if values.get(field) != correct_answers[i]:
+                    hints = get_hints(0, player)
+                    errors[field] = hints[i][0]  # Show incorrect hint
+        
+        return errors if errors else None
+    
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        """Mark quiz as complete"""
+        player.quiz1_complete = True
 
 
 class Quiz2(Page):
-    """Quiz page to test comprehension"""
-
+    """Quiz page to test comprehension - supports both JS and form submission"""
+    
+    @staticmethod
+    def get_form_fields(player: Player):
+        """Dynamic form fields based on role"""
+        base_fields = ['q2_1', 'q2_2', 'q2_3', 'q2_4', 'q2_5', 'q2_6', 'q2_7']
+        if player.role == "Employee":
+            base_fields.append('q2_8')
+        return base_fields
+    
+    form_model = 'player'
+    
     @staticmethod
     def vars_for_template(player: "Player"):
         return dict(questions=get_questions(1, player))
-
+    
     @staticmethod
     def js_vars(player: "Player"):
-        return dict(questions=get_questions(1, player), answers=get_answers(1), hints=get_hints(1, player))
+        """For JavaScript-based quiz (human participants)"""
+        return dict(
+            questions=get_questions(1, player), 
+            answers=get_answers(1), 
+            hints=get_hints(1, player)
+        )
+    
+    @staticmethod
+    def error_message(player: Player, values):
+        """Validate answers for bot/form submission"""
+        correct_answers = get_answers(1)
+        form_fields = Quiz2.get_form_fields(player)
+        errors = {}
+        
+        # Only validate if at least one field is filled
+        if any(values.get(field) is not None for field in form_fields):
+            for i, field in enumerate(form_fields):
+                if values.get(field) != correct_answers[i]:
+                    hints = get_hints(1, player)
+                    errors[field] = hints[i][0]
+        
+        return errors if errors else None
+    
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        """Mark quiz as complete"""
+        player.quiz2_complete = True
+
 
 class Quiz3(Page):
-    """Quiz page to test comprehension"""
-
+    """Quiz page to test comprehension - supports both JS and form submission"""
+    
+    form_model = 'player'
+    form_fields = ['q3_1', 'q3_2', 'q3_3', 'q3_4', 'q3_5', 'q3_6', 'q3_7', 'q3_8']
+    
     @staticmethod
     def vars_for_template(player: "Player"):
         return dict(questions=get_questions(2, player))
-
+    
     @staticmethod
     def js_vars(player: "Player"):
-        return dict(questions=get_questions(2, player), answers=get_answers(2), hints=get_hints(2, player))
+        """For JavaScript-based quiz (human participants)"""
+        return dict(
+            questions=get_questions(2, player), 
+            answers=get_answers(2), 
+            hints=get_hints(2, player)
+        )
+    
+    @staticmethod
+    def error_message(player: Player, values):
+        """Validate answers for bot/form submission"""
+        correct_answers = get_answers(2)
+        errors = {}
+        
+        # Only validate if at least one field is filled
+        if any(values.get(f'q3_{i}') is not None for i in range(1, 9)):
+            for i in range(8):
+                field = f'q3_{i+1}'
+                if values.get(field) != correct_answers[i]:
+                    hints = get_hints(2, player)
+                    errors[field] = hints[i][0]
+        
+        return errors if errors else None
+    
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        """Mark quiz as complete"""
+        player.quiz3_complete = True
 
 
 # pages.py
