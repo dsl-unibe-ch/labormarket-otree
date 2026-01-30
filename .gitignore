@@ -9,6 +9,7 @@ _static_root
 _bots*s
 __temp*
 __pycache__/
+_exports/
 *.py[cod]
 .DS_Store
 *.otreezip

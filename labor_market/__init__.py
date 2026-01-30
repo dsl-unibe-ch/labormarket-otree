@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import random
+import json
+import os
 from collections import defaultdict
 from functools import partial
 from itertools import chain
 from typing import Self, List, Optional, Any, Iterator
+from datetime import datetime
 
 from otree.api import *
 
@@ -221,6 +224,343 @@ def get_player_from_offer(offer: Offer, player_role: str) -> Player:
 
 def bool_to_int(b: bool) -> int:
     return 1 if b else 0
+
+def export_choose_effort_data(employee: Player):
+    """Export ChooseEffort page data to JSON for LLM consumption"""
+    # This helper captures exactly what the ChooseEffort page computes/displayed, plus
+    # the employee's actual submitted effort. The JSON files can later be read by an LLM
+    # to make decisions that mirror how a human would reason from the same inputs.
+    #
+    # Where files are saved:
+    #   _exports/choose_effort/{session}_p{player}_r{round}.json
+    #
+    # When it runs:
+    #   Called from ChooseEffort.before_next_page (i.e., after the player submits effort).
+    try:
+        config = employee.session.config
+        contract = employee.contract
+        
+        if not contract:
+            return  # Skip if no contract
+        
+        manager = contract.manager
+        skill_multiplier = config["skill_multipliers"][employee.skill - 1]
+        base_revenue = config["base_revenue"]
+        employee_endowment = config["employee_endowment"]
+        
+        # Compute payoff values shown on the page
+        # - initial_revenues: revenue at each effort level (1..10)
+        # - employer_payoff_values: what the manager would earn per effort level
+        # - employee_payoff_values: what the employee would earn per effort level
+        initial_revenues = [cu(base_revenue * skill_multiplier * effort) for effort in range(1, 11)]
+        revenue_and_payoff = [calculate_manager_revenue_and_payoff(manager.group, manager, cu(revenue),
+                                                                        contract.wage,
+                                                                        contract.training)
+                             for revenue in initial_revenues]
+        employer_payoff_values = [revenue_and_payoff_item["payoff"] for revenue_and_payoff_item in revenue_and_payoff]
+        employee_payoff_values = [calculate_employee_payoff(employee_endowment, contract.wage, -effort_cost)
+                                  for effort_cost in config["effort_costs"]]
+        
+        # Prepare export data payload
+        # Keep it flat and explicit so it is easy for an LLM to parse and compare across rounds.
+        export_data = {
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": employee.session.code,
+                "round_number": employee.round_number,
+                "total_rounds": C.NUM_ROUNDS
+            },
+            "player": {
+                "id_in_group": employee.id_in_group,
+                "role": employee.role,
+                "label": employee.label,
+                "participant_code": employee.participant.code
+            },
+            "contract": {
+                "manager_id_in_group": manager.id_in_group,
+                "manager_label": manager.label,
+                "wage": int(contract.wage),
+                "training": contract.training
+            },
+            "employee_state": {
+                "skill": employee.skill,
+                "skill_multiplier": skill_multiplier
+            },
+            "decision_data": {
+                "effort_costs": config["effort_costs"],
+                "employee_payoff_values": [int(v) for v in employee_payoff_values],
+                "employer_payoff_values": [int(v) for v in employer_payoff_values],
+                "base_revenue": base_revenue,
+                "employee_endowment": employee_endowment,
+                "effort_choice": employee.work_effort,
+                "effort_cost_for_choice": config["effort_costs"][employee.work_effort - 1]
+            }
+        }
+        
+        # Create export directory (ignored by git via .gitignore)
+        export_dir = "_exports/choose_effort"
+        os.makedirs(export_dir, exist_ok=True)
+        
+        # Save to JSON
+        filename = f"{export_dir}/{employee.session.code}_p{employee.id_in_group}_r{employee.round_number}.json"
+        with open(filename, 'w') as f:
+            json.dump(export_data, f, indent=2)
+        
+        print(f"ChooseEffort data exported to {filename}")
+    except Exception as e:
+        print(f"Error exporting ChooseEffort data: {e}")
+
+def export_get_offers_data(employee: Player, open_offers: List[Offer]):
+    """Export GetOffers page data to JSON for LLM consumption"""
+    # This helper captures all open offers the employee sees in the GetOffers page
+    # along with the player's choice (manager ID or 0). This lets an LLM replay
+    # the same decision step later.
+    #
+    # Where files are saved:
+    #   _exports/get_offers/{session}_p{player}_r{round}.json
+    #
+    # When it runs:
+    #   Called from GetOffers.before_next_page with a snapshot of open offers
+    #   BEFORE they are marked rejected.
+    try:
+        export_data = {
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": employee.session.code,
+                "round_number": employee.round_number,
+                "total_rounds": C.NUM_ROUNDS
+            },
+            "player": {
+                "id_in_group": employee.id_in_group,
+                "role": employee.role,
+                "label": employee.label,
+                "participant_code": employee.participant.code
+            },
+            "decision_data": {
+                "offer_count": len(open_offers),
+                "offers": [
+                    {
+                        "manager_id_in_group": offer.manager.id_in_group,
+                        "manager_label": offer.manager.label,
+                        "wage": int(offer.wage),
+                        "training": offer.training,
+                        "period": offer.period,
+                        "step": offer.step
+                    }
+                    for offer in open_offers
+                ],
+                "choice_manager_id": employee.player_matched
+            }
+        }
+
+        # Create export directory (ignored by git via .gitignore)
+        export_dir = "_exports/get_offers"
+        os.makedirs(export_dir, exist_ok=True)
+        filename = f"{export_dir}/{employee.session.code}_p{employee.id_in_group}_r{employee.round_number}.json"
+        with open(filename, "w") as f:
+            json.dump(export_data, f, indent=2)
+
+        print(f"GetOffers data exported to {filename}")
+    except Exception as e:
+        print(f"Error exporting GetOffers data: {e}")
+
+def export_make_offer_data(manager: Player):
+    """Export MakeOffer page data to JSON for LLM consumption"""
+    # This helper captures the manager's offer decision plus the employee pool
+    # visible on MakeOffer (eligible vs ineligible and whether they rejected before).
+    #
+    # Where files are saved:
+    #   _exports/make_offer/{session}_p{player}_r{round}.json
+    #
+    # When it runs:
+    #   Called from MakeOffer.before_next_page after processing the manager's choice.
+    try:
+        employee_pool = [
+            {
+                "employee_id_in_group": employee.id_in_group,
+                "employee_label": employee.label,
+                "rejected": employee.rejected_from(manager),
+                "eligible": employee.choice_id(manager) >= 0,
+                "choice_id": employee.choice_id(manager)
+            }
+            for employee in manager.group.employees
+        ]
+
+        export_data = {
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": manager.session.code,
+                "round_number": manager.round_number,
+                "total_rounds": C.NUM_ROUNDS
+            },
+            "player": {
+                "id_in_group": manager.id_in_group,
+                "role": manager.role,
+                "label": manager.label,
+                "participant_code": manager.participant.code
+            },
+            "decision_data": {
+                "offer_employee": manager.offer_employee,
+                "offer_wage": int(manager.offer_wage) if manager.offer_wage is not None else None,
+                "offer_training": bool(manager.offer_training),
+                "offer_none": bool(manager.offer_none),
+                "employee_pool": employee_pool
+            }
+        }
+
+        export_dir = "_exports/make_offer"
+        os.makedirs(export_dir, exist_ok=True)
+        filename = f"{export_dir}/{manager.session.code}_p{manager.id_in_group}_r{manager.round_number}.json"
+        with open(filename, "w") as f:
+            json.dump(export_data, f, indent=2)
+
+        print(f"MakeOffer data exported to {filename}")
+    except Exception as e:
+        print(f"Error exporting MakeOffer data: {e}")
+
+def export_match_summary_data(player: Player):
+    """Export MatchSummary page data to JSON for LLM consumption"""
+    # This helper captures whether a contract exists and the key terms shown
+    # on the MatchSummary page. It is useful for tracing the flow into the work phase.
+    #
+    # Where files are saved:
+    #   _exports/match_summary/{session}_p{player}_r{round}.json
+    #
+    # When it runs:
+    #   Called from MatchSummary.before_next_page when the player advances.
+    try:
+        contract = player.field_maybe_none("contract")
+
+        export_data = {
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": player.session.code,
+                "round_number": player.round_number,
+                "total_rounds": C.NUM_ROUNDS
+            },
+            "player": {
+                "id_in_group": player.id_in_group,
+                "role": player.role,
+                "label": player.label,
+                "participant_code": player.participant.code
+            },
+            "summary": {
+                "has_contract": bool(contract),
+                "partner_id_in_group": None,
+                "partner_label": None,
+                "wage": None,
+                "training": None
+            }
+        }
+
+        if contract:
+            if player.role == "Manager":
+                partner = contract.employee
+            else:
+                partner = contract.manager
+
+            export_data["summary"].update({
+                "partner_id_in_group": partner.id_in_group,
+                "partner_label": partner.label,
+                "wage": int(contract.wage),
+                "training": bool(contract.training)
+            })
+
+        export_dir = "_exports/match_summary"
+        os.makedirs(export_dir, exist_ok=True)
+        filename = f"{export_dir}/{player.session.code}_p{player.id_in_group}_r{player.round_number}.json"
+        with open(filename, "w") as f:
+            json.dump(export_data, f, indent=2)
+
+        print(f"MatchSummary data exported to {filename}")
+    except Exception as e:
+        print(f"Error exporting MatchSummary data: {e}")
+
+def export_period_results_data(player: Player):
+    """Export PeriodResults page data to JSON for LLM consumption"""
+    # This helper exports the same payoff-related values that PeriodResults displays.
+    #
+    # Where files are saved:
+    #   _exports/period_results/{session}_p{player}_r{round}.json
+    #
+    # When it runs:
+    #   Called from PeriodResults.before_next_page.
+    try:
+        group = player.group
+        session = group.session
+        config = session.config
+        manager_endowment = config["manager_endowment"]
+        employee_endowment = config["employee_endowment"]
+        skill_multipliers = config["skill_multipliers"]
+        training_productivity_multiplier = config["training_productivity_multiplier"]
+
+        if player.field_maybe_none("contract"):
+            contract = player.contract
+            skill = contract.employee.skill
+            new_skill = min(skill + 1, len(skill_multipliers)) if contract.employee.skill_increase else skill
+            skill_multiplier = skill_multipliers[skill - 1]
+            new_skill_multiplier = skill_multipliers[new_skill - 1]
+            base_revenue = player.session.config["base_revenue"]
+            revenue = cu(base_revenue * skill_multiplier * contract.employee.work_effort)
+            wage = contract.wage if contract else 0
+            has_training = contract.training
+            effort_cost = player.session.config["effort_costs"][contract.employee.work_effort - 1]
+        else:
+            skill = 0 if player.role == "Manager" else player.skill
+            new_skill = skill
+            skill_multiplier = 0 if player.role == "Manager" else skill_multipliers[skill - 1]
+            new_skill_multiplier = skill_multiplier
+            revenue = cu(0)
+            wage = 0
+            has_training = False
+            effort_cost = 0
+
+        productivity_reduction = round(revenue * training_productivity_multiplier) if has_training else 0
+        direct_training_cost = config["training_cost"] if has_training else 0
+        revenue_and_payoff = calculate_manager_revenue_and_payoff(group, player, revenue, wage, has_training)
+
+        export_data = {
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": player.session.code,
+                "round_number": player.round_number,
+                "total_rounds": C.NUM_ROUNDS
+            },
+            "player": {
+                "id_in_group": player.id_in_group,
+                "role": player.role,
+                "label": player.label,
+                "participant_code": player.participant.code
+            },
+            "results": {
+                "skill": int(skill),
+                "new_skill": int(new_skill),
+                "skill_multiplier": int(skill_multiplier),
+                "new_skill_multiplier": int(new_skill_multiplier),
+                "revenue": int(revenue),
+                "productivity_reduction": int(productivity_reduction),
+                "direct_training_cost": int(direct_training_cost),
+                "effort_cost": int(effort_cost),
+                "wage": int(wage),
+                "manager_endowment": int(manager_endowment),
+                "employee_endowment": int(employee_endowment),
+                "has_training": bool(has_training),
+                "revenue_and_payoff": {
+                    "payoff": int(revenue_and_payoff["payoff"]),
+                    "revenue": int(revenue_and_payoff["revenue"])
+                }
+            }
+        }
+
+        export_dir = "_exports/period_results"
+        os.makedirs(export_dir, exist_ok=True)
+        filename = f"{export_dir}/{player.session.code}_p{player.id_in_group}_r{player.round_number}.json"
+        with open(filename, "w") as f:
+            json.dump(export_data, f, indent=2)
+
+        print(f"PeriodResults data exported to {filename}")
+    except Exception as e:
+        print(f"Error exporting PeriodResults data: {e}")
 
 def calculate_manager_revenue_and_payoff(group: Group, player: BasePlayer, revenue: cu | int, wage: int,
                                          has_training: bool) -> dict[str, cu | int]:
@@ -579,6 +919,9 @@ class MakeOffer(Page):
             else:
                 manager.offer_none = True
 
+        # Export decision data to JSON after processing the offer
+        export_make_offer_data(manager)
+
 class WaitForOffers(WaitPage):
     """Wait for offers page"""
     @staticmethod
@@ -618,6 +961,9 @@ class GetOffers(Page):
     # Accept an offer (if any accepted), mark others rejected
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
+        # Snapshot the current open offers so we can export exactly what the player saw
+        # before any offers are accepted/rejected.
+        open_offers_snapshot = Offer.filter(employee=employee, accepted=False, rejected=False)
         if timeout_happened:
             print(f"Timeout for Worker {employee.id_in_group}, not accepting any offers")
         elif employee.player_matched > 0:
@@ -635,6 +981,9 @@ class GetOffers(Page):
         open_offers = Offer.filter(employee=employee, accepted=False, rejected=False)
         for offer in open_offers:
             offer.rejected = True
+
+        # Export decision data to JSON after processing accept/reject
+        export_get_offers_data(employee, open_offers_snapshot)
 
 
 class MatchSummary(Page):
@@ -692,6 +1041,11 @@ class MatchSummary(Page):
             "offers": player.offer_history,
             "future_periods": range(player.round_number, C.NUM_ROUNDS + 1)
         }
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        # Export summary data when the player proceeds
+        export_match_summary_data(player)
 
 class WaitForAcceptance(WaitPage):
     """Wait for acceptance page; shown to Managers without a match or Employees without a valid offer."""
@@ -777,6 +1131,9 @@ class ChooseEffort(Page):
             employee.work_effort = 1
         # Record effort spent in the Offer table
         employee.contract.effort = employee.work_effort
+
+        # Export decision data to JSON (after effort is recorded)
+        export_choose_effort_data(employee)
 
 class WaitForEffort(WaitPage):
     """Wait page until everyone finishes Work phase"""
@@ -894,6 +1251,9 @@ class PeriodResults(Page):
     def before_next_page(player, timeout_happened):
         if timeout_happened:
             print(f"Timeout for Player {player.id_in_group}.")
+
+        # Export period results after they are shown
+        export_period_results_data(player)
 
         if player.round_number == C.NUM_ROUNDS:
             player.participant.vars["labor_dump"] = {
