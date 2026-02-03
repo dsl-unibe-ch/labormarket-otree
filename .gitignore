@@ -12,3 +12,15 @@ __pycache__/
 *.py[cod]
 .DS_Store
 *.otreezip
+.vscode/
+
+# Prompt builder outputs
+prompt_builder/database_schema.md
+prompt_builder/instructions/instructions_concat.txt  
+prompt_builder/session_data/
+
+# LLM agent outputs
+agent/moves_data/
+
+# Environment variables
+.env
