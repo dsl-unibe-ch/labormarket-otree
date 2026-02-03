@@ -12,7 +12,6 @@ An oTree experiment for studying decision-making in organizational labor market 
 4. Install Make (Windows: `choco install make` or `winget install GnuWin32.Make`; macOS: `brew install make`)
 5. Create a `.env` file by following the examples set in `.env.example`. For OpenAI keys, use DSL account to procure one and monitor your usage.
 6. Start oTree server `otree devserver`
-7. To run tests with bot, use `make test-all` 
 
 ### 2. Available Make Commands
 
@@ -25,3 +24,10 @@ make test-outro           # Run outro quiz tests
 make test-all             # Run all tests
 make help                 # Show available targets
 ```
+
+### Description of the Test Bot setup
+
+The `labor_market/tests.py` outlines the test process as played by a bot. For steps such as `Get_Offers, Make_Offers and Choose_Effort`, we extract the state variables and build a prompt by reading the instructions from the corresponding `html` templates. To run tests with bot, use 
+```bash
+make test-all
+``` 
