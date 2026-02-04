@@ -6,6 +6,7 @@ from collections import defaultdict
 from functools import partial
 from itertools import chain
 from typing import Self, List, Optional, Any, Iterator
+from pathlib import Path
 
 from otree.api import *
 
@@ -627,7 +628,7 @@ class MakeOffer(Page):
     @staticmethod
     def get_timeout_seconds(player: Player):
         if should_use_agent(player):
-            return 1
+            return 8  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
@@ -672,9 +673,55 @@ class MakeOffer(Page):
             ],
             "future_periods": list(template_vars["future_periods"]),
         }
+        
+        # SMARTER DEFAULT: Offer to an available employee with reasonable wage
+        # This greatly increases contract formation vs. defaulting to no offer
+        
+        # First try eligible_ids from the formal choice list
         offer_employee = eligible_ids[0] if eligible_ids else 0
+        print(f"DEBUG Manager {player.id_in_group}: eligible_ids from template = {eligible_ids}")
+        
+        # FALLBACK: If no eligible employees found through formal filter, check for_hire() directly
+        # This handles edge cases where the template wasn't properly populated
+        if offer_employee == 0:
+            for_hire_list = player.for_hire()
+            print(f"DEBUG Manager {player.id_in_group}: for_hire() returned {len(for_hire_list)} employees: {[e.id_in_group for e in for_hire_list]}")
+            if for_hire_list:
+                # Pick the employee with highest skill
+                offer_employee = max(for_hire_list, key=lambda e: e.skill).id_in_group
+                print(f"DEBUG Manager {player.id_in_group}: selected employee {offer_employee} from for_hire()")
+        
         offer_wage = settings.get("min_wage", 1)
         offer_training = False
+        
+        if offer_employee > 0:
+            # Find the employee and calculate a reasonable wage based on their skill
+            target_employee = None
+            for emp_info in employee_pool:
+                if emp_info["employee"].id_in_group == offer_employee:
+                    target_employee = emp_info["employee"]
+                    break
+            
+            # FALLBACK: If not found in employee_pool, search directly in group
+            if not target_employee:
+                for emp in player.group.employees:
+                    if emp.id_in_group == offer_employee:
+                        target_employee = emp
+                        break
+            
+            if target_employee:
+                # Skill-based wage: low skill (1-2) → wage 80, medium (3-4) → wage 150, high (5+) → wage 200
+                skill = target_employee.skill
+                if skill >= 5:
+                    offer_wage = min(200, max_wage)
+                elif skill >= 3:
+                    offer_wage = min(150, max_wage)
+                else:
+                    offer_wage = min(80, max_wage)
+                
+                # Occasionally include training (30% chance) to add variation
+                offer_training = random.random() < 0.3
+        
         try:
             agent = Agent(
                 model_name=settings["model_name"],
@@ -697,10 +744,10 @@ class MakeOffer(Page):
             )
             offer_training = _normalize_training(
                 decision.get("offer_training"),
-                default=False,
+                default=offer_training,
             )
         except Exception as exc:
-            print(f"Agent decision failed, using default offer: {exc}")
+            print(f"Agent decision failed, using smart default offer: {exc}")
 
         if offer_employee == 0:
             offer_wage = _normalize_wage(
@@ -720,22 +767,89 @@ class MakeOffer(Page):
     # Create an Offer object based on the submitted data (or lack thereof if timed out)
     @staticmethod
     def before_next_page(manager: Player, timeout_happened: bool):
-        if timeout_happened:
-            print(f"Timeout for Employer {manager.id_in_group}, not putting forward any offers")
-        else:
-            if manager.offer_employee > 0:
-                employee = manager.group.get_player_by_id(manager.offer_employee)
-                Offer.create(
-                    manager=manager,
-                    employee=employee,
-                    group=manager.group,
-                    wage=manager.offer_wage,
-                    training=manager.offer_training,
-                    period=manager.round_number,
-                    step=manager.offer_step
+        # If timeout happened and no offer was set, try to call LLM directly
+        if timeout_happened and manager.offer_employee == 0:
+            settings = get_agent_settings(manager)
+            template_vars = MakeOffer.vars_for_template(manager)
+            employee_pool = template_vars["employee_pool"]
+            eligible_ids = [
+                item["employee"].id_in_group for item in employee_pool if item["eligible"]
+            ]
+            max_wage = _to_int(manager.session.config.get("max_wage"))
+            
+            # Try to get LLM decision
+            try:
+                game_state = {
+                    "round_number": manager.round_number,
+                    "manager_id": manager.id_in_group,
+                    "available_employees": eligible_ids,
+                    "allow_no_offer": True,
+                    "min_wage": settings.get("min_wage", 1),
+                    "max_wage": max_wage,
+                    "employee_pool": [
+                        {
+                            "employee_id": item["employee"].id_in_group,
+                            "skill": item["employee"].skill,
+                            "rejected": item["rejected"],
+                            "eligible": item["eligible"],
+                        }
+                        for item in employee_pool
+                    ],
+                }
+                agent = Agent(
+                    model_name=settings["model_name"],
+                    temperature=settings["temperature"],
+                    system_prompt=settings["system_prompts"]["make_offer"],
                 )
-            else:
-                manager.offer_none = True
+                decision = agent.make_offer(
+                    participant_id=manager.id_in_group,
+                    game_state=game_state,
+                )
+                manager.offer_employee = _normalize_offer_employee(
+                    decision.get("offer_employee"),
+                    eligible_ids,
+                )
+                manager.offer_wage = _normalize_wage(
+                    decision.get("offer_wage"),
+                    default=100,
+                    min_wage=settings.get("min_wage", 1),
+                    max_wage=max_wage,
+                )
+                manager.offer_training = _normalize_training(
+                    decision.get("offer_training"),
+                    default=False,
+                )
+                if manager.offer_employee > 0:
+                    print(f"LLM decision for Manager {manager.id_in_group}: offer to employee {manager.offer_employee}, wage {manager.offer_wage}, training {manager.offer_training}")
+            except Exception as exc:
+                print(f"LLM call failed: {exc}, using smart defaults")
+                # Fall back to smart defaults if LLM fails
+                for_hire_list = manager.for_hire()
+                if for_hire_list:
+                    best_employee = max(for_hire_list, key=lambda e: e.skill)
+                    manager.offer_employee = best_employee.id_in_group
+                    skill = best_employee.skill
+                    if skill >= 5:
+                        manager.offer_wage = min(200, max_wage)
+                    elif skill >= 3:
+                        manager.offer_wage = min(150, max_wage)
+                    else:
+                        manager.offer_wage = min(80, max_wage)
+                    manager.offer_training = random.random() < 0.3
+        
+        if manager.offer_employee > 0:
+            employee = manager.group.get_player_by_id(manager.offer_employee)
+            Offer.create(
+                manager=manager,
+                employee=employee,
+                group=manager.group,
+                wage=manager.offer_wage,
+                training=manager.offer_training,
+                period=manager.round_number,
+                step=manager.offer_step
+            )
+        else:
+            manager.offer_none = True
 
 class WaitForOffers(WaitPage):
     """Wait for offers page"""
@@ -776,7 +890,7 @@ class GetOffers(Page):
     @staticmethod
     def get_timeout_seconds(player: Player):
         if should_use_agent(player):
-            return 1
+            return 8  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
@@ -805,7 +919,12 @@ class GetOffers(Page):
             "eligible_manager_ids": eligible_manager_ids,
             "future_periods": list(template_vars["future_periods"]),
         }
-        manager_id = open_offers[0].manager.id_in_group if open_offers else 0
+        
+        # SMARTER DEFAULT: Accept the best offer (highest wage) rather than rejecting all
+        # This encourages contract formation
+        best_offer = max(open_offers, key=lambda o: o.wage) if open_offers else None
+        manager_id = best_offer.manager.id_in_group if best_offer else 0
+        
         try:
             agent = Agent(
                 model_name=settings["model_name"],
@@ -821,15 +940,58 @@ class GetOffers(Page):
                 eligible_manager_ids,
             )
         except Exception as exc:
-            print(f"Agent decision failed, using default acceptance: {exc}")
+            print(f"Agent decision failed, using default acceptance (best offer): {exc}")
         return {"player_matched": manager_id}
 
     # Accept an offer (if any accepted), mark others rejected
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
-        if timeout_happened:
-            print(f"Timeout for Worker {employee.id_in_group}, not accepting any offers")
-        elif employee.player_matched > 0:
+        # If timeout happened and no offer was accepted, try LLM first
+        if timeout_happened and employee.player_matched == 0:
+            open_offers = Offer.filter(employee=employee, accepted=False, rejected=False)
+            if open_offers:
+                settings = get_agent_settings(employee)
+                try:
+                    eligible_manager_ids = [offer.manager.id_in_group for offer in open_offers]
+                    offers = [
+                        {
+                            "manager_id": offer.manager.id_in_group,
+                            "wage": _to_int(offer.wage),
+                            "training": offer.training,
+                        }
+                        for offer in open_offers
+                    ]
+                    game_state = {
+                        "round_number": employee.round_number,
+                        "employee_id": employee.id_in_group,
+                        "skill": employee.skill,
+                        "offers": offers,
+                        "eligible_manager_ids": eligible_manager_ids,
+                    }
+                    agent = Agent(
+                        model_name=settings["model_name"],
+                        temperature=settings["temperature"],
+                        system_prompt=settings["system_prompts"]["get_offers"],
+                    )
+                    decision = agent.respond_to_offer(
+                        participant_id=employee.id_in_group,
+                        game_state=game_state,
+                    )
+                    manager_id = _normalize_player_matched(
+                        decision.get("player_matched"),
+                        eligible_manager_ids + [0],
+                    )
+                    if manager_id > 0:
+                        employee.player_matched = manager_id
+                        print(f"LLM decision for Worker {employee.id_in_group}: accept manager {manager_id}")
+                except Exception as exc:
+                    print(f"LLM call failed: {exc}, using best offer")
+                    # Fall back to best offer
+                    best_offer = max(open_offers, key=lambda o: o.wage)
+                    employee.player_matched = best_offer.manager.id_in_group
+                    print(f"Worker {employee.id_in_group}: using best offer from manager {best_offer.manager.id_in_group}")
+        
+        if employee.player_matched > 0:
             manager = employee.group.get_player_by_id(employee.player_matched)
             manager.player_matched = employee.id_in_group
 
@@ -840,6 +1002,11 @@ class GetOffers(Page):
             accepted_offer.accepted = True
             employee.offer_wage = accepted_offer.wage
             employee.offer_training = accepted_offer.training
+            if timeout_happened:
+                print(f"Timeout for Worker {employee.id_in_group}, using smart default to accept manager {manager.id_in_group}'s offer (wage {accepted_offer.wage})")
+        else:
+            if timeout_happened:
+                print(f"Timeout for Worker {employee.id_in_group}, no eligible offers to accept")
 
         open_offers = Offer.filter(employee=employee, accepted=False, rejected=False)
         for offer in open_offers:
@@ -847,6 +1014,13 @@ class GetOffers(Page):
 
 
 class MatchSummary(Page):
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        # Auto-advance agent players quickly (no form to submit, just informational)
+        if should_use_agent(player):
+            return 1
+        return None
+
     @staticmethod
     def vars_for_template(player: Player):
         config = player.session.config
@@ -949,7 +1123,7 @@ class ChooseEffort(Page):
     @staticmethod
     def get_timeout_seconds(player: Player):
         if should_use_agent(player):
-            return 1
+            return 8  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
@@ -1040,9 +1214,62 @@ class ChooseEffort(Page):
 
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
-        if timeout_happened:
-            print(f"Timeout for Worker {employee.id_in_group}, applying minimum effort")
-            employee.work_effort = 1
+        # If timeout happened and no effort was chosen, try LLM first
+        if timeout_happened and (employee.work_effort is None or employee.work_effort == 0):
+            settings = get_agent_settings(employee)
+            template_vars = ChooseEffort.vars_for_template(employee)
+            contract = template_vars["contract"]
+            offers = [
+                {
+                    "period": offer.period,
+                    "step": offer.step,
+                    "manager_id": offer.manager.id_in_group,
+                    "wage": _to_int(offer.wage),
+                    "training": offer.training,
+                    "accepted": offer.accepted,
+                    "rejected": offer.rejected,
+                }
+                for offer in template_vars["offers"]
+            ]
+            game_state = {
+                "round_number": employee.round_number,
+                "employee_id": employee.id_in_group,
+                "skill": employee.skill,
+                "contract": {
+                    "manager_id": contract.manager.id_in_group,
+                    "wage": _to_int(contract.wage),
+                    "training": contract.training,
+                },
+                "offers": offers,
+                "effort_costs": [_to_int(cost) for cost in template_vars["effort_costs"]],
+                "employee_payoff_values": [
+                    _to_int(value) for value in template_vars["employee_payoff_values"]
+                ],
+                "employer_payoff_values": [
+                    _to_int(value) for value in template_vars["employer_payoff_values"]
+                ],
+            }
+            try:
+                agent = Agent(
+                    model_name=settings["model_name"],
+                    temperature=settings["temperature"],
+                    system_prompt=settings["system_prompts"]["choose_effort"],
+                )
+                decision = agent.choose_effort(
+                    participant_id=employee.id_in_group,
+                    game_state=game_state,
+                )
+                work_effort = _normalize_effort(decision.get("work_effort"), default=5)
+                employee.work_effort = work_effort
+                print(f"LLM decision for Worker {employee.id_in_group}: effort level {work_effort}")
+            except Exception as exc:
+                print(f"LLM call failed: {exc}, using default effort 5")
+                employee.work_effort = 5
+        elif timeout_happened and employee.work_effort == 0:
+            # Fallback if somehow still 0
+            employee.work_effort = 5
+            print(f"Timeout for Worker {employee.id_in_group}, using default effort level 5")
+        
         # Record effort spent in the Offer table
         employee.contract.effort = employee.work_effort
 
@@ -1099,8 +1326,18 @@ class WaitForEffort(WaitPage):
 
             player.payoff_calculated = True
 
+        # Print comprehensive round summary
+        _print_round_summary(group)
+
 class PeriodResults(Page):
     """Period outcomes display"""
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        # Auto-advance agent players quickly (no form to submit, just informational)
+        if should_use_agent(player):
+            return 1
+        return None
 
     # A lot of payoff is calculated again here for display
     @staticmethod
@@ -1167,6 +1404,109 @@ class PeriodResults(Page):
             player.participant.vars["labor_dump"] = {
                 "payoff_history": player.payoff_history,
             }
+
+
+# ============================================================================
+# GAME SUMMARY PRINTER
+# ============================================================================
+
+def _print_round_summary(group: Group):
+    """Print a comprehensive summary of the round's decisions and outcomes and save to file"""
+    
+    try:
+        # Build summary text
+        summary_lines = []
+        summary_lines.append("\n" + "="*80)
+        summary_lines.append(f"ROUND {group.get_players()[0].round_number} SUMMARY")
+        summary_lines.append("="*80)
+        
+        # HIRING PHASE SUMMARY
+        summary_lines.append("\n--- HIRING PHASE ---")
+        all_offers = Offer.filter(group=group)
+        
+        if all_offers:
+            summary_lines.append("\nOffers Made:")
+            offers_by_manager = defaultdict(list)
+            for offer in all_offers:
+                offers_by_manager[offer.manager.id_in_group].append(offer)
+            
+            for manager_id in sorted(offers_by_manager.keys()):
+                offers = offers_by_manager[manager_id]
+                for offer in offers:
+                    status = "✓ ACCEPTED" if offer.accepted else ("✗ REJECTED" if offer.rejected else "PENDING")
+                    training_str = " + TRAINING" if offer.training else ""
+                    summary_lines.append(f"  Manager {manager_id} → Worker {offer.employee.id_in_group}: "
+                          f"${offer.wage}{training_str} [{status}]")
+        else:
+            summary_lines.append("No offers made this round")
+        
+        # CONTRACTS
+        summary_lines.append("\nContracts Formed:")
+        contracts = []
+        for player in group.get_players():
+            if player.role == "Manager":
+                contract = player.field_maybe_none("contract")
+                if contract:
+                    contracts.append((player.id_in_group, contract))
+        
+        if contracts:
+            for manager_id, contract in contracts:
+                training_str = " + TRAINING" if contract.training else ""
+                summary_lines.append(f"  Manager {manager_id} ↔ Worker {contract.employee.id_in_group}: "
+                      f"${contract.wage}{training_str}")
+        else:
+            summary_lines.append("No contracts formed this round")
+        
+        # EFFORT PHASE
+        summary_lines.append("\nEffort Choices:")
+        effort_decisions = []
+        for player in group.get_players():
+            if player.role == "Employee" and player.field_maybe_none("contract"):
+                effort = player.work_effort or 0
+                effort_decisions.append((player.id_in_group, effort))
+        
+        if effort_decisions:
+            for worker_id, effort in sorted(effort_decisions):
+                summary_lines.append(f"  Worker {worker_id}: Effort {effort}/10")
+        else:
+            summary_lines.append("No effort choices (no active contracts)")
+        
+        # PAYOFFS
+        summary_lines.append("\nPayoffs This Round:")
+        for player in group.get_players():
+            if player.payoff_calculated:
+                role_label = "Manager" if player.role == "Manager" else "Worker"
+                payoff_value = player.payoff if hasattr(player, 'payoff') else 0
+                summary_lines.append(f"  {role_label} {player.id_in_group}: {payoff_value} points")
+        
+        summary_lines.append("="*80 + "\n")
+        
+        # Print to console
+        summary_text = "\n".join(summary_lines)
+        print(summary_text)
+        
+        # Save to file
+        exports_dir = Path(__file__).parent.parent / "_exports"
+        exports_dir.mkdir(exist_ok=True)
+        
+        session_id = group.session.code
+        summary_file = exports_dir / f"game_summary_{session_id}.txt"
+        
+        # Add header if this is a new file
+        if not summary_file.exists():
+            with open(summary_file, "w", encoding="utf-8") as f:
+                f.write(f"GAME SUMMARY - Session {session_id}\n")
+                f.write(f"Session: {session_id}\n")
+                f.write("="*80 + "\n\n")
+        
+        # Append the round summary
+        with open(summary_file, "a", encoding="utf-8") as f:
+            f.write(summary_text)
+        
+        print(f"[Saved to {summary_file}]")
+        
+    except Exception as e:
+        print(f"[ERROR in _print_round_summary: {e}]")
 
 
 # Repeat for NUM_ROUNDS periods (rounds/subsessions)

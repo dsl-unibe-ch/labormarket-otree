@@ -10,8 +10,9 @@ from dotenv import load_dotenv
 # Add parent directory to path to import prompt_builder
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-
-load_dotenv()
+# Load .env from project root (agent/ is in project root)
+project_root = Path(__file__).parent.parent
+load_dotenv(dotenv_path=project_root / ".env")
 
 
 # Configure logging
