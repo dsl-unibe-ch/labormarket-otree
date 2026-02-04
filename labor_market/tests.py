@@ -4,11 +4,7 @@ Bot tests for labor_market app
 
 from otree.api import Bot, Submission
 from agent.agent import Agent
-from agent.prompts import (
-    system_prompt_choose_effort,
-    system_prompt_make_offer,
-    system_prompt_get_offers,
-)
+from agent.config import get_agent_settings
 from . import (
     MakeOffer, GetOffers,
     MatchSummary, ChooseEffort, PeriodResults
@@ -144,8 +140,11 @@ class PlayerBot(Bot):
                     offer_wage = 100
                     offer_training = False
                     try:
+                        agent_settings = get_agent_settings(self.player)
                         agent = Agent(
-                            system_prompt=system_prompt_make_offer,
+                            model_name=agent_settings["model_name"],
+                            temperature=agent_settings["temperature"],
+                            system_prompt=agent_settings["system_prompts"]["make_offer"],
                         )
                         decision = agent.make_offer(
                             participant_id=self.player.id_in_group,
@@ -230,10 +229,11 @@ class PlayerBot(Bot):
                     }
                     manager_id = open_offers[0].manager.id_in_group
                     try:
+                        agent_settings = get_agent_settings(self.player)
                         agent = Agent(
-                            model_name="gpt-4o-mini",
-                            temperature=0.2,
-                            system_prompt=system_prompt_get_offers,
+                            model_name=agent_settings["model_name"],
+                            temperature=agent_settings["temperature"],
+                            system_prompt=agent_settings["system_prompts"]["get_offers"],
                         )
                         decision = agent.respond_to_offer(
                             participant_id=self.player.id_in_group,
@@ -297,7 +297,12 @@ class PlayerBot(Bot):
            
             work_effort = 5
             try:
-                agent = Agent(system_prompt=system_prompt_choose_effort)
+                agent_settings = get_agent_settings(self.player)
+                agent = Agent(
+                    model_name=agent_settings["model_name"],
+                    temperature=agent_settings["temperature"],
+                    system_prompt=agent_settings["system_prompts"]["choose_effort"],
+                )
                 decision = agent.choose_effort(
                     participant_id=self.player.id_in_group,
                     game_state=game_state,

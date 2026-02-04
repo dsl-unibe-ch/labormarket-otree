@@ -6,6 +6,7 @@ from otree.api import *
 from otree.currency import RealWorldCurrency
 
 from intro_quiz.quiz import *
+from agent.config import should_use_agent
 
 # Constants
 
@@ -173,6 +174,12 @@ class Consent(Page):
             participation_fee = RealWorldCurrency(session.config["participation_fee"])
         )
 
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
 
 class Instructions1(Page):
     """Intro page with instructions"""
@@ -186,6 +193,12 @@ class Instructions1(Page):
             participation_fee=RealWorldCurrency(session.config["participation_fee"])
         )
 
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
 
 class Instructions2(Page):
     """Intro page with instructions"""
@@ -198,8 +211,20 @@ class Instructions2(Page):
             max_wage=session.config["max_wage"]
         )
 
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
 class Instructions3(Page):
     """Intro page with instructions"""
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 
 class Instructions4(Page):
@@ -219,6 +244,12 @@ class Instructions4(Page):
                     f"only raises productivity from {skill_multipliers[4]} to {skill_multipliers[5]} "
                     f"(an increase of {skill_multipliers[5] - skill_multipliers[4]})."
         )
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 
 class Instructions5(Page):
@@ -252,9 +283,21 @@ class Instructions5(Page):
                     if player.role == "Employee" else None
         )
 
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
 
 class Instructions6(Page):
     """Intro page with instructions"""
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 class Instructions7(Page):
     """Intro page with instructions"""
@@ -263,6 +306,12 @@ class Instructions7(Page):
     def vars_for_template(player):
         """Providing variables for template"""
         return dict(employee_endowment=player.session.config["employee_endowment"])
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 class Instructions8(Page):
     """Intro page with instructions"""
@@ -277,8 +326,20 @@ class Instructions8(Page):
             participation_fee = RealWorldCurrency(session.config["participation_fee"])
         )
 
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
 class Instructions9(Page):
     """Intro page with instructions"""
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 class Instructions10(Page):
     """Intro page with instructions"""
@@ -293,6 +354,12 @@ class Instructions10(Page):
             manager_endowment=session.config["manager_endowment"],
             training_cost=session.config["training_cost"],
         )
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
 
 class Quiz1(Page):
     """Quiz page to test comprehension - supports both JS and form submission"""
@@ -329,6 +396,19 @@ class Quiz1(Page):
                     errors[field] = hints[i][0]  # Show incorrect hint
         
         return errors if errors else None
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
+    @staticmethod
+    def get_timeout_submission(player: Player):
+        if not should_use_agent(player):
+            return {}
+        answers = get_answers(0)
+        return {f"q1_{i + 1}": answers[i] for i in range(len(answers))}
     
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -377,6 +457,20 @@ class Quiz2(Page):
                     errors[field] = hints[i][0]
         
         return errors if errors else None
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
+    @staticmethod
+    def get_timeout_submission(player: Player):
+        if not should_use_agent(player):
+            return {}
+        form_fields = Quiz2.get_form_fields(player)
+        answers = get_answers(1)
+        return {field: answers[i] for i, field in enumerate(form_fields)}
     
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -418,6 +512,19 @@ class Quiz3(Page):
                     errors[field] = hints[i][0]
         
         return errors if errors else None
+
+    @staticmethod
+    def get_timeout_seconds(player: Player):
+        if should_use_agent(player):
+            return 1
+        return None
+
+    @staticmethod
+    def get_timeout_submission(player: Player):
+        if not should_use_agent(player):
+            return {}
+        answers = get_answers(2)
+        return {f"q3_{i + 1}": answers[i] for i in range(len(answers))}
     
     @staticmethod
     def before_next_page(player: Player, timeout_happened):

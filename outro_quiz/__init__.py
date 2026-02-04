@@ -2,6 +2,8 @@
 from typing import Iterator, List
 
 from otree.api import *
+
+from agent.config import should_use_agent
 from otree.currency import RealWorldCurrency
 
 from . import nodes_extra
@@ -420,6 +422,19 @@ class PEQ(Page):
     def get_form_fields(player):
         return [f"{player.role[0].lower()}_peq_quiz{i}" for i in range(1, 18)]
 
+    @staticmethod
+    def get_timeout_seconds(player: "Player"):
+        if should_use_agent(player):
+            return 1
+        return None
+
+    @staticmethod
+    def get_timeout_submission(player: "Player"):
+        if not should_use_agent(player):
+            return {}
+        form_fields = PEQ.get_form_fields(player)
+        return {field: 1 for field in form_fields}
+
 
 class DemographicQuiz(Page):
     form_model = "player"
@@ -428,6 +443,27 @@ class DemographicQuiz(Page):
     @staticmethod
     def js_vars(player: "Player"):
         return dict(questions_count=8)
+
+    @staticmethod
+    def get_timeout_seconds(player: "Player"):
+        if should_use_agent(player):
+            return 1
+        return None
+
+    @staticmethod
+    def get_timeout_submission(player: "Player"):
+        if not should_use_agent(player):
+            return {}
+        return {
+            "demographic_quiz1": "Female",
+            "demographic_quiz2": 18,
+            "demographic_quiz3": "Freshman",
+            "demographic_quiz4": "Undeclared",
+            "demographic_quiz5": 0.0,
+            "demographic_quiz6": 0,
+            "demographic_quiz7": 1,
+            "demographic_quiz8": "N/A",
+        }
 
 
 class Conclusion(Page):
@@ -445,6 +481,12 @@ class Conclusion(Page):
         return dict(real_world_currency_per_hundred_points=real_world_currency_per_point * 100,
                     participation_fee=participation_fee,
                     real_payoff=real_payoff, total_payment=total_payment)
+
+    @staticmethod
+    def get_timeout_seconds(player: "Player"):
+        if should_use_agent(player):
+            return 1
+        return None
 
 
 page_sequence = [PEQ, DemographicQuiz, Conclusion]
