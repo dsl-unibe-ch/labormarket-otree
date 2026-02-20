@@ -640,12 +640,19 @@ class MakeOffer(Page):
 
     @staticmethod
     def get_timeout_seconds(player: Player):
+        """
+        Otree page hook to decide how many seconds to wait until the page auto-submits.
+        If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
+        """
         if should_use_agent(player):
-            return 8  # Enough for LLM API calls to complete
+            timeout_seconds = 8
+            return timeout_seconds  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
     def get_timeout_submission(player: Player):
+        """
+        """
         if not should_use_agent(player):
             return {}
         settings = get_agent_settings(player)
@@ -904,14 +911,17 @@ class GetOffers(Page):
 
     @staticmethod
     def get_timeout_seconds(player: Player):
+        """
+        Otree page hook to decide how many seconds to wait until the page auto-submits.
+        If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
+        """
         if should_use_agent(player):
-            return 8  # Enough for LLM API calls to complete
+            timeout_seconds = 8
+            return timeout_seconds  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
-    def get_timeout_submission(player: Player):
-        if not should_use_agent(player):
-            return {}
+    def get_offer_helper(player: Player):
         settings = get_agent_settings(player)
         template_vars = GetOffers.vars_for_template(player)
         open_offers = template_vars["open_offers"]
@@ -935,8 +945,6 @@ class GetOffers(Page):
             "future_periods": list(template_vars["future_periods"]),
         }
         
-        # SMARTER DEFAULT: Accept the best offer (highest wage) rather than rejecting all
-        # This encourages contract formation
         best_offer = max(open_offers, key=lambda o: o.wage) if open_offers else None
         manager_id = best_offer.manager.id_in_group if best_offer else 0
         
@@ -959,6 +967,19 @@ class GetOffers(Page):
             print(f"Agent decision failed, using default acceptance (best offer): {exc}")
         return {"player_matched": manager_id}
 
+
+    @staticmethod
+    def get_timeout_submission(player: Player): 
+        """
+        Wrapper function for the agent to get the offers.
+        Entry point for the agent as provided by OTree.
+        """
+        if not should_use_agent(player):
+            return {}
+        else:
+            return get_offer_helper(player)
+    # Helper function for the agent to get the offers
+    
     # Accept an offer (if any accepted), mark others rejected
     @staticmethod
     def before_next_page(employee: Player, timeout_happened: bool):
@@ -1032,9 +1053,14 @@ class GetOffers(Page):
 class MatchSummary(Page):
     @staticmethod
     def get_timeout_seconds(player: Player):
+        """
+        Otree page hook to decide how many seconds to wait until the page auto-submits.
+        If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
+        """
         # Auto-advance agent players quickly (no form to submit, just informational)
         if should_use_agent(player):
-            return 1
+            timeout_seconds = 1
+            return timeout_seconds
         return None
 
     @staticmethod
@@ -1138,8 +1164,13 @@ class ChooseEffort(Page):
 
     @staticmethod
     def get_timeout_seconds(player: Player):
+        """
+        Otree page hook to decide how many seconds to wait until the page auto-submits.
+        If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
+        """
         if should_use_agent(player):
-            return 8  # Enough for LLM API calls to complete
+            timeout_seconds = 8
+            return timeout_seconds  # Enough for LLM API calls to complete
         return None
 
     @staticmethod
@@ -1351,9 +1382,14 @@ class PeriodResults(Page):
 
     @staticmethod
     def get_timeout_seconds(player: Player):
+        """
+        Otree page hook to decide how many seconds to wait until the page auto-submits.
+        If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
+        """
         # Auto-advance agent players quickly (no form to submit, just informational)
         if should_use_agent(player):
-            return 1
+            timeout_seconds = 1
+            return timeout_seconds
         return None
 
     # A lot of payoff is calculated again here for display
