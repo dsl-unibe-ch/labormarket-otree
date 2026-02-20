@@ -219,9 +219,6 @@ def get_hiring_data_for_step(player: Player, player_offers: List[Offer], step: i
             return [""] * 4 + ["0", "0"]
 
 
-def get_player_from_offer(offer: Offer, player_role: str) -> Player:
-    return offer.employee if player_role == "Employee" else offer.manager
-
 def bool_to_int(b: bool) -> int:
     return 1 if b else 0
 
@@ -501,6 +498,22 @@ def _normalize_player_matched(value, eligible_manager_ids):
     return 0
 
 
+def _append_agent_reasoning(player: Player, page_name: str, decision: dict | None):
+    participant = player.participant
+    log = participant.vars.get("agent_reasoning_log", [])
+    if not isinstance(log, list):
+        log = []
+    log.append(
+        {
+            "round": player.round_number,
+            "page": page_name,
+            "decision": decision or {},
+            "reasoning": (decision or {}).get("reasoning"),
+        }
+    )
+    participant.vars["agent_reasoning_log"] = log
+
+
 class Group(BaseGroup):
     """Group object for simulation"""
 
@@ -685,6 +698,7 @@ class MakeOffer(Page):
                 participant_id=player.id_in_group,
                 game_state=game_state,
             )
+            _append_agent_reasoning(player, "MakeOffer", decision)
             offer_employee = _normalize_offer_employee(
                 decision.get("offer_employee"),
                 eligible_ids,
@@ -816,6 +830,7 @@ class GetOffers(Page):
                 participant_id=player.id_in_group,
                 game_state=game_state,
             )
+            _append_agent_reasoning(player, "GetOffers", decision)
             manager_id = _normalize_player_matched(
                 decision.get("player_matched"),
                 eligible_manager_ids,
@@ -1000,6 +1015,7 @@ class ChooseEffort(Page):
                 participant_id=player.id_in_group,
                 game_state=game_state,
             )
+            _append_agent_reasoning(player, "ChooseEffort", decision)
             work_effort = _normalize_effort(decision.get("work_effort"), default=5)
         except Exception as exc:
             print(f"Agent decision failed, using default effort: {exc}")
@@ -1155,7 +1171,8 @@ class PeriodResults(Page):
             "has_training": has_training,
             "manager_endowment": manager_endowment,
             "employee_endowment": employee_endowment,
-            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1)
+            "future_periods": range(player.round_number + 1, C.NUM_ROUNDS + 1),
+            "agent_reasoning_log": player.participant.vars.get("agent_reasoning_log", []),
         }
 
     @staticmethod

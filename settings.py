@@ -88,7 +88,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     training_productivity_multiplier=0.5,
     training_cost=50,
     max_wage=1500,
-    agent_player_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], # Player IDs that will use the agent, others will be human
+    agent_player_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], # Player IDs that will use the agent, others will be human
     doc="""
         Edit the 'market' parameter to specify what initial skill the workers will have.
         The possible values and their corresponding skill levels are the following.<br/> 

@@ -25,9 +25,11 @@ make test-all             # Run all tests
 make help                 # Show available targets
 ```
 
-### Description of the Test Bot setup
+### Test Bot setup
 
 The `labor_market/tests.py` outlines the test process as played by a bot. For steps such as `Get_Offers, Make_Offers and Choose_Effort`, we extract the state variables and build a prompt by reading the instructions from the corresponding `html` templates. To run tests with bot, use 
 ```bash
 make test-all
 ``` 
+
+### 
