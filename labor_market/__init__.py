@@ -220,9 +220,6 @@ def get_hiring_data_for_step(player: Player, player_offers: List[Offer], step: i
             return [""] * 4 + ["0", "0"]
 
 
-def get_player_from_offer(offer: Offer, player_role: str) -> Player:
-    return offer.employee if player_role == "Employee" else offer.manager
-
 def bool_to_int(b: bool) -> int:
     return 1 if b else 0
 
@@ -719,8 +716,8 @@ class MakeOffer(Page):
                 else:
                     offer_wage = min(80, max_wage)
                 
-                # Occasionally include training (30% chance) to add variation
-                offer_training = random.random() < 0.3
+                # Do not offer training by default - let AI agents or humans decide
+                offer_training = False
         
         try:
             agent = Agent(
@@ -835,7 +832,8 @@ class MakeOffer(Page):
                         manager.offer_wage = min(150, max_wage)
                     else:
                         manager.offer_wage = min(80, max_wage)
-                    manager.offer_training = random.random() < 0.3
+                    # Do not offer training by default in fallback scenario
+                    manager.offer_training = False
         
         if manager.offer_employee > 0:
             employee = manager.group.get_player_by_id(manager.offer_employee)
