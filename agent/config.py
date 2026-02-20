@@ -12,7 +12,7 @@ from agent.prompts import (
 
 DEFAULT_AGENT_SETTINGS: Dict[str, Any] = {
     "model_name": "gpt-4.1",
-    "temperature": 0.2,
+    "temperature": 0.95,
     "system_prompts": {
         "make_offer": system_prompt_make_offer,
         "get_offers": system_prompt_get_offers,
