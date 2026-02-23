@@ -60,9 +60,18 @@ def should_use_agent(player: Any) -> bool:
         override = participant.vars.get("use_agent")
         normalized = _normalize_bool(override)
         if normalized is not None:
+            print(
+                f"DEBUG should_use_agent override for Player {player.id_in_group}: "
+                f"{normalized} (raw={override})"
+            )
             return normalized
     session_cfg = player.session.config if hasattr(player, "session") else {}
     agent_player_ids = session_cfg.get("agent_player_ids", [])
     if isinstance(agent_player_ids, (list, tuple, set)):
-        return player.id_in_group in agent_player_ids
+        result = player.id_in_group in agent_player_ids
+        print(
+            f"DEBUG should_use_agent for Player {player.id_in_group}: {result} "
+            f"(agent_player_ids={list(agent_player_ids)})"
+        )
+        return result
     return False

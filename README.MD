@@ -2,6 +2,19 @@
 
 An oTree experiment for studying decision-making in organizational labor market settings.
 
+## High Level Description of the Steps
+
+1. WaitForAllPlayers (sync at start of period)
+2. Hiring phase repeats C.HIRING_STEPS times:
+    1. MakeOffer (Managers only, if eligible)
+    2. WaitForOffers (Employees wait for offers)
+    3. GetOffers (Employees review/accept/reject offers)
+3. WaitForAcceptance (everyone without a match waits)
+4. MatchSummary (shows matches)
+5. ChooseEffort (Employees with a contract choose effort)
+6. WaitForEffort (wait for all effort choices)
+7. PeriodResults (earnings summary)
+
 ## Setup
 
 ### 1. Initial Setup
@@ -32,4 +45,19 @@ The `labor_market/tests.py` outlines the test process as played by a bot. For st
 make test-all
 ``` 
 
-### 
+## Otree Specific Concepts
+
+- `participant.vars`: This is a per‑participant in‑memory store that persists across pages (and is saved in the session database). So the log lives with the participant record and can be accessed later in the session or exported. Can be used for logging/ saving reasoning.
+- `session.vars`: Per‑session dict shared across all participants; can use this for shared state and debug info.
+- `player` / `group` / `subsession`: Core model layers; `Player` is per participant per round, `Group` is per group per round, and `Subsession` is per round.
+- `id_in_group`: Stable ID within a group; useful for role/agent mapping.
+- `round_number`: Current round index; use for across‑round logic and summaries.
+- `is_displayed()`: Page hook to conditionally show pages.
+- `vars_for_template()`: Page hook to pass data into templates.
+- `before_next_page()`: Page hook to persist decisions or compute outcomes.
+- `get_timeout_seconds()`: Page hook to auto‑advance after N seconds. More outcomes or heuristic choices can be defined here. Setting `N>20` to allow the bot to generate the response.
+- `timeout_submission`: Dict returned on timeout to auto‑submit form fields.
+- `WaitPage` / `after_all_players_arrive()`: Synchronization and group‑level transitions.
+- `live_method()`: Real‑time updates via websocket for live pages.
+- `cu()` / `Currency`: oTree currency type; convert to `int/float` when serializing.
+- `Bot` / `Submission`: Automated testing flow for simulating participant actions.
