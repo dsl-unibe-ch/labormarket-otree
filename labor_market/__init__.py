@@ -1108,10 +1108,17 @@ def _print_round_summary(group: Group):
         print(summary_text)
         
         # Save to file
-        exports_dir = Path(__file__).parent.parent / "_exports"
-        exports_dir.mkdir(exist_ok=True)
-        
         session_id = group.session.code
+        
+        # Get exports_dir from config with fallback
+        exports_dir = group.session.config.get("exports_dir")
+        if exports_dir is None:
+            # Fallback to default _exports directory
+            exports_dir = Path(__file__).parent.parent / "_exports"
+        elif not isinstance(exports_dir, Path):
+            exports_dir = Path(exports_dir)
+        
+        exports_dir.mkdir(exist_ok=True)
         summary_file = exports_dir / f"game_summary_{session_id}.txt"
         
         # Add header if this is a new file

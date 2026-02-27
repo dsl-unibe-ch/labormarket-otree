@@ -2,6 +2,7 @@
 Defines the agent policies for steps in the labor market game.
 """
 from typing import TYPE_CHECKING
+from pathlib import Path
 
 from agent.config import get_agent_settings
 from agent.agent import Agent
@@ -24,6 +25,36 @@ def append_agent_reasoning(player: "Player", page_name: str, decision: dict | No
         }
     )
     participant.vars["agent_reasoning_log"] = log
+    session_id = player.session.code
+    
+    # Get exports_dir from config with fallback
+    exports_dir = player.session.config.get("exports_dir")
+    if exports_dir is None:
+        # Fallback to default _exports directory
+        exports_dir = Path(__file__).parent.parent / "_exports"
+    elif not isinstance(exports_dir, Path):
+        exports_dir = Path(exports_dir)
+    
+    exports_dir.mkdir(exist_ok=True)
+    reasoning_file = exports_dir / f"reasoning_{session_id}.txt"
+    if not reasoning_file.exists():
+        with open(reasoning_file, "w", encoding="utf-8") as f:
+            f.write(f"REASONING - Session {session_id}\n")
+            f.write(f"Session: {session_id}\n")
+            f.write("="*80 + "\n\n")
+    with open(reasoning_file, "a", encoding="utf-8") as f:
+        f.write(f"Player {player.id_in_group} ({player.role}) - Round {player.round_number} - {page_name}\n")
+        
+        # Write the full decision data (excluding reasoning which is written separately)
+        decision_data = {k: v for k, v in (decision or {}).items() if k != 'reasoning'}
+        if decision_data:
+            f.write(f"Decision: {decision_data}\n")
+        else:
+            f.write(f"Decision: N/A\n")
+        
+        reasoning = (decision or {}).get('reasoning', 'N/A')
+        f.write(f"Reasoning: {reasoning}\n")
+        f.write("="*80 + "\n\n")
 
 
 def normalize_offer_employee(value, eligible_ids):

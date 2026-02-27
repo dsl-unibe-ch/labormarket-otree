@@ -1,5 +1,6 @@
 """Settings file for labor market oTree experiment"""
 from os import environ
+from pathlib import Path
 
 # Starting skills based on the market
 STARTING_SKILLS_BY_MARKET = dict(
@@ -7,6 +8,9 @@ STARTING_SKILLS_BY_MARKET = dict(
     homogeneous_high=[5, 5, 5, 5, 5, 5],
     heterogeneous=[5, 5, 5, 1, 1, 1]
 )
+
+BASE_DIR = Path(__file__).resolve().parent
+EXPORTS_DIR = BASE_DIR / "_exports"
 
 SESSION_CONFIGS = [
 
@@ -97,7 +101,8 @@ SESSION_CONFIG_DEFAULTS = dict(
         heterogeneous: [5, 5, 5, 1, 1, 1]
         """,
     randomize_roles=False,
-    page_timeout_seconds_agent=20
+    page_timeout_seconds_agent=20,
+    export_dir=EXPORTS_DIR
 )
 
 SESSION_FIELDS = ["skill_table"]
