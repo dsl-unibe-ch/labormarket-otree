@@ -119,7 +119,7 @@ class PlayerBot(Bot):
                     game_state = {
                         "round_number": self.player.round_number,
                         "manager_id": self.player.id_in_group,
-                        "available_employees": eligible_ids,
+                        "eligible_employee_ids": eligible_ids,
                         "allow_no_offer": True,
                         "min_wage": 1,
                         "max_wage": max_wage,

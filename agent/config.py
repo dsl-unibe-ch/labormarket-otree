@@ -64,5 +64,6 @@ def should_use_agent(player: Any) -> bool:
     session_cfg = player.session.config if hasattr(player, "session") else {}
     agent_player_ids = session_cfg.get("agent_player_ids", [])
     if isinstance(agent_player_ids, (list, tuple, set)):
-        return player.id_in_group in agent_player_ids
+        result = player.id_in_group in agent_player_ids
+        return result
     return False

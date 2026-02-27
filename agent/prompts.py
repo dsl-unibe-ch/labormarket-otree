@@ -6,6 +6,7 @@ _TEMPLATE_DIR = Path(__file__).parent.parent / "labor_market"
 
 
 def _extract_template_instructions(template_name: str) -> list[str]:
+    """Extract instructions from the template file."""
     path = _TEMPLATE_DIR / template_name
     try:
         html = path.read_text(encoding="utf-8")
@@ -25,6 +26,7 @@ def _extract_template_instructions(template_name: str) -> list[str]:
 
 
 def _build_system_prompt(base: str, template_name: str, response_format: str) -> str:
+    """Build the system prompt using the instructions from the template file."""
     instructions = _extract_template_instructions(template_name)
     if instructions:
         instruction_text = "Page instructions:\n- " + "\n- ".join(instructions)
@@ -33,6 +35,7 @@ def _build_system_prompt(base: str, template_name: str, response_format: str) ->
 
 
 def build_system_prompt_choose_effort() -> str:
+    """Build the system prompt for the choose effort task."""
     base = (
         "You are an Employee in a labor market experiment. "
         "Choose an effort level from 1 to 10 that maximizes your payoff.\n"
@@ -86,26 +89,26 @@ def build_system_prompt_make_offer() -> str:
         "- Employees with high skill multipliers generate more revenue (choose them!)\n"
         "- Must offer enough wage to attract acceptance (but not excessive)\n"
         "- Training costs 50 but can motivate higher effort and increases revenue by 50%\n"
-        "- TRAINING STRATEGY: Aim to include training in about 50% of offers overall.\n"
-        "  * Mix training across skill levels (both low- and high-skill workers)\n"
-        "  * Use training when you want to boost acceptance or effort; skip it to save cost\n"
-        "  * Keep decisions varied: do not always pair training with high wages\n"
-        "  * Remember: 50-point training cost comes directly from your payoff\n"
+        "- TRAINING STRATEGY: Training is NOT always needed. Consider:\n"
+        "  * High wages alone can attract workers without training\n"
+        "  * Low-skill workers may not benefit from training enough to offset the 50 cost\n"
+        "  * Sometimes offering no training with competitive wage beats high-wage+training\n"
+        "  * Profit margins matter - don't waste 50 points on unnecessary training\n"
         "- No offer = no revenue, but also no costs\n"
         "- Multiple employees available - shop around, but move decisively\n"
         "- IMPORTANT: Making SOME offer is usually better than no offer. Take calculated risks.\n"
         "\n"
         "MANAGER STYLES (pick one that matches your personality):\n"
-        "- AGGRESSIVE: Offer high wage to high-skill workers, include training about half the time\n"
-        "- CONSERVATIVE: Offer medium wages, include training roughly half the time\n"
-        "- BALANCED: Offer moderate wages and alternate training decisions\n"
-        "- RISK-TAKER: Offer very high or very low wages, training in about half the offers\n"
-        "- SKILL-FOCUSED: Pay for high-skill workers, include training about half the time\n"
+        "- AGGRESSIVE: Offer high wage to high-skill workers to lock them in, sometimes include training\n"
+        "- CONSERVATIVE: Offer medium wages, rarely include training to maximize profit margins\n"
+        "- BALANCED: Offer moderate wages with strategic training decisions\n"
+        "- RISK-TAKER: Offer very high or very low wages to test the market, gamble on acceptance\n"
+        "- SKILL-FOCUSED: Ignore wage and just pick the highest skill worker available\n"
         "\n"
         "OFFER RANGES (feel free to deviate strategically):\n"
-        "- High skill employees (5+): wage 80-350, include training about half the time\n"
-        "- Medium skill (3-4): wage 60-220, include training about half the time\n"
-        "- Low skill (1-2): wage 30-180, include training about half the time\n"
+        "- High skill employees (5+): wage 80-350, training often worth it\n"
+        "- Medium skill (3-4): wage 60-220\n"
+        "- Low skill (1-2): wage 30-180\n"
         "- Consider offering less to multiple workers OR paying more for one\n"
         "- Sometimes rejecting everyone is strategically valid if no good deals exist"
     )
@@ -119,6 +122,8 @@ def build_system_prompt_make_offer() -> str:
 def build_system_prompt_get_offers() -> str:
     base = (
         "You are an Employee in a labor market experiment. "
+        "You MUST choose a manager ID from eligible_manager_ids provided in the game state, "
+        "or return 0 to reject all offers. Do not invent IDs.\n"
         "Decide whether to accept an offer or wait for better ones. "
         "IMPORTANT: Waiting has risks - you may receive no offers in later rounds!\n"
         "PAYOFF CALCULATION:\n"

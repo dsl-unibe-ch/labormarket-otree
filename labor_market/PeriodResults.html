@@ -25,6 +25,16 @@
     </p>
     {{ endif }}
     {{ include "_tables/labor_market/training_report.html" }}
+    {% if agent_reasoning_log %}
+    <h4>Agent reasoning</h4>
+    <ul>
+      {% for item in agent_reasoning_log %}
+      <li>
+        Period {{ item.round }} - {{ item.page }}: {{ item.reasoning }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     {{ next_button }}
   </div>
   <div class="col-5">
@@ -52,6 +62,16 @@
     <p>
       Your payoff is the basic endowment of {{ session.config.manager_endowment | cu }}.
     </p>
+    {% endif %}
+    {% if agent_reasoning_log %}
+    <h4>Agent reasoning</h4>
+    <ul>
+      {% for item in agent_reasoning_log %}
+      <li>
+        Period {{ item.round }} - {{ item.page }}: {{ item.reasoning }}
+      </li>
+      {% endfor %}
+    </ul>
     {% endif %}
     {{ next_button }}
   </div>
