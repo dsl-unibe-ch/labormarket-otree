@@ -96,7 +96,8 @@ SESSION_CONFIG_DEFAULTS = dict(
         homogeneous_high: [5, 5, 5, 5, 5, 5]<br/>
         heterogeneous: [5, 5, 5, 1, 1, 1]
         """,
-    randomize_roles=False
+    randomize_roles=False,
+    page_timeout_seconds_agent=20
 )
 
 SESSION_FIELDS = ["skill_table"]

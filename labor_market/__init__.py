@@ -658,7 +658,7 @@ class GetOffers(Page):
         If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
         """
         if should_use_agent(player):
-            timeout_seconds = 20
+            timeout_seconds = player.session.config["page_timeout_seconds"]
             return timeout_seconds  # Enough for LLM API calls to complete
         return None
 
@@ -818,7 +818,7 @@ class ChooseEffort(Page):
         If player is an agent, it waits for timeout_seconds. Otherwise, it returns None.
         """
         if should_use_agent(player):
-            timeout_seconds = 20
+            timeout_seconds = player.session.config["page_timeout_seconds"]
             return timeout_seconds  # Enough for LLM API calls to complete
         return None
     
