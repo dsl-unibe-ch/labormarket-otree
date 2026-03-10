@@ -19,6 +19,7 @@ def append_agent_reasoning(player: "Player", page_name: str, decision: dict | No
     log.append(
         {
             "round": player.round_number,
+            "step": player.offer_step,
             "page": page_name,
             "decision": decision or {},
             "reasoning": (decision or {}).get("reasoning"),
@@ -43,7 +44,7 @@ def append_agent_reasoning(player: "Player", page_name: str, decision: dict | No
             f.write(f"Session: {session_id}\n")
             f.write("="*80 + "\n\n")
     with open(reasoning_file, "a", encoding="utf-8") as f:
-        f.write(f"Player {player.id_in_group} ({player.role}) - Round {player.round_number} - {page_name}\n")
+        f.write(f"Player {player.id_in_group} ({player.role}) - Period {player.round_number} - Step {player.offer_step} - {page_name}\n")
         
         # Write the full decision data (excluding reasoning which is written separately)
         decision_data = {k: v for k, v in (decision or {}).items() if k != 'reasoning'}

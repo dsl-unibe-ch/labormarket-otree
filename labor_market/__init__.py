@@ -1039,7 +1039,7 @@ def _print_round_summary(group: Group):
         # Build summary text
         summary_lines = []
         summary_lines.append("\n" + "="*80)
-        summary_lines.append(f"ROUND {group.get_players()[0].round_number} SUMMARY")
+        summary_lines.append(f"PERIOD {group.get_players()[0].round_number} SUMMARY")
         summary_lines.append("="*80)
         
         # HIRING PHASE SUMMARY
@@ -1048,16 +1048,17 @@ def _print_round_summary(group: Group):
         
         if all_offers:
             summary_lines.append("\nOffers Made:")
-            offers_by_manager = defaultdict(list)
+            offers_by_step = defaultdict(list)
             for offer in all_offers:
-                offers_by_manager[offer.manager.id_in_group].append(offer)
-            
-            for manager_id in sorted(offers_by_manager.keys()):
-                offers = offers_by_manager[manager_id]
-                for offer in offers:
+                offers_by_step[offer.step].append(offer)
+
+            for step in sorted(offers_by_step.keys()):
+                summary_lines.append(f"\n  -- Step {step} --")
+                step_offers = sorted(offers_by_step[step], key=lambda o: o.manager.id_in_group)
+                for offer in step_offers:
                     status = "✓ ACCEPTED" if offer.accepted else ("✗ REJECTED" if offer.rejected else "PENDING")
                     training_str = " + TRAINING" if offer.training else ""
-                    summary_lines.append(f"  Manager {manager_id} → Worker {offer.employee.id_in_group}: "
+                    summary_lines.append(f"  Manager {offer.manager.id_in_group} → Worker {offer.employee.id_in_group}: "
                           f"${offer.wage}{training_str} [{status}]")
         else:
             summary_lines.append("No offers made this round")
