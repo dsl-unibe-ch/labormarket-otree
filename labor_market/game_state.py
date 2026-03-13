@@ -24,6 +24,7 @@ def build_make_offer_state(player, MakeOfferPage) -> dict:
     max_wage = _to_int(player.session.config.get("max_wage"))
     game_state = {
         "round_number": player.round_number,
+        "current_hiring_step": player.offer_step,
         "manager_id": player.id_in_group,
         "eligible_employee_ids": eligible_employee_ids,
         "allow_no_offer": True,
