@@ -143,7 +143,6 @@ class PlayerBot(Bot):
                         agent_settings = get_agent_settings(self.player)
                         agent = Agent(
                             model_name=agent_settings["model_name"],
-                            temperature=agent_settings["temperature"],
                             system_prompt=agent_settings["system_prompts"]["make_offer"],
                         )
                         decision = agent.make_offer(
@@ -232,7 +231,6 @@ class PlayerBot(Bot):
                         agent_settings = get_agent_settings(self.player)
                         agent = Agent(
                             model_name=agent_settings["model_name"],
-                            temperature=agent_settings["temperature"],
                             system_prompt=agent_settings["system_prompts"]["get_offers"],
                         )
                         decision = agent.respond_to_offer(
@@ -300,7 +298,6 @@ class PlayerBot(Bot):
                 agent_settings = get_agent_settings(self.player)
                 agent = Agent(
                     model_name=agent_settings["model_name"],
-                    temperature=agent_settings["temperature"],
                     system_prompt=agent_settings["system_prompts"]["choose_effort"],
                 )
                 decision = agent.choose_effort(
