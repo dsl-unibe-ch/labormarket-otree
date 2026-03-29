@@ -69,7 +69,19 @@ def build_system_prompt_choose_effort() -> str:
         "- Remember: Your payoff = 400 + wage - effort_cost, so calculate carefully"
     )
     response_format = "Return only JSON with keys work_effort (1-10) and reasoning (explain your logic)."
-    return _build_system_prompt(base, "ChooseEffort.html", response_format)
+
+    # ChooseEffort.html gates training vs no-training copy with {{ if contract.training }} /
+    # {{ else }}; _extract_template_instructions strips tags but keeps both branches, which
+    # contradict each other. Training facts belong in game_state; omit the duplicate reminders.
+    instructions = [
+        block
+        for block in _extract_template_instructions("ChooseEffort.html")
+        if "As a reminder, your employer" not in block
+    ]
+    if instructions:
+        instruction_text = "Page instructions:\n- " + "\n- ".join(instructions)
+        return f"{base}\n{instruction_text}\n{response_format}"
+    return f"{base}\n{response_format}"
 
 
 def build_system_prompt_make_offer() -> str:
