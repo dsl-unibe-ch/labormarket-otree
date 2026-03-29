@@ -11,6 +11,31 @@ if TYPE_CHECKING:
     from labor_market import Player
 
 
+def _conversation_store(player: "Player") -> dict:
+    store = player.participant.vars.get("agent_conversations", {})
+    if not isinstance(store, dict):
+        store = {}
+    return store
+
+
+def _conversation_key(player: "Player") -> str:
+    return "game"
+
+
+def _get_conversation_id(player: "Player") -> str | None:
+    store = _conversation_store(player)
+    value = store.get(_conversation_key(player))
+    return value if isinstance(value, str) and value else None
+
+
+def _save_conversation_id(player: "Player", conversation_id: str | None) -> None:
+    if not conversation_id:
+        return
+    store = _conversation_store(player)
+    store[_conversation_key(player)] = conversation_id
+    player.participant.vars["agent_conversations"] = store
+
+
 def append_agent_reasoning(player: "Player", page_name: str, decision: dict | None):
     participant = player.participant
     log = participant.vars.get("agent_reasoning_log", [])
@@ -123,13 +148,14 @@ def make_agent_offer(player: "Player", game_state: dict) -> dict:
     offer_training = False
     agent = Agent(
         model_name=settings["model_name"],
-        temperature=settings["temperature"],
         system_prompt=settings["system_prompts"]["make_offer"],
+        conversation_id=_get_conversation_id(player),
     )
     decision = agent.make_offer(
         participant_id=player.id_in_group,
         game_state=game_state,
     )
+    _save_conversation_id(player, agent.conversation_id)
     print(f"Agent decision (MakeOffer) for Manager {player.id_in_group}: {decision}")
     if isinstance(decision, dict):
         print(f"Agent reasoning (MakeOffer) for Manager {player.id_in_group}: {decision.get('reasoning')}")
@@ -169,13 +195,14 @@ def get_agent_offer(player: "Player", game_state: dict) -> dict:
     settings = get_agent_settings(player)
     agent = Agent(
         model_name=settings["model_name"],
-        temperature=settings["temperature"],
         system_prompt=settings["system_prompts"]["get_offers"],
+        conversation_id=_get_conversation_id(player),
     )
     decision = agent.respond_to_offer(
         participant_id=player.id_in_group,
         game_state=game_state,
     )
+    _save_conversation_id(player, agent.conversation_id)
     print(f"Agent decision (GetOffers) for Worker {player.id_in_group}: {decision}")
     if isinstance(decision, dict):
         print(f"Agent reasoning (GetOffers) for Worker {player.id_in_group}: {decision.get('reasoning')}")
@@ -197,13 +224,14 @@ def choose_agent_effort(player: "Player", game_state: dict) -> dict:
     settings = get_agent_settings(player)
     agent = Agent(
         model_name=settings["model_name"],
-        temperature=settings["temperature"],
         system_prompt=settings["system_prompts"]["choose_effort"],
+        conversation_id=_get_conversation_id(player),
     )
     decision = agent.choose_effort(
         participant_id=player.id_in_group,
         game_state=game_state,
     )
+    _save_conversation_id(player, agent.conversation_id)
     print(f"Agent decision (ChooseEffort) for Worker {player.id_in_group}: {decision}")
     if isinstance(decision, dict):
         print(f"Agent reasoning (ChooseEffort) for Worker {player.id_in_group}: {decision.get('reasoning')}")

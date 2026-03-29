@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from pathlib import Path
 import sys
 from openai import OpenAI
@@ -30,23 +30,22 @@ class Agent:
     Uses PromptBuilder to generate prompts and makes decisions via OpenAI API.
     """
     
-    def __init__(self, 
-                 model_name: str = "gpt-4.1",
-                 temperature: float = 0.7,
+    def __init__(self,
+                 model_name: str = "gpt-5.4",
                  api_key: Optional[str] = None,
-                 system_prompt: Optional[str] = None):
+                 system_prompt: Optional[str] = None,
+                 conversation_id: Optional[str] = None):
         """
         Initialize the Agent.
         
         Args:
             model_name: OpenAI model to use (e.g., 'gpt-4', 'gpt-4o-mini')
-            temperature: Sampling temperature (0.0 to 1.0)
             api_key: OpenAI API key (if None, reads from OPENAI_API_KEY env var)
         """
         self.model_name = model_name
-        self.temperature = temperature
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.system_prompt = system_prompt
+        self.conversation_id = conversation_id
         
         if not self.api_key:
             raise ValueError(
@@ -58,12 +57,46 @@ class Agent:
         
         logger.info(f"Agent initialized with model: {model_name}")
 
-    def _build_messages(self, user_payload: Dict) -> list:
-        messages = []
+    def _build_input(self, user_payload: Dict) -> list[Dict[str, str]]:
+        return [{"role": "user", "content": json.dumps(user_payload)}]
+
+    def _extract_text(self, response: Any) -> str:
+        text = getattr(response, "output_text", None)
+        if text:
+            return text
+        output = getattr(response, "output", None)
+        if not output:
+            return "{}"
+        chunks: list[str] = []
+        for item in output:
+            content = getattr(item, "content", None) or []
+            for c in content:
+                c_text = getattr(c, "text", None)
+                if c_text:
+                    chunks.append(c_text)
+        return "\n".join(chunks) if chunks else "{}"
+
+    def _run(self, user_payload: Dict) -> Dict:
+        request: Dict[str, Any] = {
+            "model": self.model_name,
+            "input": self._build_input(user_payload),
+        }
         if self.system_prompt:
-            messages.append({"role": "system", "content": self.system_prompt})
-        messages.append({"role": "user", "content": json.dumps(user_payload)})
-        return messages
+            request["instructions"] = self.system_prompt
+        if self.conversation_id:
+            request["conversation"] = self.conversation_id
+
+        response = self.client.responses.create(**request)
+
+        next_conversation_id = (
+            getattr(response, "conversation", None)
+            or getattr(response, "conversation_id", None)
+        )
+        if next_conversation_id:
+            self.conversation_id = next_conversation_id
+
+        content = self._extract_text(response)
+        return self._parse_json_response(content)
 
     def _parse_json_response(self, content: str) -> Dict:
         try:
@@ -85,14 +118,7 @@ class Agent:
             ),
             "game_state": game_state,
         }
-        messages = self._build_messages(payload)
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            temperature=self.temperature,
-            messages=messages,
-        )
-        content = response.choices[0].message.content or "{}"
-        return self._parse_json_response(content)
+        return self._run(payload)
 
     def make_offer(self, participant_id: int, game_state: Dict) -> Dict:
         payload = {
@@ -105,14 +131,7 @@ class Agent:
             ),
             "game_state": game_state,
         }
-        messages = self._build_messages(payload)
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            temperature=self.temperature,
-            messages=messages,
-        )
-        content = response.choices[0].message.content or "{}"
-        return self._parse_json_response(content)
+        return self._run(payload)
 
     def respond_to_offer(self, participant_id: int, game_state: Dict) -> Dict:
         payload = {
@@ -124,14 +143,7 @@ class Agent:
             ),
             "game_state": game_state,
         }
-        messages = self._build_messages(payload)
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            temperature=self.temperature,
-            messages=messages,
-        )
-        content = response.choices[0].message.content or "{}"
-        return self._parse_json_response(content)
+        return self._run(payload)
     
     
     
