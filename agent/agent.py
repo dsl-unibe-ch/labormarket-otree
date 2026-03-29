@@ -77,6 +77,10 @@ class Agent:
         return "\n".join(chunks) if chunks else "{}"
 
     def _run(self, user_payload: Dict) -> Dict:
+        task = user_payload.get("task", "?")
+        participant_id = user_payload.get("participant_id")
+        conversation_sent = self.conversation_id
+
         request: Dict[str, Any] = {
             "model": self.model_name,
             "input": self._build_input(user_payload),
@@ -88,12 +92,34 @@ class Agent:
 
         response = self.client.responses.create(**request)
 
+        response_id = getattr(response, "id", None)
         next_conversation_id = (
             getattr(response, "conversation", None)
             or getattr(response, "conversation_id", None)
         )
         if next_conversation_id:
             self.conversation_id = next_conversation_id
+
+        # Trace threading: grep logs for "OpenAI conversation trace".
+        # - First call for a participant: conversation_sent=None, conversation_returned should be conv_...
+        # - Later calls: conversation_sent equals that conv_... (same thread for this player).
+        logger.info(
+            "OpenAI conversation trace: participant_id=%s task=%s "
+            "conversation_sent=%s response_id=%s conversation_returned=%s",
+            participant_id,
+            task,
+            conversation_sent,
+            response_id,
+            next_conversation_id,
+        )
+        if not next_conversation_id:
+            logger.warning(
+                "OpenAI response had no conversation id (participant_id=%s task=%s response_id=%s); "
+                "server-side thread may not persist for the next call.",
+                participant_id,
+                task,
+                response_id,
+            )
 
         content = self._extract_text(response)
         return self._parse_json_response(content)
