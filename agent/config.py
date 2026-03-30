@@ -11,8 +11,7 @@ from agent.prompts import (
 
 
 DEFAULT_AGENT_SETTINGS: Dict[str, Any] = {
-    "model_name": "gpt-4.1",
-    "temperature": 0.95,
+    "model_name": "gpt-5.4",
     "system_prompts": {
         "make_offer": system_prompt_make_offer,
         "get_offers": system_prompt_get_offers,
@@ -46,11 +45,8 @@ def get_agent_settings(player: Optional[Any] = None) -> Dict[str, Any]:
         if isinstance(prompt_overrides, dict):
             settings["system_prompts"].update(prompt_overrides)
     model_name = session_cfg.get("agent_model_name")
-    temperature = session_cfg.get("agent_temperature")
     if model_name:
         settings["model_name"] = model_name
-    if temperature is not None:
-        settings["temperature"] = temperature
     return settings
 
 
