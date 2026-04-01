@@ -9,25 +9,24 @@ An oTree experiment for studying decision-making in organizational labor market 
 1. Create a python environment with `python -m venv .venv`
 2. Activate the environment `source .venv/Scripts/activate`
 3. Install requirements `pip install -r requirements.txt`
-4. Install [Make](https://www.gnu.org/software/make/) tool 
+4. Create a `.env` file. See example set in `.env.example`. 
+   1. **Note** that you will need an OpenAI key to be saved in `.env`.
+5. [Optional]Install [Make](https://www.gnu.org/software/make/) tool 
    1. Windows: `choco install make` or `winget install GnuWin32.Make`
    2. MacOS: `brew install make`
-5. Create a `.env` file. See example set in `.env.example`. 
-   1. **Note** that you will need an OpenAI key to be saved in `.env`.
-
 
 ### 2. How to play
 
 1. Set the `SESSION_CONFIG_DEFAULTS` especially the `agent_player_ids` in `settings.py`. The `agent_player_ids` refer to the number of players that will be played by the LLM. **Note** that by default, 12 players are played by the bot.
-2. Start oTree server with `make run`. See [Available Make Commands](#2-available-make-commands) section for more commands.
+2. Start oTree server with `otree devserver` or by make tool as described [here](#2-available-make-commands).
 3. Open the URL in a browser.
 4. Create a session.
 5. Open each participant link individually. This is **important** to start the process for the bot.
 6. As the game progresses, the player decisions per session with a `SESSION_ID` is automatically stored in `_exports` folder under `game_summary_{SESSION_ID}` and `reasoning_{SESSION_ID}`. 
 
 ### 3. Settings
-1. Prompt Settings: The prompts for each stage in a period `make_offers`, `get_offers` and `choose_effort` are defined in the file `agent\prompts.py`. These can be modified to change the LLM behaviour.
-2. The pages wait for 20 seconds to allow the LLM more than enough time to generate the response. It is defined in `settings.py` under `page_timeout_seconds_agent=20`. It may be possible to reduce the time for faster execution however please **note** that setting this value to a low number may not give the LLM sufficient time for response generation. 
+1. Prompt Settings: The prompts for each stage in a period `make_offers`, `get_offers` and `choose_effort` are defined in the file `agent/prompts.py`. These can be modified to change the LLM behaviour.
+2. The pages wait for 20 seconds to allow the LLM more than enough time to generate the response. It is defined in `settings.py` under `page_timeout_seconds_agent=20`. It may be possible to reduce the time for faster execution however please **note** that setting this value to a low number may **not** give the LLM sufficient time for response generation. 
 
 ### 4. Available Make Commands
 
