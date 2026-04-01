@@ -11,7 +11,7 @@ An oTree experiment for studying decision-making in organizational labor market 
 3. Install requirements `pip install -r requirements.txt`
 4. Create a `.env` file. See example set in `.env.example`. 
    1. **Note** that you will need an OpenAI key to be saved in `.env`.
-5. [Optional]Install [Make](https://www.gnu.org/software/make/) tool 
+5. \\[Optional] : Install [Make](https://www.gnu.org/software/make/) tool 
    1. Windows: `choco install make` or `winget install GnuWin32.Make`
    2. MacOS: `brew install make`
 
